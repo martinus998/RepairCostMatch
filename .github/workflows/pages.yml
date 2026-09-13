@@ -40,7 +40,36 @@ jobs:
           from pathlib import Path
           p = Path('_site/index.html')
           s = p.read_text()
-          social = '''<meta property="og:image" content="https://martinus998.github.io/RepairCostMatch/social-card.svg"><meta property="og:image:alt" content="RepairCostMatch — know the likely repair cost before you call"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="Foundation Repair Cost & Local Options | RepairCostMatch"><meta name="twitter:description" content="Understand likely repair costs, warning signs and next steps before you call a contractor."><meta name="twitter:image" content="https://martinus998.github.io/RepairCostMatch/social-card.svg"><link rel="stylesheet" href="site-pages.css?v=1">'''
+
+          # Search-facing copy: preserve the approved visual homepage, improve only metadata/schema.
+          s = s.replace(
+              '<title>Foundation Repair Cost & Local Options | RepairCostMatch</title>',
+              '<title>Foundation Repair Cost Estimator & Quote Checker | RepairCostMatch</title>'
+          )
+          s = s.replace(
+              '<meta name="description" content="Understand foundation repair and basement waterproofing costs, common warning signs, and local repair options. Start with your problem and ZIP code.">',
+              '<meta name="description" content="Estimate foundation repair and basement waterproofing costs, check whether a contractor quote fits a broad planning range, and compare local repair options by ZIP.">'
+          )
+          s = s.replace(
+              '<meta property="og:title" content="Foundation Repair Cost & Local Options | RepairCostMatch">',
+              '<meta property="og:title" content="Foundation Repair Cost Estimator & Quote Checker | RepairCostMatch">'
+          )
+          s = s.replace(
+              '<meta property="og:description" content="Describe the problem, understand likely causes, see a planning cost range and compare local repair options.">',
+              '<meta property="og:description" content="Estimate likely repair costs, check a contractor quote against a broad planning range, and compare local foundation and waterproofing options.">'
+          )
+          s = s.replace(
+              '{"@type":"Organization","name":"RepairCostMatch","url":"https://martinus998.github.io/RepairCostMatch/"}',
+              '{"@type":"Organization","name":"RepairCostMatch","alternateName":["Repair Cost Match","RepairCost Match"],"url":"https://martinus998.github.io/RepairCostMatch/"}'
+          )
+          s = s.replace(
+              '{"@type":"WebSite","name":"RepairCostMatch","url":"https://martinus998.github.io/RepairCostMatch/","inLanguage":"en-US"}',
+              '{"@type":"WebSite","name":"RepairCostMatch","alternateName":["Repair Cost Match","RepairCost Match"],"url":"https://martinus998.github.io/RepairCostMatch/","inLanguage":"en-US"}'
+          )
+          if 'name="application-name"' not in s:
+              s = s.replace('</head>', '<meta name="application-name" content="RepairCostMatch"><meta property="og:locale" content="en_US"></head>', 1)
+
+          social = '''<meta property="og:image" content="https://martinus998.github.io/RepairCostMatch/social-card.svg"><meta property="og:image:alt" content="RepairCostMatch — know the likely repair cost before you call"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="Foundation Repair Cost Estimator & Quote Checker | RepairCostMatch"><meta name="twitter:description" content="Estimate likely repair costs, check a contractor quote against a broad planning range, and compare local repair options."><meta name="twitter:image" content="https://martinus998.github.io/RepairCostMatch/social-card.svg"><link rel="stylesheet" href="site-pages.css?v=1">'''
           if 'property="og:image"' not in s:
               s = s.replace('</head>', social + '</head>', 1)
           if 'readability-tune.css' not in s:
