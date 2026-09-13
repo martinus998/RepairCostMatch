@@ -32,7 +32,7 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p _site
-          cp index.html style.css blueprint-home.css app.js favicon.svg robots.txt sitemap.xml privacy.html terms.html disclosure.html foundation-repair-cost.html basement-waterproofing-cost.html foundation-cracks.html bowing-basement-wall.html about.html methodology.html editorial-policy.html accessibility.html contact.html 404.html site-pages.css social-card.svg readability-tune.css pro-package.css smart-tools.css smart-tools.js manifest.webmanifest sw.js _site/
+          cp index.html style.css blueprint-home.css app.js favicon.svg robots.txt sitemap.xml privacy.html terms.html disclosure.html foundation-repair-cost.html basement-waterproofing-cost.html foundation-cracks.html bowing-basement-wall.html about.html methodology.html editorial-policy.html accessibility.html contact.html 404.html site-pages.css social-card.svg readability-tune.css pro-package.css smart-tools.css smart-tools.js quote-checker.css quote-checker.js manifest.webmanifest sw.js _site/
           if [ -f pro-home.css ]; then cp pro-home.css _site/; fi
           if [ -f trust-center.css ]; then cp trust-center.css _site/; fi
           if [ -f trust-center.js ]; then cp trust-center.js _site/; fi
@@ -46,12 +46,14 @@ jobs:
           if 'readability-tune.css' not in s:
               s = s.replace('</head>', '<link rel="stylesheet" href="readability-tune.css?v=2"></head>', 1)
           if 'manifest.webmanifest' not in s:
-              s = s.replace('</head>', '<link rel="manifest" href="manifest.webmanifest"><link rel="stylesheet" href="smart-tools.css?v=1"></head>', 1)
+              s = s.replace('</head>', '<link rel="manifest" href="manifest.webmanifest"><link rel="stylesheet" href="smart-tools.css?v=1"><link rel="stylesheet" href="quote-checker.css?v=1"></head>', 1)
           if 'class="skip-link"' not in s:
               s = s.replace('<body>', '<body><a class="skip-link" href="#top">Skip to content</a>', 1)
           s = s.replace('<nav>', '<nav aria-label="Primary navigation">', 1)
           if 'smart-tools.js' not in s:
               s = s.replace('</body>', '<script src="smart-tools.js?v=1" defer></script></body>', 1)
+          if 'quote-checker.js' not in s:
+              s = s.replace('</body>', '<script src="quote-checker.js?v=1" defer></script></body>', 1)
           old = '<a href="privacy.html">Privacy</a> · <a href="terms.html">Terms</a> · <a href="disclosure.html">Disclosure</a>'
           new = '<a href="about.html">About</a> · <a href="methodology.html">Methodology</a> · <a href="contact.html">Contact</a> · <a href="accessibility.html">Accessibility</a> · <a href="privacy.html">Privacy</a> · <a href="terms.html">Terms</a> · <a href="disclosure.html">Disclosure</a>'
           s = s.replace(old, new)
