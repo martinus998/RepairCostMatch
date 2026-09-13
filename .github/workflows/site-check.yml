@@ -40,7 +40,7 @@ jobs:
               'about.html','methodology.html','editorial-policy.html','accessibility.html',
               'contact.html','robots.txt','sitemap.xml','favicon.svg','app.js',
               'style.css','blueprint-home.css','pro-home.css','trust-center.css',
-              'trust-center.js','readability-tune.css'
+              'trust-center.js','readability-tune.css','pro-package.css'
           ]
           errors = []
           for name in required:
