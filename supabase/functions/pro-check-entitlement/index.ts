@@ -2,7 +2,7 @@ import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "npm:@supabase/supabase-js@2";
 
 const SITE_ORIGIN = "https://martinus998.github.io";
-const LIVE_PAYMENT_LINK = "plink_1UFLY9BVUFmkZjNkmNAhka7b";
+const LIVE_PAYMENT_LINK = "plink_1UFMsNBGKCKsYnS9SdXaKFIG";
 const LIVE_AMOUNT = 999;
 const LIVE_CURRENCY = "usd";
 
