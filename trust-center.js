@@ -1,8 +1,17 @@
 (function(){
   'use strict';
+
+  if(!document.querySelector('link[href*="pro-package.css"]')){
+    const proCss=document.createElement('link');
+    proCss.rel='stylesheet';
+    proCss.href='pro-package.css?v=1';
+    document.head.appendChild(proCss);
+  }
+
   const anchor=document.querySelector('.pro-info-grid');
+  let hub=null;
   if(anchor){
-    const hub=document.createElement('section');
+    hub=document.createElement('section');
     hub.className='trust-hub';
     hub.setAttribute('aria-label','Trust and methodology');
     hub.innerHTML=`
@@ -10,6 +19,44 @@
       <button type="button" class="js-info" data-panel="sources"><span class="hub-icon">✓</span><span><b>Sources & review</b><small>Reviewed Sep 13, 2026</small></span></button>
       <button type="button" class="js-info" data-panel="faq"><span class="hub-icon">?</span><span><b>Quick FAQ</b><small>Accuracy, privacy & safety</small></span></button>`;
     anchor.insertAdjacentElement('afterend',hub);
+
+    const pro=document.createElement('section');
+    pro.className='pro-package-preview';
+    pro.id='pro-package';
+    pro.setAttribute('aria-labelledby','proPackageTitle');
+    pro.innerHTML=`
+      <div class="pro-package-head">
+        <div><span class="pro-package-kicker">REPAIRCOSTMATCH PRO</span><h2 id="proPackageTitle">See what Pro unlocks after purchase.</h2><p>Keep the first repair check simple and free. Upgrade when you want a more local, provider-focused comparison before contacting a company.</p></div>
+        <span class="pro-package-badge">ONE-TIME PACKAGE</span>
+      </div>
+      <div class="pro-package-body">
+        <article class="plan-card">
+          <div class="plan-card-head"><b>Free repair check</b><span>$0</span></div>
+          <ul class="plan-list">
+            <li>Likely repair category</li>
+            <li>General planning cost band</li>
+            <li>Safety and next-step guidance</li>
+            <li>No phone number required to start</li>
+          </ul>
+        </article>
+        <article class="plan-card pro">
+          <div class="plan-card-head"><b>RepairCostMatch Pro</b><span>PRICE AT CHECKOUT</span></div>
+          <ul class="plan-list">
+            <li>Local companies matched to your ZIP and repair type</li>
+            <li>Estimated project range for each listed provider when enough pricing data is available</li>
+            <li>Ratings, review counts, distance and service fit</li>
+            <li>Side-by-side provider comparison before you call</li>
+          </ul>
+          <div class="pro-feature-grid">
+            <div class="pro-feature"><b>Local cost view</b><small>Planning range adjusted with available local market factors.</small></div>
+            <div class="pro-feature"><b>Provider comparison</b><small>Compare several relevant companies in one place.</small></div>
+            <div class="pro-feature"><b>Decision labels</b><small>Highlight value, distance or rating only when supported by available data.</small></div>
+            <div class="pro-feature"><b>Detailed report</b><small>Cost drivers, questions to ask, red flags and a save/share summary.</small></div>
+          </div>
+        </article>
+      </div>
+      <div class="pro-package-note"><span><strong>Important:</strong> provider-specific prices will be clearly labeled as planning estimates unless the contractor supplies a verified quote.</span><span class="pro-status">Pro checkout coming soon</span></div>`;
+    hub.insertAdjacentElement('afterend',pro);
   }
 
   const footerText=document.querySelector('.snapshot-footer>span');
