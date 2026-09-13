@@ -40,9 +40,12 @@ jobs:
           from pathlib import Path
           p = Path('_site/index.html')
           s = p.read_text()
-          social = '''<meta property="og:image" content="https://martinus998.github.io/RepairCostMatch/social-card.svg"><meta property="og:image:alt" content="RepairCostMatch — know the likely repair cost before you call"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="Foundation Repair Cost & Local Options | RepairCostMatch"><meta name="twitter:description" content="Understand likely repair costs, warning signs and next steps before you call a contractor."><meta name="twitter:image" content="https://martinus998.github.io/RepairCostMatch/social-card.svg">'''
+          social = '''<meta property="og:image" content="https://martinus998.github.io/RepairCostMatch/social-card.svg"><meta property="og:image:alt" content="RepairCostMatch — know the likely repair cost before you call"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="Foundation Repair Cost & Local Options | RepairCostMatch"><meta name="twitter:description" content="Understand likely repair costs, warning signs and next steps before you call a contractor."><meta name="twitter:image" content="https://martinus998.github.io/RepairCostMatch/social-card.svg"><link rel="stylesheet" href="site-pages.css?v=1">'''
           if 'property="og:image"' not in s:
               s = s.replace('</head>', social + '</head>', 1)
+          if 'class="skip-link"' not in s:
+              s = s.replace('<body>', '<body><a class="skip-link" href="#top">Skip to content</a>', 1)
+          s = s.replace('<nav>', '<nav aria-label="Primary navigation">', 1)
           old = '<a href="privacy.html">Privacy</a> · <a href="terms.html">Terms</a> · <a href="disclosure.html">Disclosure</a>'
           new = '<a href="about.html">About</a> · <a href="methodology.html">Methodology</a> · <a href="contact.html">Contact</a> · <a href="accessibility.html">Accessibility</a> · <a href="privacy.html">Privacy</a> · <a href="terms.html">Terms</a> · <a href="disclosure.html">Disclosure</a>'
           s = s.replace(old, new)
