@@ -26,6 +26,7 @@ jobs:
           node --check trust-center.js
           node --check smart-tools.js
           node --check quote-checker.js
+          node --check provider-market.js
           node --check sw.js
       - name: Validate launch files and internal links
         shell: bash
@@ -44,7 +45,9 @@ jobs:
               'contact.html','robots.txt','sitemap.xml','favicon.svg','app.js',
               'style.css','blueprint-home.css','pro-home.css','trust-center.css',
               'trust-center.js','readability-tune.css','pro-package.css','smart-tools.css',
-              'smart-tools.js','quote-checker.css','quote-checker.js','manifest.webmanifest','sw.js'
+              'smart-tools.js','quote-checker.css','quote-checker.js','provider-market.css',
+              'provider-market.js','manifest.webmanifest','sw.js',
+              'supabase/functions/providers-search/index.ts'
           ]
           errors = []
           for name in required:
@@ -96,8 +99,12 @@ jobs:
           robots = (root/'robots.txt').read_text(encoding='utf-8') if (root/'robots.txt').exists() else ''
           if 'sitemap.xml' not in robots.lower(): errors.append('robots.txt does not reference sitemap.xml')
 
+          edge = (root/'supabase/functions/providers-search/index.ts').read_text(encoding='utf-8') if (root/'supabase/functions/providers-search/index.ts').exists() else ''
+          for token in ['GOOGLE_PLACES_API_KEY','places:searchText','foundation repair']:
+              if token not in edge: errors.append(f'providers-search edge function missing expected token: {token}')
+
           if errors:
               print('\n'.join('ERROR: '+e for e in errors))
               sys.exit(1)
-          print(f'Launch check passed: {len(html_files)} HTML pages validated plus quote checker/smart tools/PWA assets.')
+          print(f'Launch check passed: {len(html_files)} HTML pages validated plus quote checker/smart tools/provider marketplace/PWA assets.')
           PY
