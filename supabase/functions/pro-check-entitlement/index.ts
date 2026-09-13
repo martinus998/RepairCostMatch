@@ -2,6 +2,9 @@ import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "npm:@supabase/supabase-js@2";
 
 const SITE_ORIGIN = "https://martinus998.github.io";
+const LIVE_PAYMENT_LINK = "plink_1UFLY9BVUFmkZjNkmNAhka7b";
+const LIVE_AMOUNT = 999;
+const LIVE_CURRENCY = "usd";
 
 function headers(origin: string | null) {
   return {
@@ -14,11 +17,9 @@ function headers(origin: string | null) {
     "X-Content-Type-Options": "nosniff",
   };
 }
-
 function json(body: unknown, status = 200, origin: string | null = null) {
   return new Response(JSON.stringify(body), { status, headers: headers(origin) });
 }
-
 async function sha256(value: string) {
   const hash = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(value));
   return Array.from(new Uint8Array(hash)).map(b => b.toString(16).padStart(2, "0")).join("");
@@ -45,9 +46,19 @@ Deno.serve(async (req: Request) => {
   if (!adminKey) return json({ error: "server_misconfigured" }, 500, origin);
   const supabase = createClient(Deno.env.get("SUPABASE_URL")!, adminKey, { auth: { persistSession: false } });
 
-  const { data, error } = await supabase.from("pro_entitlements").select("status").eq("entitlement_token_hash", tokenHash).maybeSingle();
+  const { data, error } = await supabase
+    .from("pro_entitlements")
+    .select("status,currency,amount_total,payment_link_id,last_verified_at")
+    .eq("entitlement_token_hash", tokenHash)
+    .maybeSingle();
   if (error) return json({ error: "lookup_failed" }, 500, origin);
-  if (!data || data.status !== "active") return json({ active: false }, 200, origin);
 
-  return json({ active: true, tier: "pro", environment: "test" }, 200, origin);
+  const valid = !!data &&
+    data.status === "active" &&
+    data.payment_link_id === LIVE_PAYMENT_LINK &&
+    data.amount_total === LIVE_AMOUNT &&
+    data.currency === LIVE_CURRENCY;
+
+  if (!valid) return json({ active: false }, 200, origin);
+  return json({ active: true, tier: "pro", environment: "live" }, 200, origin);
 });
