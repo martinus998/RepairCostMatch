@@ -24,7 +24,7 @@ async function verifyStripeSignature(payload: string, header: string, secret: st
 
 Deno.serve(async (req: Request) => {
   if (req.method !== 'POST') return new Response('method not allowed', { status: 405 });
-  const webhookSecret = Deno.env.get('STRIPE_WEBHOOK_SECRET');
+  const webhookSecret = Deno.env.get('STRIPE_LIVE_WEBHOOK_SECRET');
   if (!webhookSecret || !webhookSecret.startsWith('whsec_')) return new Response('not configured', { status: 503 });
   const signature = req.headers.get('stripe-signature') || '';
   const raw = await req.text();
@@ -32,7 +32,7 @@ Deno.serve(async (req: Request) => {
 
   let event: any;
   try { event = JSON.parse(raw); } catch { return new Response('invalid json', { status: 400 }); }
-  if (event?.livemode !== false) return new Response('wrong environment', { status: 400 });
+  if (event?.livemode !== true) return new Response('wrong environment', { status: 400 });
 
   const secretKeys = JSON.parse(Deno.env.get('SUPABASE_SECRET_KEYS') || '{}');
   const adminKey = secretKeys['default'] || Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
