@@ -1,0 +1,88 @@
+name: Site Check
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - name: Validate launch files and internal links
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          from html.parser import HTMLParser
+          from urllib.parse import urlsplit
+          import re, sys
+
+          root = Path('.')
+          required = [
+              'index.html','404.html','privacy.html','terms.html','disclosure.html',
+              'about.html','methodology.html','editorial-policy.html','accessibility.html',
+              'contact.html','robots.txt','sitemap.xml','favicon.svg','app.js',
+              'style.css','blueprint-home.css','pro-home.css','trust-center.css',
+              'trust-center.js','readability-tune.css'
+          ]
+          errors = []
+          for name in required:
+              if not (root / name).is_file():
+                  errors.append(f'Missing required launch file: {name}')
+
+          class Parser(HTMLParser):
+              def __init__(self):
+                  super().__init__()
+                  self.refs=[]; self.h1=0
+              def handle_starttag(self, tag, attrs):
+                  d=dict(attrs)
+                  if tag == 'h1': self.h1 += 1
+                  for key in ('href','src'):
+                      if key in d: self.refs.append((tag,key,d[key]))
+
+          html_files = sorted(root.glob('*.html'))
+          for path in html_files:
+              text = path.read_text(encoding='utf-8')
+              p = Parser(); p.feed(text)
+              if '<title>' not in text.lower(): errors.append(f'{path}: missing title')
+              if 'name="viewport"' not in text and "name='viewport'" not in text: errors.append(f'{path}: missing viewport')
+              if path.name != '404.html':
+                  if 'name="description"' not in text and "name='description'" not in text: errors.append(f'{path}: missing meta description')
+                  if 'rel="canonical"' not in text and "rel='canonical'" not in text: errors.append(f'{path}: missing canonical')
+              if p.h1 != 1: errors.append(f'{path}: expected exactly one H1, found {p.h1}')
+              for tag,key,ref in p.refs:
+                  if not ref or ref.startswith(('#','http://','https://','mailto:','tel:','data:','javascript:')):
+                      continue
+                  clean = urlsplit(ref).path
+                  if not clean: continue
+                  target = (path.parent / clean).resolve()
+                  try: target.relative_to(root.resolve())
+                  except ValueError:
+                      errors.append(f'{path}: reference leaves site root: {ref}')
+                      continue
+                  if not target.exists():
+                      errors.append(f'{path}: broken local {key}: {ref}')
+
+          sitemap = (root/'sitemap.xml').read_text(encoding='utf-8') if (root/'sitemap.xml').exists() else ''
+          for page in ['foundation-repair-cost.html','basement-waterproofing-cost.html','foundation-cracks.html','bowing-basement-wall.html','about.html','methodology.html','contact.html']:
+              if page not in sitemap: errors.append(f'sitemap.xml missing {page}')
+
+          robots = (root/'robots.txt').read_text(encoding='utf-8') if (root/'robots.txt').exists() else ''
+          if 'sitemap.xml' not in robots.lower(): errors.append('robots.txt does not reference sitemap.xml')
+
+          if errors:
+              print('\n'.join('ERROR: '+e for e in errors))
+              sys.exit(1)
+          print(f'Launch check passed: {len(html_files)} HTML pages validated.')
+          PY
