@@ -32,7 +32,7 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p _site
-          cp index.html style.css blueprint-home.css app.js favicon.svg robots.txt sitemap.xml privacy.html terms.html disclosure.html foundation-repair-cost.html basement-waterproofing-cost.html foundation-cracks.html bowing-basement-wall.html about.html methodology.html editorial-policy.html accessibility.html contact.html 404.html site-pages.css social-card.svg readability-tune.css pro-package.css smart-tools.css smart-tools.js quote-checker.css quote-checker.js manifest.webmanifest sw.js _site/
+          cp index.html style.css blueprint-home.css app.js favicon.svg robots.txt sitemap.xml privacy.html terms.html disclosure.html foundation-repair-cost.html basement-waterproofing-cost.html foundation-cracks.html bowing-basement-wall.html about.html methodology.html editorial-policy.html accessibility.html contact.html 404.html site-pages.css social-card.svg readability-tune.css pro-package.css smart-tools.css smart-tools.js quote-checker.css quote-checker.js provider-market.css provider-market.js manifest.webmanifest sw.js _site/
           if [ -f pro-home.css ]; then cp pro-home.css _site/; fi
           if [ -f trust-center.css ]; then cp trust-center.css _site/; fi
           if [ -f trust-center.js ]; then cp trust-center.js _site/; fi
@@ -54,6 +54,8 @@ jobs:
               s = s.replace('</body>', '<script src="smart-tools.js?v=1" defer></script></body>', 1)
           if 'quote-checker.js' not in s:
               s = s.replace('</body>', '<script src="quote-checker.js?v=1" defer></script></body>', 1)
+          if 'provider-market.js' not in s:
+              s = s.replace('</body>', '<script src="provider-market.js?v=1" defer></script></body>', 1)
           old = '<a href="privacy.html">Privacy</a> · <a href="terms.html">Terms</a> · <a href="disclosure.html">Disclosure</a>'
           new = '<a href="about.html">About</a> · <a href="methodology.html">Methodology</a> · <a href="contact.html">Contact</a> · <a href="accessibility.html">Accessibility</a> · <a href="privacy.html">Privacy</a> · <a href="terms.html">Terms</a> · <a href="disclosure.html">Disclosure</a>'
           s = s.replace(old, new)
