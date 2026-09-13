@@ -1,0 +1,71 @@
+/* RepairCostMatch mobile readability pass — slightly larger type/icons, slightly more breathing room. */
+@media (max-width:560px){
+  .brand small:after{font-size:6px!important;letter-spacing:.15em}
+  .site-header>.btn{font-size:10px!important;padding:9px 10px!important}
+
+  .pro-hero{gap:8px!important;padding:11px!important}
+  .hero-copy{padding:4px!important}
+  .hero-copy .eyebrow{font-size:7px!important;line-height:1.25}
+  .hero-copy h1{font-size:29px!important;line-height:.94!important;margin:7px 0 8px!important}
+  .hero-copy>p{font-size:10px!important;line-height:1.34!important}
+  .hero-actions{gap:5px!important;margin:10px 0 8px!important}
+  .hero-actions .btn{font-size:9px!important;padding:8px 5px!important}
+
+  .trust-points{gap:4px!important}
+  .trust-points span{min-height:35px!important;padding:5px!important;font-size:7.4px!important;gap:4px!important}
+  .trust-points .trust-icon{width:13px!important;height:13px!important;flex-basis:13px!important}
+
+  .snapshot-card{padding:10px!important}
+  .snapshot-top small{font-size:7px!important}
+  .snapshot-top strong{font-size:20px!important;margin-top:4px!important}
+  .live-badge{font-size:7px!important;padding:5px 6px!important}
+  .snapshot-note{font-size:8px!important;line-height:1.28!important;margin:7px 0!important}
+  .mini-issues{gap:4px!important}
+  .mini-issue{min-height:44px!important;padding:4px 3px!important}
+  .mini-issue span{font-size:16px!important}
+  .mini-issue b{font-size:7px!important}
+  .blueprint-mini{height:70px!important;margin:6px 0!important}
+  .bp-house-svg .bp-label{font-size:7px!important}
+  .bp-house-svg .bp-measure{font-size:8px!important}
+  .snapshot-footer{padding-top:7px!important;font-size:7px!important;gap:5px!important}
+  .snapshot-footer .text-link{font-size:7px!important}
+
+  .compact-section{padding:12px 0 7px!important}
+  .compact-head{margin-bottom:7px!important}
+  .compact-head .eyebrow{font-size:7px!important}
+  .compact-head h2{font-size:17px!important}
+  .compact-head>.text-link{font-size:8px!important}
+
+  .pro-problems{gap:6px!important}
+  .pro-problems .problem-card{min-height:58px!important;padding:8px 9px!important;border-radius:10px!important;gap:7px!important}
+  .pro-problems .problem-card .icon{font-size:20px!important;min-width:20px!important}
+  .pro-problems h3{font-size:10px!important;margin-bottom:2px!important}
+  .pro-problems p{font-size:7.5px!important;line-height:1.28!important}
+
+  .pro-info-grid{gap:7px!important;margin-top:7px!important}
+  .info-panel{padding:9px!important;border-radius:12px!important}
+  .panel-title{margin-bottom:7px!important}
+  .panel-title .eyebrow{font-size:6.3px!important}
+  .panel-title h2{font-size:12.5px!important}
+  .steps-inline{gap:4px!important}
+  .steps-inline article{padding:5px 4px!important;gap:4px!important}
+  .steps-inline article>span{width:18px!important;height:18px!important;flex-basis:18px!important;font-size:8px!important}
+  .steps-inline b{font-size:7.5px!important}
+  .wide-cta{margin-top:6px!important;padding:7px!important;font-size:8px!important}
+  .guide-links{gap:4px!important}
+  .guide-links a{padding:6px!important}
+  .guide-links span{font-size:5.8px!important}
+  .guide-links b{font-size:7.6px!important}
+
+  .trust-hub{gap:5px!important;margin-top:7px!important}
+  .trust-hub button{min-height:44px!important;padding:7px!important;gap:5px!important}
+  .trust-hub .hub-icon{width:21px!important;height:21px!important;flex-basis:21px!important;font-size:12px!important}
+  .trust-hub b{font-size:7.5px!important}
+  .trust-hub small{font-size:6.3px!important;line-height:1.2!important}
+
+  .compact-notice{padding:8px 9px!important;margin-top:7px!important;font-size:7.5px!important;line-height:1.38!important}
+  .compact-footer{margin-top:10px!important;padding:11px 0!important}
+  .compact-footer b{font-size:11px!important}
+  .compact-footer a{font-size:9px!important}
+  .compact-footer small{font-size:8px!important}
+}
