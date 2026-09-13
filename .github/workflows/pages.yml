@@ -32,13 +32,13 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p _site
-          cp index.html style.css home-polish.css blueprint-home.css app.js favicon.svg robots.txt sitemap.xml privacy.html terms.html disclosure.html foundation-repair-cost.html basement-waterproofing-cost.html foundation-cracks.html bowing-basement-wall.html _site/
+          cp index.html style.css home-polish.css blueprint-home.css blueprint-detail.svg app.js favicon.svg robots.txt sitemap.xml privacy.html terms.html disclosure.html foundation-repair-cost.html basement-waterproofing-cost.html foundation-cracks.html bowing-basement-wall.html _site/
           python3 - <<'PY'
           from pathlib import Path
           p = Path('_site/index.html')
           s = p.read_text()
-          s = s.replace('</head>', '<link rel="stylesheet" href="home-polish.css?v=2"><link rel="stylesheet" href="blueprint-home.css?v=20260913-2"></head>', 1)
-          s = s.replace('src="app.js"', 'src="app.js?v=20260913-2"', 1)
+          s = s.replace('</head>', '<link rel="stylesheet" href="home-polish.css?v=3"><link rel="stylesheet" href="blueprint-home.css?v=20260913-detail1"></head>', 1)
+          s = s.replace('src="app.js"', 'src="app.js?v=20260913-detail1"', 1)
           p.write_text(s)
           PY
       - name: Upload artifact
