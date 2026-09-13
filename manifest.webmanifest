@@ -1,0 +1,18 @@
+{
+  "name": "RepairCostMatch",
+  "short_name": "RepairCostMatch",
+  "description": "Foundation repair and waterproofing planning tools, cost guidance and homeowner project prep.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#041b2d",
+  "theme_color": "#062744",
+  "icons": [
+    {
+      "src": "favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
