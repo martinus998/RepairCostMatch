@@ -47,7 +47,10 @@ jobs:
               'trust-center.js','readability-tune.css','pro-package.css','smart-tools.css',
               'smart-tools.js','quote-checker.css','quote-checker.js','provider-market.css',
               'provider-market.js','manifest.webmanifest','sw.js',
-              'supabase/functions/providers-search/index.ts'
+              'supabase/functions/providers-search/index.ts',
+              'supabase/functions/pro-verify-payment/index.ts',
+              'supabase/functions/pro-check-entitlement/index.ts',
+              'supabase/functions/stripe-webhook/index.ts'
           ]
           errors = []
           for name in required:
@@ -70,7 +73,12 @@ jobs:
                       if key in d: self.refs.append((tag,key,d[key]))
 
           html_files = sorted(root.glob('*.html'))
+          checked_html = 0
           for path in html_files:
+              # Google ownership verification files intentionally contain only a token.
+              if path.name.startswith('google') and path.name.endswith('.html'):
+                  continue
+              checked_html += 1
               text = path.read_text(encoding='utf-8')
               p = Parser(); p.feed(text)
               if '<title>' not in text.lower(): errors.append(f'{path}: missing title')
@@ -103,8 +111,16 @@ jobs:
           for token in ['GOOGLE_PLACES_API_KEY','places:searchText','foundation repair']:
               if token not in edge: errors.append(f'providers-search edge function missing expected token: {token}')
 
+          verify = (root/'supabase/functions/pro-verify-payment/index.ts').read_text(encoding='utf-8') if (root/'supabase/functions/pro-verify-payment/index.ts').exists() else ''
+          for token in ['STRIPE_SECRET_KEY','payment_status','EXPECTED_PAYMENT_LINK','EXPECTED_AMOUNT']:
+              if token not in verify: errors.append(f'pro-verify-payment missing expected security token: {token}')
+
+          webhook = (root/'supabase/functions/stripe-webhook/index.ts').read_text(encoding='utf-8') if (root/'supabase/functions/stripe-webhook/index.ts').exists() else ''
+          for token in ['STRIPE_WEBHOOK_SECRET','stripe-signature','charge.refunded','charge.dispute.created']:
+              if token not in webhook: errors.append(f'stripe-webhook missing expected security token: {token}')
+
           if errors:
               print('\n'.join('ERROR: '+e for e in errors))
               sys.exit(1)
-          print(f'Launch check passed: {len(html_files)} HTML pages validated plus quote checker/smart tools/provider marketplace/PWA assets.')
+          print(f'Launch check passed: {checked_html} site HTML pages validated plus secure Pro billing/provider marketplace/PWA assets.')
           PY
