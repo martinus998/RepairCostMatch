@@ -27,6 +27,7 @@ jobs:
           node --check smart-tools.js
           node --check quote-checker.js
           node --check provider-market.js
+          node --check billing-live.js
           node --check sw.js
       - name: Validate launch files and internal links
         shell: bash
@@ -46,7 +47,7 @@ jobs:
               'style.css','blueprint-home.css','pro-home.css','trust-center.css',
               'trust-center.js','readability-tune.css','pro-package.css','smart-tools.css',
               'smart-tools.js','quote-checker.css','quote-checker.js','provider-market.css',
-              'provider-market.js','manifest.webmanifest','sw.js',
+              'provider-market.js','billing-live.js','manifest.webmanifest','sw.js',
               'supabase/functions/providers-search/index.ts',
               'supabase/functions/pro-verify-payment/index.ts',
               'supabase/functions/pro-check-entitlement/index.ts',
@@ -75,7 +76,6 @@ jobs:
           html_files = sorted(root.glob('*.html'))
           checked_html = 0
           for path in html_files:
-              # Google ownership verification files intentionally contain only a token.
               if path.name.startswith('google') and path.name.endswith('.html'):
                   continue
               checked_html += 1
@@ -112,15 +112,19 @@ jobs:
               if token not in edge: errors.append(f'providers-search edge function missing expected token: {token}')
 
           verify = (root/'supabase/functions/pro-verify-payment/index.ts').read_text(encoding='utf-8') if (root/'supabase/functions/pro-verify-payment/index.ts').exists() else ''
-          for token in ['STRIPE_SECRET_KEY','payment_status','EXPECTED_PAYMENT_LINK','EXPECTED_AMOUNT']:
-              if token not in verify: errors.append(f'pro-verify-payment missing expected security token: {token}')
+          for token in ['STRIPE_LIVE_RESTRICTED_KEY','payment_status','EXPECTED_PAYMENT_LINK','EXPECTED_AMOUNT','cs_live_']:
+              if token not in verify: errors.append(f'pro-verify-payment missing expected live security token: {token}')
+
+          entitlement = (root/'supabase/functions/pro-check-entitlement/index.ts').read_text(encoding='utf-8') if (root/'supabase/functions/pro-check-entitlement/index.ts').exists() else ''
+          for token in ['LIVE_PAYMENT_LINK','LIVE_AMOUNT','LIVE_CURRENCY','environment: "live"']:
+              if token not in entitlement: errors.append(f'pro-check-entitlement missing expected live security token: {token}')
 
           webhook = (root/'supabase/functions/stripe-webhook/index.ts').read_text(encoding='utf-8') if (root/'supabase/functions/stripe-webhook/index.ts').exists() else ''
-          for token in ['STRIPE_WEBHOOK_SECRET','stripe-signature','charge.refunded','charge.dispute.created']:
-              if token not in webhook: errors.append(f'stripe-webhook missing expected security token: {token}')
+          for token in ['STRIPE_LIVE_WEBHOOK_SECRET','stripe-signature','charge.refunded','charge.dispute.created','livemode !== true']:
+              if token not in webhook: errors.append(f'stripe-webhook missing expected live security token: {token}')
 
           if errors:
               print('\n'.join('ERROR: '+e for e in errors))
               sys.exit(1)
-          print(f'Launch check passed: {checked_html} site HTML pages validated plus secure Pro billing/provider marketplace/PWA assets.')
+          print(f'Launch check passed: {checked_html} site HTML pages validated plus live Pro billing/provider marketplace/PWA assets.')
           PY
