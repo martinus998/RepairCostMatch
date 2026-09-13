@@ -3,7 +3,7 @@
 
   const VERIFY_URL='https://vmtbydmhccmztnfedwpi.supabase.co/functions/v1/pro-verify-payment';
   const CHECK_URL='https://vmtbydmhccmztnfedwpi.supabase.co/functions/v1/pro-check-entitlement';
-  const LIVE_CHECKOUT='https://buy.stripe.com/bJedR869sfGbdtOeIC1sQ00';
+  const LIVE_CHECKOUT='https://buy.stripe.com/9B64gybqK2HDalT19N1Fe00';
   const TOKEN_KEY='rcm_pro_entitlement_v1';
 
   const gateStyle=document.createElement('style');
