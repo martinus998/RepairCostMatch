@@ -1,5 +1,29 @@
-// Load the RepairCostMatch blueprint homepage theme.
-(function(){const l=document.createElement('link');l.rel='stylesheet';l.href='blueprint-home.css?v=20260913';document.head.appendChild(l);})();
+// RepairCostMatch visual theme and blueprint detail layer.
+(function(){
+  const l=document.createElement('link');
+  l.rel='stylesheet';
+  l.href='blueprint-home.css?v=20260913-detail1';
+  document.head.appendChild(l);
+
+  const iconSvgs=[
+    '<svg class="trust-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5 19 5v5.8c0 4.8-3 8.2-7 10.7-4-2.5-7-5.9-7-10.7V5l7-2.5Z"/><path d="m8.5 12 2.1 2.1 4.8-5"/></svg>',
+    '<svg class="trust-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 5.5c3-1.4 5.7-1 8.5 1.2v13c-2.8-2.2-5.5-2.6-8.5-1.2v-13Z"/><path d="M20.5 5.5c-3-1.4-5.7-1-8.5 1.2v13c2.8-2.2 5.5-2.6 8.5-1.2v-13Z"/></svg>',
+    '<svg class="trust-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3"/><circle cx="17" cy="9" r="2.4"/><path d="M3.5 19c.4-4 2.3-6 5.5-6s5.1 2 5.5 6"/><path d="M14.2 14c.8-.7 1.8-1 2.9-1 2.4 0 3.8 1.7 4.1 5"/></svg>'
+  ];
+  const trustLabels=['No phone number to start','Educational cost planning','No fake contractor quotes'];
+  document.querySelectorAll('.trust-points span').forEach((el,i)=>{if(trustLabels[i])el.innerHTML=iconSvgs[i]+'<b>'+trustLabels[i]+'</b>';});
+
+  const card=document.querySelector('.house-card');
+  if(card&&!card.querySelector('.house-annotations')){
+    card.insertAdjacentHTML('beforeend',`<svg class="house-annotations" viewBox="0 0 600 360" aria-hidden="true">
+      <line x1="52" y1="188" x2="52" y2="320"/><line x1="43" y1="188" x2="62" y2="188"/><line x1="43" y1="320" x2="62" y2="320"/><path d="m47 198 5-10 5 10M47 310l5 10 5-10"/><text x="7" y="258">9′-0″</text>
+      <path d="M474 186 C520 170 532 162 548 147"/><path d="m541 146 8 1-3 8"/><text x="505" y="137">EXTERIOR</text><text x="505" y="153">WALL</text>
+      <path d="M468 287 C515 278 526 264 548 250"/><path d="m540 250 8 0-3 8"/><text x="498" y="236">CONCRETE</text><text x="498" y="252">FOUNDATION</text>
+      <path d="M476 324 C522 323 534 319 550 315"/><path d="m542 311 8 4-7 5"/><text x="522" y="303">SOIL</text>
+      <line class="soft" x1="78" y1="336" x2="520" y2="336"/><line class="soft" x1="92" y1="346" x2="506" y2="346"/>
+    </svg>`);
+  }
+})();
 
 // RepairCostMatch educational planner. No profile data leaves the browser in this preview.
 (function(){'use strict';const modal=document.getElementById('repairModal');if(!modal)return;const steps=[...document.querySelectorAll('.step')];const progress=document.getElementById('progressBar');const state={problem:'',severity:'',foundation:'',zip:''};let step=1;function show(n){step=n;steps.forEach(s=>s.classList.toggle('active',Number(s.dataset.step)===n));progress.style.width=`${n*20}%`}function open(problem=''){modal.classList.add('open');modal.setAttribute('aria-hidden','false');document.body.style.overflow='hidden';show(1);if(problem){state.problem=problem;const b=document.querySelector(`.choice-grid[data-field="problem"] button[data-value="${problem}"]`);if(b){b.parentElement.querySelectorAll('button').forEach(x=>x.classList.remove('selected'));b.classList.add('selected')}}}function close(){modal.classList.remove('open');modal.setAttribute('aria-hidden','true');document.body.style.overflow=''}document.querySelectorAll('.js-start').forEach(b=>b.addEventListener('click',()=>open()));document.querySelectorAll('.js-problem').forEach(b=>b.addEventListener('click',()=>open(b.dataset.problem||'')));document.querySelectorAll('[data-close]').forEach(b=>b.addEventListener('click',close));document.addEventListener('keydown',e=>{if(e.key==='Escape')close()});document.querySelectorAll('.choice-grid button').forEach(b=>b.addEventListener('click',()=>{const g=b.closest('.choice-grid');g.querySelectorAll('button').forEach(x=>x.classList.remove('selected'));b.classList.add('selected')}));function chosen(field){return document.querySelector(`.choice-grid[data-field="${field}"] button.selected`)?.dataset.value||''}function result(){state.problem=chosen('problem');state.severity=chosen('severity');state.foundation=chosen('foundation');const map={
