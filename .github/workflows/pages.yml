@@ -47,6 +47,9 @@ jobs:
               s = s.replace('</head>', '<link rel="stylesheet" href="readability-tune.css?v=2"></head>', 1)
           if 'manifest.webmanifest' not in s:
               s = s.replace('</head>', '<link rel="manifest" href="manifest.webmanifest"><link rel="stylesheet" href="smart-tools.css?v=1"><link rel="stylesheet" href="quote-checker.css?v=1"></head>', 1)
+          if 'rcm-provider-api' not in s:
+              provider = '<meta name="rcm-provider-api" content="https://vmtbydmhccmztnfedwpi.supabase.co/functions/v1/providers-search"><meta name="rcm-provider-key" content="sb_publishable_zMHcVYupndDRspbsYZRRfw_jSLwqmt_">'
+              s = s.replace('</head>', provider + '</head>', 1)
           if 'class="skip-link"' not in s:
               s = s.replace('<body>', '<body><a class="skip-link" href="#top">Skip to content</a>', 1)
           s = s.replace('<nav>', '<nav aria-label="Primary navigation">', 1)
@@ -55,7 +58,7 @@ jobs:
           if 'quote-checker.js' not in s:
               s = s.replace('</body>', '<script src="quote-checker.js?v=1" defer></script></body>', 1)
           if 'provider-market.js' not in s:
-              s = s.replace('</body>', '<script src="provider-market.js?v=1" defer></script></body>', 1)
+              s = s.replace('</body>', '<script src="provider-market.js?v=2" defer></script></body>', 1)
           old = '<a href="privacy.html">Privacy</a> · <a href="terms.html">Terms</a> · <a href="disclosure.html">Disclosure</a>'
           new = '<a href="about.html">About</a> · <a href="methodology.html">Methodology</a> · <a href="contact.html">Contact</a> · <a href="accessibility.html">Accessibility</a> · <a href="privacy.html">Privacy</a> · <a href="terms.html">Terms</a> · <a href="disclosure.html">Disclosure</a>'
           s = s.replace(old, new)
