@@ -1,0 +1,149 @@
+/* RepairCostMatch homepage polish — compact mobile-first layout with subtle blueprint styling. */
+
+body{
+  background:
+    linear-gradient(rgba(246,241,232,.93),rgba(246,241,232,.96)),
+    repeating-linear-gradient(0deg,rgba(31,111,120,.055) 0 1px,transparent 1px 34px),
+    repeating-linear-gradient(90deg,rgba(31,111,120,.055) 0 1px,transparent 1px 34px),
+    var(--cream);
+}
+
+.hero{
+  position:relative;
+  isolation:isolate;
+  overflow:hidden;
+  margin-top:18px;
+  padding:38px 28px 30px;
+  border:1px solid rgba(31,111,120,.13);
+  border-radius:30px;
+  background:
+    radial-gradient(circle at 82% 18%,rgba(216,117,62,.12),transparent 24%),
+    radial-gradient(circle at 10% 88%,rgba(31,111,120,.10),transparent 25%),
+    rgba(255,253,248,.76);
+  box-shadow:0 22px 70px rgba(19,37,42,.08);
+}
+
+.hero:before{
+  content:"";
+  position:absolute;
+  inset:0;
+  z-index:-1;
+  opacity:.26;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='520' height='360' viewBox='0 0 520 360'%3E%3Cg fill='none' stroke='%231f6f78' stroke-opacity='.30' stroke-width='1.4'%3E%3Cpath d='M40 296h430M95 296V162l124-84 124 84v134M120 296V178h198v118M153 209h50v50h-50zM246 204h43v92h-43z'/%3E%3Cpath stroke-dasharray='5 6' d='M54 80h112M54 94h78M372 62v96M386 62v74M338 116h116M338 130h90'/%3E%3Ccircle cx='420' cy='244' r='58'/%3E%3Cpath d='M386 244h68M420 210v68'/%3E%3C/g%3E%3C/svg%3E");
+  background-repeat:no-repeat;
+  background-position:right center;
+  background-size:min(48vw,520px) auto;
+}
+
+.hero h1{font-size:clamp(42px,5.4vw,68px);max-width:650px}
+.hero p{max-width:610px}
+.hero-actions{margin:20px 0 14px}
+.trust-points{display:grid;grid-template-columns:repeat(2,minmax(0,max-content));gap:8px 18px}
+.trust-points span{padding:7px 10px;border-radius:999px;background:rgba(255,255,255,.68);border:1px solid rgba(31,111,120,.10)}
+
+.house-card{
+  min-height:365px;
+  background:
+    linear-gradient(180deg,rgba(23,52,58,.96),rgba(16,40,45,.98)),
+    repeating-linear-gradient(0deg,rgba(156,200,200,.08) 0 1px,transparent 1px 28px),
+    repeating-linear-gradient(90deg,rgba(156,200,200,.08) 0 1px,transparent 1px 28px);
+}
+.house-card:after{
+  content:"PLANNING VIEW";
+  position:absolute;
+  right:18px;
+  bottom:14px;
+  z-index:3;
+  color:rgba(255,255,255,.46);
+  font-size:9px;
+  font-weight:900;
+  letter-spacing:.14em;
+}
+
+.problem-grid{grid-template-columns:repeat(4,minmax(0,1fr))}
+.problem-card,.guide-card,.cost-panel{backdrop-filter:blur(8px)}
+.problem-card{min-height:190px}
+
+@media(max-width:900px){
+  .hero{padding:28px 22px 24px}
+  .hero:before{background-size:650px auto;background-position:58% 45%;opacity:.16}
+  .house-card{min-height:300px}
+}
+
+@media(max-width:560px){
+  .shell{width:min(100% - 14px,1180px)}
+  .site-header{height:60px;padding-left:9px;padding-right:9px;gap:8px}
+  .brand{gap:8px;min-width:0}
+  .brand-mark{width:36px;height:36px;border-radius:10px;font-size:13px}
+  .brand strong{font-size:15px;white-space:nowrap}
+  .brand small{display:none}
+  .site-header>.btn{font-size:10px;padding:9px 10px;white-space:nowrap}
+
+  .hero{
+    margin-top:8px;
+    padding:20px 14px 14px;
+    gap:14px;
+    border-radius:22px;
+  }
+  .hero:before{background-size:520px auto;background-position:52% 10%;opacity:.12}
+  .eyebrow{font-size:9px;letter-spacing:.075em}
+  .hero h1{font-size:clamp(38px,11.5vw,46px);line-height:.95;margin:9px 0 12px;letter-spacing:-.045em}
+  .hero p{font-size:13px;line-height:1.48;margin:0}
+  .hero-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:15px 0 10px}
+  .hero-actions .btn{width:100%;padding:11px 8px;font-size:11px;line-height:1.18;text-align:center}
+  .hero-actions .btn.primary{font-size:12px}
+
+  .trust-points{grid-template-columns:1fr 1fr;gap:6px;font-size:9px;line-height:1.25}
+  .trust-points span{display:flex;align-items:center;min-height:40px;padding:7px 8px;border-radius:10px;background:rgba(255,255,255,.76)}
+
+  .house-card{min-height:235px;border-radius:18px;padding:10px}
+  .hero-stat{gap:6px}
+  .stat{padding:9px;border-radius:11px}
+  .stat span{font-size:7px}.stat strong{font-size:13px;line-height:1.12;margin-top:4px}
+  .house-svg{left:12px;right:12px;bottom:9px;width:calc(100% - 24px)}
+  .house-card:after{font-size:7px;right:10px;bottom:7px}
+
+  .section{padding:18px 0}
+  .section-head{margin-bottom:10px}
+  .section-head h2{font-size:24px;line-height:1.05;margin:4px 0 7px}
+  .section-head p{font-size:11px;line-height:1.45}
+
+  .problem-grid{grid-template-columns:1fr 1fr;gap:7px}
+  .problem-card{min-height:0;padding:12px;border-radius:14px;text-align:left}
+  .problem-card .icon{font-size:22px}
+  .problem-card h3{font-size:13px;line-height:1.15;margin:7px 0 4px}
+  .problem-card p{font-size:9.5px;line-height:1.35}
+
+  .cost-panel{grid-template-columns:1fr;padding:14px;border-radius:18px;gap:12px}
+  .cost-panel h2{font-size:22px;line-height:1.06;margin:4px 0 8px}
+  .cost-panel p{font-size:11px;line-height:1.45}
+  .cost-panel .btn{width:100%;padding:11px;font-size:12px}
+  .cost-bands{grid-template-columns:1fr 1fr;gap:6px}
+  .cost-row{display:block;padding:9px;border-radius:10px}
+  .cost-row b{display:block;font-size:10px;line-height:1.25}
+  .cost-row span{display:block;font-size:10px;margin-top:4px}
+  .cost-bands .notice{grid-column:1/-1}
+
+  .how-grid{grid-template-columns:1fr 1fr;gap:7px}
+  .how-card{padding:12px;border-radius:14px}
+  .how-card:last-child{grid-column:1/-1}
+  .how-card .num{width:28px;height:28px;font-size:12px}
+  .how-card h3{font-size:13px;margin:9px 0 4px}
+  .how-card p{font-size:9.5px;line-height:1.35}
+
+  .guide-grid{grid-template-columns:1fr 1fr;gap:7px}
+  .guide-card{padding:12px;border-radius:14px}
+  .guide-card small{font-size:8px}
+  .guide-card h3{font-size:14px;line-height:1.18;margin:4px 0}
+  .guide-card p{font-size:9.5px;line-height:1.35}
+
+  .notice{padding:12px;border-radius:12px;font-size:9.5px;line-height:1.45}
+  .footer{margin-top:24px;padding:20px 0 26px}
+}
+
+@media(max-width:370px){
+  .hero-actions{grid-template-columns:1fr}
+  .hero h1{font-size:38px}
+  .problem-grid,.guide-grid,.cost-bands{grid-template-columns:1fr}
+  .cost-bands .notice{grid-column:auto}
+}
