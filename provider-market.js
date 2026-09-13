@@ -2,7 +2,8 @@
   'use strict';
 
   const endpoint=(document.querySelector('meta[name="rcm-provider-api"]')?.content||window.RCM_PROVIDER_API||'').trim();
-  if(!endpoint)return;
+  const apiKey=(document.querySelector('meta[name="rcm-provider-key"]')?.content||window.RCM_PROVIDER_KEY||'').trim();
+  if(!endpoint||!apiKey)return;
 
   if(!document.querySelector('link[href*="provider-market.css"]')){
     const css=document.createElement('link');css.rel='stylesheet';css.href='provider-market.css?v=1';document.head.appendChild(css);
@@ -80,7 +81,7 @@
     searchBtn.disabled=true;searchBtn.textContent='Searching…';status.textContent='Searching connected provider data…';status.className='provider-status';results.innerHTML='';selected.clear();renderTray();
     try{
       const url=new URL(endpoint,location.href);url.searchParams.set('zip',zip);url.searchParams.set('service',typeSelect.value);
-      const res=await fetch(url.toString(),{headers:{'Accept':'application/json'}});if(!res.ok)throw new Error(`Provider service returned ${res.status}`);
+      const res=await fetch(url.toString(),{headers:{'Accept':'application/json','apikey':apiKey,'Authorization':`Bearer ${apiKey}`}});if(!res.ok)throw new Error(`Provider service returned ${res.status}`);
       const data=await res.json();current=Array.isArray(data.providers)?data.providers.slice(0,12):[];
       if(!current.length){status.textContent='No matching providers were returned for this ZIP and repair type. Try another repair type or verify the ZIP.';status.className='provider-status warn';render();return;}
       status.textContent=`Found ${current.length} provider${current.length===1?'':'s'}. Compare up to 3 before you call.`;status.className='provider-status ok';render();
