@@ -32,10 +32,22 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p _site
-          cp index.html style.css blueprint-home.css app.js favicon.svg robots.txt sitemap.xml privacy.html terms.html disclosure.html foundation-repair-cost.html basement-waterproofing-cost.html foundation-cracks.html bowing-basement-wall.html _site/
+          cp index.html style.css blueprint-home.css app.js favicon.svg robots.txt sitemap.xml privacy.html terms.html disclosure.html foundation-repair-cost.html basement-waterproofing-cost.html foundation-cracks.html bowing-basement-wall.html about.html methodology.html editorial-policy.html accessibility.html contact.html 404.html site-pages.css social-card.svg _site/
           if [ -f pro-home.css ]; then cp pro-home.css _site/; fi
           if [ -f trust-center.css ]; then cp trust-center.css _site/; fi
           if [ -f trust-center.js ]; then cp trust-center.js _site/; fi
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path('_site/index.html')
+          s = p.read_text()
+          social = '''<meta property="og:image" content="https://martinus998.github.io/RepairCostMatch/social-card.svg"><meta property="og:image:alt" content="RepairCostMatch — know the likely repair cost before you call"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="Foundation Repair Cost & Local Options | RepairCostMatch"><meta name="twitter:description" content="Understand likely repair costs, warning signs and next steps before you call a contractor."><meta name="twitter:image" content="https://martinus998.github.io/RepairCostMatch/social-card.svg">'''
+          if 'property="og:image"' not in s:
+              s = s.replace('</head>', social + '</head>', 1)
+          old = '<a href="privacy.html">Privacy</a> · <a href="terms.html">Terms</a> · <a href="disclosure.html">Disclosure</a>'
+          new = '<a href="about.html">About</a> · <a href="methodology.html">Methodology</a> · <a href="contact.html">Contact</a> · <a href="accessibility.html">Accessibility</a> · <a href="privacy.html">Privacy</a> · <a href="terms.html">Terms</a> · <a href="disclosure.html">Disclosure</a>'
+          s = s.replace(old, new)
+          p.write_text(s)
+          PY
       - name: Upload artifact
         uses: actions/upload-pages-artifact@56afc609e74202658d3ffba0e8f6dda462b719fa
         with:
