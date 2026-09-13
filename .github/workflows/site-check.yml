@@ -25,6 +25,7 @@ jobs:
           node --check app.js
           node --check trust-center.js
           node --check smart-tools.js
+          node --check quote-checker.js
           node --check sw.js
       - name: Validate launch files and internal links
         shell: bash
@@ -43,7 +44,7 @@ jobs:
               'contact.html','robots.txt','sitemap.xml','favicon.svg','app.js',
               'style.css','blueprint-home.css','pro-home.css','trust-center.css',
               'trust-center.js','readability-tune.css','pro-package.css','smart-tools.css',
-              'smart-tools.js','manifest.webmanifest','sw.js'
+              'smart-tools.js','quote-checker.css','quote-checker.js','manifest.webmanifest','sw.js'
           ]
           errors = []
           for name in required:
@@ -98,5 +99,5 @@ jobs:
           if errors:
               print('\n'.join('ERROR: '+e for e in errors))
               sys.exit(1)
-          print(f'Launch check passed: {len(html_files)} HTML pages validated plus smart tools/PWA assets.')
+          print(f'Launch check passed: {len(html_files)} HTML pages validated plus quote checker/smart tools/PWA assets.')
           PY
