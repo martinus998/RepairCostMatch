@@ -32,7 +32,7 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p _site
-          cp index.html style.css blueprint-home.css app.js favicon.svg robots.txt sitemap.xml privacy.html terms.html disclosure.html foundation-repair-cost.html basement-waterproofing-cost.html foundation-cracks.html bowing-basement-wall.html about.html methodology.html editorial-policy.html accessibility.html contact.html 404.html site-pages.css social-card.svg readability-tune.css pro-package.css smart-tools.css smart-tools.js quote-checker.css quote-checker.js provider-market.css provider-market.js manifest.webmanifest sw.js _site/
+          cp index.html style.css blueprint-home.css app.js favicon.svg robots.txt sitemap.xml privacy.html terms.html disclosure.html foundation-repair-cost.html basement-waterproofing-cost.html foundation-cracks.html bowing-basement-wall.html about.html methodology.html editorial-policy.html accessibility.html contact.html 404.html site-pages.css social-card.svg readability-tune.css pro-package.css smart-tools.css smart-tools.js quote-checker.css quote-checker.js provider-market.css provider-market.js manifest.webmanifest sw.js google2066c20b50616af5.html _site/
           if [ -f pro-home.css ]; then cp pro-home.css _site/; fi
           if [ -f trust-center.css ]; then cp trust-center.css _site/; fi
           if [ -f trust-center.js ]; then cp trust-center.js _site/; fi
