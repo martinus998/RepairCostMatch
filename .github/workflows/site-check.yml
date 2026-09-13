@@ -18,6 +18,12 @@ jobs:
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
           persist-credentials: false
+      - name: Validate JavaScript syntax
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --check app.js
+          node --check trust-center.js
       - name: Validate launch files and internal links
         shell: bash
         run: |
@@ -26,7 +32,7 @@ jobs:
           from pathlib import Path
           from html.parser import HTMLParser
           from urllib.parse import urlsplit
-          import re, sys
+          import sys
 
           root = Path('.')
           required = [
