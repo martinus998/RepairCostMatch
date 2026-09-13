@@ -32,7 +32,8 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p _site
-          cp index.html style.css blueprint-home.css pro-home.css app.js favicon.svg robots.txt sitemap.xml privacy.html terms.html disclosure.html foundation-repair-cost.html basement-waterproofing-cost.html foundation-cracks.html bowing-basement-wall.html _site/
+          cp index.html style.css blueprint-home.css app.js favicon.svg robots.txt sitemap.xml privacy.html terms.html disclosure.html foundation-repair-cost.html basement-waterproofing-cost.html foundation-cracks.html bowing-basement-wall.html _site/
+          if [ -f pro-home.css ]; then cp pro-home.css _site/; fi
       - name: Upload artifact
         uses: actions/upload-pages-artifact@56afc609e74202658d3ffba0e8f6dda462b719fa
         with:
