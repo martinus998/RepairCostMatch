@@ -43,14 +43,18 @@ jobs:
           required=[
             'expenseleak/index.html','expenseleak/privacy.html','expenseleak/terms.html',
             'expenseleak/security.html','expenseleak/support.html','expenseleak/launch-center.js',
-            'expenseleak/secure-platform.js','expenseleak/secure-connectors.js',
-            'expenseleak/secure-data-quality.js','expenseleak/secure-data-ops.js',
-            'expenseleak/secure-executive.js','expenseleak/secure-advanced-intelligence.js',
-            'expenseleak/secure-savings.js','expenseleak/secure-renewals.js',
-            'expenseleak/secure-procurement.js','expenseleak/secure-team.js',
-            'expenseleak/secure-governance.js','expenseleak/secure-compliance.js',
-            'expenseleak/secure-billing-readiness.js','expenseleak/secure-reliability.js',
-            'expenseleak/secure-app.js','expenseleak/public-product-demo.js','expenseleak/public-competitor-demo.js'
+            'expenseleak/secure-platform.js','expenseleak/secure-platform-core.js',
+            'expenseleak/secure-connectors.js','expenseleak/secure-data-quality.js',
+            'expenseleak/secure-data-ops.js','expenseleak/secure-executive.js',
+            'expenseleak/secure-advanced-intelligence.js','expenseleak/secure-savings.js',
+            'expenseleak/secure-renewals.js','expenseleak/secure-procurement.js',
+            'expenseleak/secure-team.js','expenseleak/secure-governance.js',
+            'expenseleak/secure-compliance.js','expenseleak/secure-policy-center.js',
+            'expenseleak/secure-enterprise-ops.js','expenseleak/secure-optimization.js',
+            'expenseleak/secure-vault-webhooks.js','expenseleak/secure-competitor-suite.js',
+            'expenseleak/secure-ops.js','expenseleak/secure-billing-readiness.js',
+            'expenseleak/secure-reliability.js','expenseleak/secure-app.js',
+            'expenseleak/public-product-demo.js','expenseleak/public-competitor-demo.js'
           ]
           for p in required:
             if not Path(p).is_file(): errors.append(f'Missing required ExpenseLeak launch file: {p}')
@@ -77,7 +81,9 @@ jobs:
           workspace_scoped=[
             'secure-data-ops.js','secure-executive.js','secure-advanced-intelligence.js',
             'secure-savings.js','secure-renewals.js','secure-procurement.js','secure-team.js',
-            'secure-governance.js','secure-compliance.js'
+            'secure-governance.js','secure-compliance.js','secure-platform-core.js',
+            'secure-policy-center.js','secure-enterprise-ops.js','secure-optimization.js',
+            'secure-vault-webhooks.js','secure-competitor-suite.js','secure-ops.js'
           ]
           for file in workspace_scoped:
             text=Path('expenseleak/'+file).read_text(encoding='utf-8')
