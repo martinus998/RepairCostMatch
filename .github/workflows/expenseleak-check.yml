@@ -1,0 +1,63 @@
+name: ExpenseLeak Launch Check
+
+on:
+  push:
+    branches: ["main"]
+    paths:
+      - "expenseleak/**"
+      - ".github/workflows/expenseleak-check.yml"
+  pull_request:
+    branches: ["main"]
+    paths:
+      - "expenseleak/**"
+      - ".github/workflows/expenseleak-check.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - name: Validate ExpenseLeak JavaScript
+        shell: bash
+        run: |
+          set -euo pipefail
+          for f in expenseleak/*.js; do
+            echo "Checking $f"
+            node --check "$f"
+          done
+      - name: Validate launch pages and claims
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          import sys
+          errors=[]
+          required=[
+            'expenseleak/index.html','expenseleak/privacy.html','expenseleak/terms.html',
+            'expenseleak/security.html','expenseleak/support.html','expenseleak/launch-center.js',
+            'expenseleak/secure-platform.js','expenseleak/secure-connectors.js'
+          ]
+          for p in required:
+            if not Path(p).is_file(): errors.append(f'Missing required ExpenseLeak launch file: {p}')
+          idx=Path('expenseleak/index.html').read_text(encoding='utf-8')
+          for token in ['ExpenseLeak AI','Run Free Audit','Paid access stays disabled']:
+            if token not in idx: errors.append(f'ExpenseLeak index missing safety/launch token: {token}')
+          platform=Path('expenseleak/secure-platform.js').read_text(encoding='utf-8')
+          for token in ['secure-connectors.js','launch-center.js']:
+            if token not in platform: errors.append(f'ExpenseLeak loader missing {token}')
+          for page in ['privacy.html','terms.html','security.html','support.html']:
+            text=Path('expenseleak/'+page).read_text(encoding='utf-8')
+            if '<title>' not in text.lower(): errors.append(f'{page} missing title')
+            if 'name="description"' not in text: errors.append(f'{page} missing description')
+          if errors:
+            print('\n'.join('ERROR: '+e for e in errors));sys.exit(1)
+          print('ExpenseLeak launch check passed.')
+          PY
