@@ -45,7 +45,8 @@ jobs:
             'expenseleak/security.html','expenseleak/support.html','expenseleak/launch-center.js',
             'expenseleak/secure-platform.js','expenseleak/secure-connectors.js',
             'expenseleak/secure-data-quality.js','expenseleak/secure-data-ops.js',
-            'expenseleak/secure-executive.js','expenseleak/public-product-demo.js',
+            'expenseleak/secure-executive.js','expenseleak/secure-advanced-intelligence.js',
+            'expenseleak/secure-savings.js','expenseleak/public-product-demo.js',
             'expenseleak/public-competitor-demo.js'
           ]
           for p in required:
@@ -54,16 +55,25 @@ jobs:
           for token in ['ExpenseLeak AI','Run Free Audit','Paid access stays disabled']:
             if token not in idx: errors.append(f'ExpenseLeak index missing safety/launch token: {token}')
           platform=Path('expenseleak/secure-platform.js').read_text(encoding='utf-8')
-          for token in ['public-product-demo.js','public-competitor-demo.js','secure-connectors.js','launch-center.js','secure-data-quality.js']:
+          for token in ['public-product-demo.js','public-competitor-demo.js','secure-connectors.js','launch-center.js','secure-data-quality.js','secure-advanced-intelligence.js']:
             if token not in platform: errors.append(f'ExpenseLeak loader missing {token}')
           if '?v=1' in platform or '?v=2' in platform:
             errors.append('ExpenseLeak child loader must inherit the deploy version; fixed child cache tokens are not allowed')
           launch=Path('expenseleak/launch-center.js').read_text(encoding='utf-8')
-          for token in ['Paid launch remains gated separately','expenseleak_data_quality_summary']:
-            if token not in launch: errors.append(f'Launch center missing required gate token: {token}')
+          for token in ['Paid launch remains gated separately','expenseleak_activation_readiness','expenseleak_data_quality_summary','First value ready','data-el-onboard']:
+            if token not in launch: errors.append(f'Launch center missing required activation/gate token: {token}')
           quality=Path('expenseleak/secure-data-quality.js').read_text(encoding='utf-8')
           for token in ['Data Quality & Launch Readiness','zero connector errors','high-severity alerts']:
             if token not in quality: errors.append(f'Data quality module missing readiness token: {token}')
+          advanced=Path('expenseleak/secure-advanced-intelligence.js').read_text(encoding='utf-8')
+          for token in ['Create review action','data-ap-review','data-ap-matched','does not automatically remove access']:
+            if token not in advanced: errors.append(f'Advanced intelligence missing controlled-action token: {token}')
+          savings=Path('expenseleak/secure-savings.js').read_text(encoding='utf-8')
+          for token in ['Realized Savings Tracker','Only workspace-confirmed values','Currency totals are kept separate']:
+            if token not in savings: errors.append(f'Savings workflow missing evidence/safety token: {token}')
+          executive=Path('expenseleak/secure-executive.js').read_text(encoding='utf-8')
+          for token in ['Save management report','Executive Management Snapshot']:
+            if token not in executive: errors.append(f'Executive reporting missing E2E token: {token}')
           for page in ['privacy.html','terms.html','security.html','support.html']:
             text=Path('expenseleak/'+page).read_text(encoding='utf-8')
             if '<title>' not in text.lower(): errors.append(f'{page} missing title')
