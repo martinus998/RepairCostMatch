@@ -48,6 +48,7 @@ jobs:
             'expenseleak/secure-executive.js','expenseleak/secure-advanced-intelligence.js',
             'expenseleak/secure-savings.js','expenseleak/secure-renewals.js',
             'expenseleak/secure-procurement.js','expenseleak/secure-team.js',
+            'expenseleak/secure-governance.js','expenseleak/secure-compliance.js',
             'expenseleak/secure-billing-readiness.js','expenseleak/secure-reliability.js',
             'expenseleak/secure-app.js','expenseleak/public-product-demo.js','expenseleak/public-competitor-demo.js'
           ]
@@ -75,7 +76,8 @@ jobs:
             if token not in reliability: errors.append(f'Reliability center missing recovery token: {token}')
           workspace_scoped=[
             'secure-data-ops.js','secure-executive.js','secure-advanced-intelligence.js',
-            'secure-savings.js','secure-renewals.js','secure-procurement.js','secure-team.js'
+            'secure-savings.js','secure-renewals.js','secure-procurement.js','secure-team.js',
+            'secure-governance.js','secure-compliance.js'
           ]
           for file in workspace_scoped:
             text=Path('expenseleak/'+file).read_text(encoding='utf-8')
