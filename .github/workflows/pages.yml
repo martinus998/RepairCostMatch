@@ -39,6 +39,8 @@ jobs:
           if [ -d expenseleak ]; then cp -r expenseleak _site/; fi
           python3 - <<'PY'
           from pathlib import Path
+          import os
+          build = os.environ.get('GITHUB_SHA','1')[:12]
           p = Path('_site/index.html')
           s = p.read_text()
 
@@ -115,6 +117,15 @@ jobs:
                   es = es.replace('</body>', '<script src="secure-policy-center.js?v=1" defer></script></body>', 1)
               if 'secure-platform.js' not in es:
                   es = es.replace('</body>', '<script src="secure-platform.js?v=1" defer></script></body>', 1)
+              secure_assets = (
+                  'secure-app.css','secure-ops.css','secure-governance.css','secure-executive.css',
+                  'secure-app.js','secure-ops.js','secure-governance.js','secure-procurement.js',
+                  'secure-savings.js','secure-compliance.js','secure-executive.js','secure-optimization.js',
+                  'secure-renewals.js','secure-enterprise-ops.js','secure-policy-center.js','secure-platform.js'
+              )
+              for asset in secure_assets:
+                  es = es.replace(asset+'?v=1', asset+'?v='+build)
+                  es = es.replace(asset+'?v=2', asset+'?v='+build)
               ep.write_text(es)
           PY
       - name: Upload artifact
