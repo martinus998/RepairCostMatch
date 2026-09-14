@@ -89,6 +89,8 @@ jobs:
                   es = es.replace('</head>', '<link rel="stylesheet" href="secure-ops.css?v=1"></head>', 1)
               if 'secure-governance.css' not in es:
                   es = es.replace('</head>', '<link rel="stylesheet" href="secure-governance.css?v=1"></head>', 1)
+              if 'secure-executive.css' not in es:
+                  es = es.replace('</head>', '<link rel="stylesheet" href="secure-executive.css?v=1"></head>', 1)
               if 'secure-app.js' not in es:
                   es = es.replace('</body>', '<script src="secure-app.js?v=1" defer></script></body>', 1)
               if 'secure-ops.js' not in es:
@@ -101,6 +103,8 @@ jobs:
                   es = es.replace('</body>', '<script src="secure-savings.js?v=1" defer></script></body>', 1)
               if 'secure-compliance.js' not in es:
                   es = es.replace('</body>', '<script src="secure-compliance.js?v=1" defer></script></body>', 1)
+              if 'secure-executive.js' not in es:
+                  es = es.replace('</body>', '<script src="secure-executive.js?v=1" defer></script></body>', 1)
               ep.write_text(es)
           PY
       - name: Upload artifact
