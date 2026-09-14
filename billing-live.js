@@ -5,6 +5,7 @@
   const CHECK_URL='https://vmtbydmhccmztnfedwpi.supabase.co/functions/v1/pro-check-entitlement';
   const LIVE_CHECKOUT='https://buy.stripe.com/9B64gybqK2HDalT19N1Fe00';
   const TOKEN_KEY='rcm_pro_entitlement_v1';
+  const ACTIVE_RECHECK_MS=60000;
 
   const gateStyle=document.createElement('style');
   gateStyle.textContent='html:not([data-pro-access="active"]) .provider-market{display:none!important}';
@@ -97,9 +98,19 @@
     pro.dataset.proAccess='active';
     const badge=pro.querySelector('.pro-package-badge');
     if(badge)badge.textContent='PRO ACCESS VERIFIED';
-    if(payLink)payLink.remove();
+    if(payLink&&payLink.isConnected)payLink.remove();
     if(packageStatus)packageStatus.textContent='Pro access verified';
     window.dispatchEvent(new CustomEvent('rcm:pro-access',{detail:{active:true}}));
+  }
+
+  function markInactive(){
+    delete document.documentElement.dataset.proAccess;
+    delete pro.dataset.proAccess;
+    const badge=pro.querySelector('.pro-package-badge');
+    if(badge)badge.textContent='ONE-TIME PACKAGE';
+    if(actions&&payLink&&!payLink.isConnected)actions.appendChild(payLink);
+    if(packageStatus)packageStatus.textContent='Secure Stripe checkout';
+    window.dispatchEvent(new CustomEvent('rcm:pro-access',{detail:{active:false}}));
   }
 
   function cleanReturnParams(){
@@ -126,6 +137,7 @@
         cleanReturnParams();
         return true;
       }
+      markInactive();
       setStatus('Payment could not be verified. Pro remains locked.','warn');
     }catch(_){
       setStatus('Secure payment verification is temporarily unavailable. Pro remains locked.','warn');
@@ -133,9 +145,16 @@
     return false;
   }
 
+  let entitlementCheckInFlight=false;
   async function checkSaved(){
+    if(entitlementCheckInFlight)return document.documentElement.dataset.proAccess==='active';
     const token=localStorage.getItem(TOKEN_KEY);
-    if(!token){setStatus('Secure checkout ready.');return false;}
+    if(!token){
+      markInactive();
+      setStatus('Secure checkout ready.');
+      return false;
+    }
+    entitlementCheckInFlight=true;
     try{
       const {res,data}=await post(CHECK_URL,{entitlement_token:token});
       if(res.ok&&data.active){
@@ -144,12 +163,29 @@
         return true;
       }
       localStorage.removeItem(TOKEN_KEY);
+      markInactive();
       setStatus('Secure checkout ready.');
     }catch(_){
       setStatus('Could not verify saved access. Pro stays locked.','warn');
+    }finally{
+      entitlementCheckInFlight=false;
     }
     return false;
   }
+
+  function recheckWhenVisible(){
+    if(document.visibilityState==='visible'&&localStorage.getItem(TOKEN_KEY))checkSaved();
+  }
+  document.addEventListener('visibilitychange',recheckWhenVisible);
+  window.addEventListener('focus',()=>{
+    if(localStorage.getItem(TOKEN_KEY))checkSaved();
+  });
+  window.addEventListener('pageshow',()=>{
+    if(localStorage.getItem(TOKEN_KEY))checkSaved();
+  });
+  setInterval(()=>{
+    if(document.visibilityState==='visible'&&document.documentElement.dataset.proAccess==='active'&&localStorage.getItem(TOKEN_KEY))checkSaved();
+  },ACTIVE_RECHECK_MS);
 
   (async()=>{
     const verified=await verifyLiveReturn();
