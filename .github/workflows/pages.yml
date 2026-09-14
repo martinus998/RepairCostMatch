@@ -86,8 +86,9 @@ jobs:
               s = s.replace('</body>', '<script src="smart-tools.js?v=1" defer></script></body>', 1)
           if 'quote-checker.js' not in s:
               s = s.replace('</body>', '<script src="quote-checker.js?v=1" defer></script></body>', 1)
+          s = s.replace('provider-market.js?v=2', 'provider-market.js?v=3')
           if 'provider-market.js' not in s:
-              s = s.replace('</body>', '<script src="provider-market.js?v=2" defer></script></body>', 1)
+              s = s.replace('</body>', '<script src="provider-market.js?v=3" defer></script></body>', 1)
           s = s.replace('billing-live.js?v=1', 'billing-live.js?v=2')
           if 'billing-live.js' not in s:
               s = s.replace('</body>', '<script src="billing-live.js?v=2" defer></script></body>', 1)
