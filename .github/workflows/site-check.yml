@@ -108,11 +108,15 @@ jobs:
           if 'sitemap.xml' not in robots.lower(): errors.append('robots.txt does not reference sitemap.xml')
 
           edge = (root/'supabase/functions/providers-search/index.ts').read_text(encoding='utf-8') if (root/'supabase/functions/providers-search/index.ts').exists() else ''
-          for token in ['GOOGLE_PLACES_API_KEY','places:searchText','foundation repair']:
+          for token in ['GOOGLE_PLACES_API_KEY','places:searchText','foundation repair','x-rcm-pro-token','pro_entitlements','provider_search_events','MAX_PER_HOUR']:
               if token not in edge: errors.append(f'providers-search edge function missing expected token: {token}')
 
+          market = (root/'provider-market.js').read_text(encoding='utf-8') if (root/'provider-market.js').exists() else ''
+          for token in ['rcm_pro_entitlement_v1','x-rcm-pro-token','Verified Pro access is required']:
+              if token not in market: errors.append(f'provider-market missing expected Pro gate token: {token}')
+
           verify = (root/'supabase/functions/pro-verify-payment/index.ts').read_text(encoding='utf-8') if (root/'supabase/functions/pro-verify-payment/index.ts').exists() else ''
-          for token in ['STRIPE_LIVE_RESTRICTED_KEY','payment_status','EXPECTED_PAYMENT_LINK','EXPECTED_AMOUNT','cs_live_']:
+          for token in ['STRIPE_LIVE_RESTRICTED_KEY','payment_status','EXPECTED_PAYMENT_LINK','EXPECTED_AMOUNT','cs_live_','already_verified','stripe_checkout_session_id']:
               if token not in verify: errors.append(f'pro-verify-payment missing expected live security token: {token}')
 
           entitlement = (root/'supabase/functions/pro-check-entitlement/index.ts').read_text(encoding='utf-8') if (root/'supabase/functions/pro-check-entitlement/index.ts').exists() else ''
@@ -120,7 +124,7 @@ jobs:
               if token not in entitlement: errors.append(f'pro-check-entitlement missing expected live security token: {token}')
 
           webhook = (root/'supabase/functions/stripe-webhook/index.ts').read_text(encoding='utf-8') if (root/'supabase/functions/stripe-webhook/index.ts').exists() else ''
-          for token in ['STRIPE_LIVE_WEBHOOK_SECRET','stripe-signature','charge.refunded','charge.dispute.created','livemode !== true']:
+          for token in ['STRIPE_LIVE_WEBHOOK_SECRET','stripe-signature','charge.refunded','charge.dispute.created','livemode !== true','stripe_webhook_events']:
               if token not in webhook: errors.append(f'stripe-webhook missing expected live security token: {token}')
 
           if errors:
