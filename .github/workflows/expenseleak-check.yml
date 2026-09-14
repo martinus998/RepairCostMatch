@@ -74,6 +74,11 @@ jobs:
           executive=Path('expenseleak/secure-executive.js').read_text(encoding='utf-8')
           for token in ['Save management report','Executive Management Snapshot']:
             if token not in executive: errors.append(f'Executive reporting missing E2E token: {token}')
+          connectors=Path('expenseleak/secure-connectors.js').read_text(encoding='utf-8')
+          for token in ['#vendor_portal=','history.replaceState','public-upload','expenseleak-vault','Do not upload passwords']:
+            if token not in connectors: errors.append(f'Connector/Vendor Portal hardening missing token: {token}')
+          if '?vendor_portal=' in connectors:
+            errors.append('Vendor Portal token must not be placed in URL query parameters')
           for page in ['privacy.html','terms.html','security.html','support.html']:
             text=Path('expenseleak/'+page).read_text(encoding='utf-8')
             if '<title>' not in text.lower(): errors.append(f'{page} missing title')
