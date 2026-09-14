@@ -36,6 +36,7 @@ jobs:
           if [ -f pro-home.css ]; then cp pro-home.css _site/; fi
           if [ -f trust-center.css ]; then cp trust-center.css _site/; fi
           if [ -f trust-center.js ]; then cp trust-center.js _site/; fi
+          if [ -d expenseleak ]; then cp -r expenseleak _site/; fi
           python3 - <<'PY'
           from pathlib import Path
           p = Path('_site/index.html')
