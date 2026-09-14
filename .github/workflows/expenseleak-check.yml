@@ -46,9 +46,10 @@ jobs:
             'expenseleak/secure-platform.js','expenseleak/secure-connectors.js',
             'expenseleak/secure-data-quality.js','expenseleak/secure-data-ops.js',
             'expenseleak/secure-executive.js','expenseleak/secure-advanced-intelligence.js',
-            'expenseleak/secure-savings.js','expenseleak/secure-billing-readiness.js',
-            'expenseleak/secure-reliability.js','expenseleak/secure-app.js',
-            'expenseleak/public-product-demo.js','expenseleak/public-competitor-demo.js'
+            'expenseleak/secure-savings.js','expenseleak/secure-renewals.js',
+            'expenseleak/secure-procurement.js','expenseleak/secure-team.js',
+            'expenseleak/secure-billing-readiness.js','expenseleak/secure-reliability.js',
+            'expenseleak/secure-app.js','expenseleak/public-product-demo.js','expenseleak/public-competitor-demo.js'
           ]
           for p in required:
             if not Path(p).is_file(): errors.append(f'Missing required ExpenseLeak launch file: {p}')
@@ -72,6 +73,14 @@ jobs:
           reliability=Path('expenseleak/secure-reliability.js').read_text(encoding='utf-8')
           for token in ['Reliability & Recovery Center','ExpenseLeakSelectedBusinessId','Run health check','No private document contents','unhandledrejection']:
             if token not in reliability: errors.append(f'Reliability center missing recovery token: {token}')
+          workspace_scoped=[
+            'secure-data-ops.js','secure-executive.js','secure-advanced-intelligence.js',
+            'secure-savings.js','secure-renewals.js','secure-procurement.js','secure-team.js'
+          ]
+          for file in workspace_scoped:
+            text=Path('expenseleak/'+file).read_text(encoding='utf-8')
+            for token in ['ExpenseLeakSelectedBusinessId','expenseleak_accessible_workspaces','expenseleak:workspace-ready']:
+              if token not in text: errors.append(f'{file} missing selected-workspace safety token: {token}')
           advanced=Path('expenseleak/secure-advanced-intelligence.js').read_text(encoding='utf-8')
           for token in ['Create review action','data-ap-review','data-ap-matched','does not automatically remove access']:
             if token not in advanced: errors.append(f'Advanced intelligence missing controlled-action token: {token}')
