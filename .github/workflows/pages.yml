@@ -97,6 +97,17 @@ jobs:
           new = '<a href="about.html">About</a> · <a href="methodology.html">Methodology</a> · <a href="contact.html">Contact</a> · <a href="accessibility.html">Accessibility</a> · <a href="privacy.html">Privacy</a> · <a href="terms.html">Terms</a> · <a href="disclosure.html">Disclosure</a>'
           s = s.replace(old, new)
           p.write_text(s)
+
+          # ExpenseLeak preview: intentionally preserve the wide, premium dashboard composition
+          # on phones so sections stay side-by-side like the approved concept instead of stacking.
+          ep = Path('_site/expenseleak/index.html')
+          if ep.exists():
+              es = ep.read_text()
+              es = es.replace(
+                  '<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">',
+                  '<meta name="viewport" content="width=901">'
+              )
+              ep.write_text(es)
           PY
       - name: Upload artifact
         uses: actions/upload-pages-artifact@56afc609e74202658d3ffba0e8f6dda462b719fa
