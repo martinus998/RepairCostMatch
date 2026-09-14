@@ -46,8 +46,8 @@ jobs:
             'expenseleak/secure-platform.js','expenseleak/secure-connectors.js',
             'expenseleak/secure-data-quality.js','expenseleak/secure-data-ops.js',
             'expenseleak/secure-executive.js','expenseleak/secure-advanced-intelligence.js',
-            'expenseleak/secure-savings.js','expenseleak/public-product-demo.js',
-            'expenseleak/public-competitor-demo.js'
+            'expenseleak/secure-savings.js','expenseleak/secure-billing-readiness.js',
+            'expenseleak/public-product-demo.js','expenseleak/public-competitor-demo.js'
           ]
           for p in required:
             if not Path(p).is_file(): errors.append(f'Missing required ExpenseLeak launch file: {p}')
@@ -55,7 +55,7 @@ jobs:
           for token in ['ExpenseLeak AI','Run Free Audit','Paid access stays disabled']:
             if token not in idx: errors.append(f'ExpenseLeak index missing safety/launch token: {token}')
           platform=Path('expenseleak/secure-platform.js').read_text(encoding='utf-8')
-          for token in ['public-product-demo.js','public-competitor-demo.js','secure-connectors.js','launch-center.js','secure-data-quality.js','secure-advanced-intelligence.js']:
+          for token in ['public-product-demo.js','public-competitor-demo.js','secure-connectors.js','launch-center.js','secure-data-quality.js','secure-advanced-intelligence.js','secure-billing-readiness.js']:
             if token not in platform: errors.append(f'ExpenseLeak loader missing {token}')
           if '?v=1' in platform or '?v=2' in platform:
             errors.append('ExpenseLeak child loader must inherit the deploy version; fixed child cache tokens are not allowed')
@@ -79,6 +79,9 @@ jobs:
             if token not in connectors: errors.append(f'Connector/Vendor Portal hardening missing token: {token}')
           if '?vendor_portal=' in connectors:
             errors.append('Vendor Portal token must not be placed in URL query parameters')
+          billing=Path('expenseleak/secure-billing-readiness.js').read_text(encoding='utf-8')
+          for token in ['Billing & Entitlement Readiness','Checkout remains intentionally disabled','expenseleak_workspace_entitlements','test-mode billing cycle','Not enabled']:
+            if token not in billing: errors.append(f'Billing readiness missing launch guardrail: {token}')
           for page in ['privacy.html','terms.html','security.html','support.html']:
             text=Path('expenseleak/'+page).read_text(encoding='utf-8')
             if '<title>' not in text.lower(): errors.append(f'{page} missing title')
