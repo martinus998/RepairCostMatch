@@ -26,7 +26,7 @@ jobs:
           rm -f expenseleak/.workspace-hardening-trigger
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add expenseleak .github/workflows/expenseleak-check.yml
+          git add expenseleak
           if git diff --cached --quiet; then
             echo "No changes to commit."
             exit 0
