@@ -111,6 +111,8 @@ jobs:
                   es = es.replace('</body>', '<script src="secure-renewals.js?v=1" defer></script></body>', 1)
               if 'secure-enterprise-ops.js' not in es:
                   es = es.replace('</body>', '<script src="secure-enterprise-ops.js?v=1" defer></script></body>', 1)
+              if 'secure-policy-center.js' not in es:
+                  es = es.replace('</body>', '<script src="secure-policy-center.js?v=1" defer></script></body>', 1)
               ep.write_text(es)
           PY
       - name: Upload artifact
