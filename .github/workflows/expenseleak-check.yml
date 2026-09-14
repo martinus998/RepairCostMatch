@@ -80,8 +80,8 @@ jobs:
           if '?vendor_portal=' in connectors:
             errors.append('Vendor Portal token must not be placed in URL query parameters')
           billing=Path('expenseleak/secure-billing-readiness.js').read_text(encoding='utf-8')
-          for token in ['Billing & Entitlement Readiness','Checkout remains intentionally disabled','expenseleak_workspace_entitlements','test-mode billing cycle','Not enabled']:
-            if token not in billing: errors.append(f'Billing readiness missing launch guardrail: {token}')
+          for token in ['Billing & Entitlement Readiness','expenseleak_workspace_entitlements','expenseleak_paid_launch_gate','Live billing locked','database layer','explicit final enable step']:
+            if token not in billing: errors.append(f'Billing readiness missing paid-launch guardrail: {token}')
           for page in ['privacy.html','terms.html','security.html','support.html']:
             text=Path('expenseleak/'+page).read_text(encoding='utf-8')
             if '<title>' not in text.lower(): errors.append(f'{page} missing title')
