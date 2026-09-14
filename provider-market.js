@@ -3,6 +3,7 @@
 
   const endpoint=(document.querySelector('meta[name="rcm-provider-api"]')?.content||window.RCM_PROVIDER_API||'').trim();
   const apiKey=(document.querySelector('meta[name="rcm-provider-key"]')?.content||window.RCM_PROVIDER_KEY||'').trim();
+  const TOKEN_KEY='rcm_pro_entitlement_v1';
   if(!endpoint||!apiKey)return;
 
   if(!document.querySelector('link[href*="provider-market.css"]')){
@@ -78,14 +79,25 @@
 
   async function runSearch(){
     const zip=zipInput.value.trim();if(!/^\d{5}$/.test(zip)){zipInput.focus();status.textContent='Enter a valid 5-digit U.S. ZIP code.';status.className='provider-status warn';return;}
+    const proToken=(localStorage.getItem(TOKEN_KEY)||'').trim();
+    if(!/^[A-Za-z0-9_-]{40,80}$/.test(proToken)){
+      status.textContent='Verified Pro access is required for live contractor matching.';status.className='provider-status warn';return;
+    }
     searchBtn.disabled=true;searchBtn.textContent='Searching…';status.textContent='Searching connected provider data…';status.className='provider-status';results.innerHTML='';selected.clear();renderTray();
     try{
       const url=new URL(endpoint,location.href);url.searchParams.set('zip',zip);url.searchParams.set('service',typeSelect.value);
-      const res=await fetch(url.toString(),{headers:{'Accept':'application/json','apikey':apiKey,'Authorization':`Bearer ${apiKey}`}});if(!res.ok)throw new Error(`Provider service returned ${res.status}`);
+      const res=await fetch(url.toString(),{headers:{'Accept':'application/json','apikey':apiKey,'Authorization':`Bearer ${apiKey}`,'x-rcm-pro-token':proToken}});
+      if(res.status===401||res.status===403){
+        localStorage.removeItem(TOKEN_KEY);
+        delete document.documentElement.dataset.proAccess;
+        window.dispatchEvent(new CustomEvent('rcm:pro-access',{detail:{active:false}}));
+        throw new Error('Pro access expired');
+      }
+      if(!res.ok)throw new Error(`Provider service returned ${res.status}`);
       const data=await res.json();current=Array.isArray(data.providers)?data.providers.slice(0,12):[];
       if(!current.length){status.textContent='No matching providers were returned for this ZIP and repair type. Try another repair type or verify the ZIP.';status.className='provider-status warn';render();return;}
       status.textContent=`Found ${current.length} provider${current.length===1?'':'s'}. Compare up to 3 before you call.`;status.className='provider-status ok';render();
-    }catch(err){current=[];render();status.textContent='Live contractor data is temporarily unavailable. Your repair check and quote tools still work without provider matching.';status.className='provider-status warn';}
+    }catch(err){current=[];render();status.textContent=String(err&&err.message)==='Pro access expired'?'Pro access is no longer active. Refresh or purchase Pro again to use live contractor matching.':'Live contractor data is temporarily unavailable. Your repair check and quote tools still work without provider matching.';status.className='provider-status warn';}
     finally{searchBtn.disabled=false;searchBtn.textContent='Find local companies →';}
   }
   searchBtn.addEventListener('click',runSearch);zipInput.addEventListener('keydown',e=>{if(e.key==='Enter')runSearch();});
