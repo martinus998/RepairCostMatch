@@ -42,31 +42,12 @@ jobs:
           p = Path('_site/index.html')
           s = p.read_text()
 
-          # Search-facing copy: preserve the approved visual homepage, improve only metadata/schema.
-          s = s.replace(
-              '<title>Foundation Repair Cost & Local Options | RepairCostMatch</title>',
-              '<title>Foundation Repair Cost Estimator & Quote Checker | RepairCostMatch</title>'
-          )
-          s = s.replace(
-              '<meta name="description" content="Understand foundation repair and basement waterproofing costs, common warning signs, and local repair options. Start with your problem and ZIP code.">',
-              '<meta name="description" content="Estimate foundation repair and basement waterproofing costs, check whether a contractor quote fits a broad planning range, and compare local repair options by ZIP.">'
-          )
-          s = s.replace(
-              '<meta property="og:title" content="Foundation Repair Cost & Local Options | RepairCostMatch">',
-              '<meta property="og:title" content="Foundation Repair Cost Estimator & Quote Checker | RepairCostMatch">'
-          )
-          s = s.replace(
-              '<meta property="og:description" content="Describe the problem, understand likely causes, see a planning cost range and compare local repair options.">',
-              '<meta property="og:description" content="Estimate likely repair costs, check a contractor quote against a broad planning range, and compare local foundation and waterproofing options.">'
-          )
-          s = s.replace(
-              '{"@type":"Organization","name":"RepairCostMatch","url":"https://martinus998.github.io/RepairCostMatch/"}',
-              '{"@type":"Organization","name":"RepairCostMatch","alternateName":["Repair Cost Match","RepairCost Match"],"url":"https://martinus998.github.io/RepairCostMatch/"}'
-          )
-          s = s.replace(
-              '{"@type":"WebSite","name":"RepairCostMatch","url":"https://martinus998.github.io/RepairCostMatch/","inLanguage":"en-US"}',
-              '{"@type":"WebSite","name":"RepairCostMatch","alternateName":["Repair Cost Match","RepairCost Match"],"url":"https://martinus998.github.io/RepairCostMatch/","inLanguage":"en-US"}'
-          )
+          s = s.replace('<title>Foundation Repair Cost & Local Options | RepairCostMatch</title>','<title>Foundation Repair Cost Estimator & Quote Checker | RepairCostMatch</title>')
+          s = s.replace('<meta name="description" content="Understand foundation repair and basement waterproofing costs, common warning signs, and local repair options. Start with your problem and ZIP code.">','<meta name="description" content="Estimate foundation repair and basement waterproofing costs, check whether a contractor quote fits a broad planning range, and compare local repair options by ZIP.">')
+          s = s.replace('<meta property="og:title" content="Foundation Repair Cost & Local Options | RepairCostMatch">','<meta property="og:title" content="Foundation Repair Cost Estimator & Quote Checker | RepairCostMatch">')
+          s = s.replace('<meta property="og:description" content="Describe the problem, understand likely causes, see a planning cost range and compare local repair options.">','<meta property="og:description" content="Estimate likely repair costs, check a contractor quote against a broad planning range, and compare local foundation and waterproofing options.">')
+          s = s.replace('{"@type":"Organization","name":"RepairCostMatch","url":"https://martinus998.github.io/RepairCostMatch/"}','{"@type":"Organization","name":"RepairCostMatch","alternateName":["Repair Cost Match","RepairCost Match"],"url":"https://martinus998.github.io/RepairCostMatch/"}')
+          s = s.replace('{"@type":"WebSite","name":"RepairCostMatch","url":"https://martinus998.github.io/RepairCostMatch/","inLanguage":"en-US"}','{"@type":"WebSite","name":"RepairCostMatch","alternateName":["Repair Cost Match","RepairCost Match"],"url":"https://martinus998.github.io/RepairCostMatch/","inLanguage":"en-US"}')
           if 'name="application-name"' not in s:
               s = s.replace('</head>', '<meta name="application-name" content="RepairCostMatch"><meta property="og:locale" content="en_US"></head>', 1)
 
@@ -98,14 +79,10 @@ jobs:
           s = s.replace(old, new)
           p.write_text(s)
 
-          # ExpenseLeak preview: preserve the approved wide dashboard composition on phones.
           ep = Path('_site/expenseleak/index.html')
           if ep.exists():
               es = ep.read_text()
-              es = es.replace(
-                  '<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">',
-                  '<meta name="viewport" content="width=901">'
-              )
+              es = es.replace('<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">','<meta name="viewport" content="width=901">')
               if 'secure-app.css' not in es:
                   es = es.replace('</head>', '<link rel="stylesheet" href="secure-app.css?v=1"></head>', 1)
               if 'secure-ops.css' not in es:
@@ -119,9 +96,11 @@ jobs:
               if 'secure-governance.js' not in es:
                   es = es.replace('</body>', '<script src="secure-governance.js?v=1" defer></script></body>', 1)
               if 'secure-procurement.js' not in es:
-                  es = es.replace('</body>', '<script src="secure-procurement.js?v=1" defer></script></body>', 1)
+                  es = es.replace('</body>', '<script src="secure-procurement.js?v=2" defer></script></body>', 1)
               if 'secure-savings.js' not in es:
                   es = es.replace('</body>', '<script src="secure-savings.js?v=1" defer></script></body>', 1)
+              if 'secure-compliance.js' not in es:
+                  es = es.replace('</body>', '<script src="secure-compliance.js?v=1" defer></script></body>', 1)
               ep.write_text(es)
           PY
       - name: Upload artifact
