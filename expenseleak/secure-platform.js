@@ -1,1 +1,1 @@
-(()=>{const load=(src)=>{const s=document.createElement('script');s.src=src;s.defer=true;document.head.appendChild(s)};load('secure-platform-core.js?v=1');load('secure-data-ops.js?v=1');})();
+(()=>{const load=(src)=>{if(document.querySelector(`script[data-el-loader="${src}"]`))return;const s=document.createElement('script');s.src=src;s.defer=true;s.dataset.elLoader=src;document.head.appendChild(s)};load('secure-platform-core.js?v=1');load('secure-data-ops.js?v=1');load('secure-vault-webhooks.js?v=1');})();
