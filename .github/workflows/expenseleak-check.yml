@@ -47,7 +47,7 @@ jobs:
             'expenseleak/secure-data-quality.js','expenseleak/secure-data-ops.js',
             'expenseleak/secure-executive.js','expenseleak/secure-advanced-intelligence.js',
             'expenseleak/secure-savings.js','expenseleak/secure-billing-readiness.js',
-            'expenseleak/public-product-demo.js','expenseleak/public-competitor-demo.js'
+            'expenseleak/secure-app.js','expenseleak/public-product-demo.js','expenseleak/public-competitor-demo.js'
           ]
           for p in required:
             if not Path(p).is_file(): errors.append(f'Missing required ExpenseLeak launch file: {p}')
@@ -59,8 +59,11 @@ jobs:
             if token not in platform: errors.append(f'ExpenseLeak loader missing {token}')
           if '?v=1' in platform or '?v=2' in platform:
             errors.append('ExpenseLeak child loader must inherit the deploy version; fixed child cache tokens are not allowed')
+          app=Path('expenseleak/secure-app.js').read_text(encoding='utf-8')
+          for token in ['expenseleak_accessible_workspaces','expenseleak_user_preferences','ExpenseLeakSelectedBusinessId','elWorkspaceSwitch']:
+            if token not in app: errors.append(f'Secure app missing multi-workspace safety token: {token}')
           launch=Path('expenseleak/launch-center.js').read_text(encoding='utf-8')
-          for token in ['Paid launch remains gated separately','expenseleak_activation_readiness','expenseleak_data_quality_summary','First value ready','data-el-onboard']:
+          for token in ['Paid launch remains gated separately','expenseleak_activation_readiness','expenseleak_data_quality_summary','First value ready','data-el-onboard','ExpenseLeakSelectedBusinessId']:
             if token not in launch: errors.append(f'Launch center missing required activation/gate token: {token}')
           quality=Path('expenseleak/secure-data-quality.js').read_text(encoding='utf-8')
           for token in ['Data Quality & Launch Readiness','zero connector errors','high-severity alerts']:
@@ -75,12 +78,12 @@ jobs:
           for token in ['Save management report','Executive Management Snapshot']:
             if token not in executive: errors.append(f'Executive reporting missing E2E token: {token}')
           connectors=Path('expenseleak/secure-connectors.js').read_text(encoding='utf-8')
-          for token in ['#vendor_portal=','history.replaceState','public-upload','private ExpenseLeak evidence vault','Do not upload passwords']:
+          for token in ['#vendor_portal=','history.replaceState','public-upload','private ExpenseLeak evidence vault','Do not upload passwords','ExpenseLeakSelectedBusinessId']:
             if token not in connectors: errors.append(f'Connector/Vendor Portal hardening missing token: {token}')
           if '?vendor_portal=' in connectors:
             errors.append('Vendor Portal token must not be placed in URL query parameters')
           billing=Path('expenseleak/secure-billing-readiness.js').read_text(encoding='utf-8')
-          for token in ['Billing & Entitlement Readiness','expenseleak_workspace_entitlements','expenseleak_paid_launch_gate','Live billing locked','database layer','explicit final enable step']:
+          for token in ['Billing & Entitlement Readiness','expenseleak_workspace_entitlements','expenseleak_paid_launch_gate','Live checkout','server-side launch control','ExpenseLeakSelectedBusinessId']:
             if token not in billing: errors.append(f'Billing readiness missing paid-launch guardrail: {token}')
           for page in ['privacy.html','terms.html','security.html','support.html']:
             text=Path('expenseleak/'+page).read_text(encoding='utf-8')
