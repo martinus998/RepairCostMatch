@@ -88,8 +88,9 @@ jobs:
               s = s.replace('</body>', '<script src="quote-checker.js?v=1" defer></script></body>', 1)
           if 'provider-market.js' not in s:
               s = s.replace('</body>', '<script src="provider-market.js?v=2" defer></script></body>', 1)
+          s = s.replace('billing-live.js?v=1', 'billing-live.js?v=2')
           if 'billing-live.js' not in s:
-              s = s.replace('</body>', '<script src="billing-live.js?v=1" defer></script></body>', 1)
+              s = s.replace('</body>', '<script src="billing-live.js?v=2" defer></script></body>', 1)
           old = '<a href="privacy.html">Privacy</a> · <a href="terms.html">Terms</a> · <a href="disclosure.html">Disclosure</a>'
           new = '<a href="about.html">About</a> · <a href="methodology.html">Methodology</a> · <a href="contact.html">Contact</a> · <a href="accessibility.html">Accessibility</a> · <a href="privacy.html">Privacy</a> · <a href="terms.html">Terms</a> · <a href="disclosure.html">Disclosure</a>'
           s = s.replace(old, new)
