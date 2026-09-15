@@ -1,0 +1,52 @@
+name: ExpenseLeak Billing Safety
+
+on:
+  push:
+    branches: ["main"]
+    paths:
+      - "expenseleak/secure-billing-test.js"
+      - "expenseleak/secure-platform.js"
+      - ".github/workflows/expenseleak-billing-safety.yml"
+  pull_request:
+    branches: ["main"]
+    paths:
+      - "expenseleak/secure-billing-test.js"
+      - "expenseleak/secure-platform.js"
+      - ".github/workflows/expenseleak-billing-safety.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - name: Validate test billing client
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --check expenseleak/secure-billing-test.js
+          python3 - <<'PY'
+          from pathlib import Path
+          import sys
+          errors=[]
+          billing=Path('expenseleak/secure-billing-test.js').read_text(encoding='utf-8')
+          loader=Path('expenseleak/secure-platform.js').read_text(encoding='utf-8')
+          required=['Stripe Test Billing','Mode: TEST','Live checkout: locked','expenseleak-billing','test_configuration','Open Stripe TEST Checkout','does not enable production billing']
+          for token in required:
+              if token not in billing: errors.append(f'Missing billing safety token: {token}')
+          if 'secure-billing-test.js' not in loader:
+              errors.append('ExpenseLeak loader does not load secure-billing-test.js')
+          forbidden=['sk_live_','rk_live_','whsec_']
+          for token in forbidden:
+              if token in billing:
+                  errors.append(f'Browser billing client must not contain Stripe secret token marker: {token}')
+          if errors:
+              print('\n'.join('ERROR: '+x for x in errors));sys.exit(1)
+          print('ExpenseLeak billing safety check passed.')
+          PY
