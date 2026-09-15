@@ -1,0 +1,115 @@
+(()=>{
+'use strict';
+if(window.__expenseLeakSectionSearch)return;
+window.__expenseLeakSectionSearch=true;
+
+const cleanText=s=>String(s||'').replace(/\s+/g,' ').trim();
+const norm=s=>cleanText(s).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+const markInteraction=(ms=8000)=>{try{window.ExpenseLeakMarkInteraction?.(ms)}catch{}};
+
+const style=document.createElement('style');
+style.textContent=`
+.el-search-btn{width:38px;height:38px;border:1px solid #4a9ad2;border-radius:999px;background:#0a2239;color:#cfeaff;display:inline-grid;place-items:center;cursor:pointer;padding:0;flex:0 0 auto;transition:border-color .18s ease,background .18s ease,transform .18s ease}
+.el-search-btn:hover,.el-search-btn:focus-visible{border-color:#72d8ff;background:#0d2d4a;outline:none}.el-search-btn:active{transform:scale(.96)}
+.el-search-btn svg{width:18px;height:18px;display:block}
+.el-search-overlay{position:fixed;inset:0;z-index:10000;background:rgba(1,9,17,.78);display:none;align-items:flex-start;justify-content:center;padding:88px 16px 24px}
+.el-search-overlay.show{display:flex}.el-search-modal{width:min(720px,calc(100vw - 32px));max-height:min(720px,calc(100vh - 116px));overflow:hidden;border:1px solid #2b78aa;border-radius:18px;background:#061a2f;box-shadow:0 24px 80px rgba(0,0,0,.55);display:flex;flex-direction:column}
+.el-search-head{padding:14px;display:grid;grid-template-columns:1fr auto;gap:10px;border-bottom:1px solid #17496f}.el-search-input{width:100%;height:46px;border:1px solid #286d9d;border-radius:12px;background:#08243d;color:#f7fbff;padding:0 14px;font:inherit;font-size:16px;outline:none}.el-search-input:focus{border-color:#6bd8ff;box-shadow:0 0 0 2px rgba(100,216,255,.12)}
+.el-search-close{width:46px;height:46px;border:1px solid #286d9d;border-radius:12px;background:#08243d;color:#d7ebfa;font-size:24px;cursor:pointer}.el-search-help{padding:9px 15px;color:#86a9c4;font-size:11px;border-bottom:1px solid #123d5f}.el-search-results{overflow:auto;padding:8px;overscroll-behavior:contain}
+.el-search-result{width:100%;text-align:left;border:1px solid transparent;background:transparent;color:#edf8ff;border-radius:12px;padding:11px 12px;cursor:pointer;display:block}.el-search-result:hover,.el-search-result:focus-visible{border-color:#286d9d;background:#092943;outline:none}.el-search-result b{display:block;font-size:13px;color:#79d9ff;margin-bottom:3px}.el-search-result span{display:block;font-size:11px;color:#9db8ce;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.el-search-empty{padding:26px 14px;text-align:center;color:#94aec5;font-size:13px}
+.el-search-highlight{animation:elSearchPulse 1.15s ease-out}@keyframes elSearchPulse{0%{box-shadow:0 0 0 0 rgba(100,216,255,.65)}100%{box-shadow:0 0 0 12px rgba(100,216,255,0)}}
+@media(max-width:900px){.el-search-overlay{padding-top:78px}.el-search-modal{width:min(680px,calc(100vw - 24px))}}
+`;
+document.head.appendChild(style);
+
+const overlay=document.createElement('div');
+overlay.className='el-search-overlay';
+overlay.setAttribute('role','dialog');
+overlay.setAttribute('aria-modal','true');
+overlay.setAttribute('aria-label','Find a section');
+overlay.innerHTML=`<div class="el-search-modal"><div class="el-search-head"><input class="el-search-input" type="search" autocomplete="off" spellcheck="false" placeholder="Find anything — savings, renewals, vendors, reports…" aria-label="Search ExpenseLeak"><button class="el-search-close" type="button" aria-label="Close search">×</button></div><div class="el-search-help">Searches the live page and jumps directly to the section you choose.</div><div class="el-search-results"></div></div>`;
+document.body.appendChild(overlay);
+
+const input=overlay.querySelector('.el-search-input');
+const results=overlay.querySelector('.el-search-results');
+const closeBtn=overlay.querySelector('.el-search-close');
+let lastFocus=null;
+
+function sectionCandidates(){
+  const seen=new Set(),out=[];
+  const add=(el,title,detail='')=>{
+    if(!el||!el.isConnected||seen.has(el))return;
+    title=cleanText(title);if(!title)return;
+    seen.add(el);out.push({el,title,detail:cleanText(detail)});
+  };
+  document.querySelectorAll('section[id],.preview-box[id],[id^="el"]').forEach(el=>{
+    if(el.closest('.el-search-overlay'))return;
+    const h=el.querySelector(':scope > .el-gov-head h3,:scope > .section-title h2,:scope > h1,:scope > h2,:scope > h3')||el.querySelector('h1,h2,h3');
+    const p=el.querySelector(':scope > .el-gov-head p,:scope > .section-title p,:scope > p');
+    if(h)add(el,h.textContent,p?.textContent||'');
+  });
+  document.querySelectorAll('.el-gov-panel').forEach(el=>{
+    const h=el.querySelector(':scope > .el-gov-title strong,:scope > h3,:scope > h4');
+    if(h)add(el,h.textContent,el.querySelector(':scope > .el-gov-title span')?.textContent||'');
+  });
+  document.querySelectorAll('.section').forEach(el=>{
+    const h=el.querySelector('.section-title h2');if(h)add(el,h.textContent,el.querySelector('.section-title p')?.textContent||'');
+  });
+  return out;
+}
+
+function rank(item,q){
+  const t=norm(item.title),d=norm(item.detail);let score=0;
+  if(!q)return 1;
+  if(t===q)score+=120;
+  if(t.startsWith(q))score+=85;
+  if(t.includes(q))score+=60;
+  const words=q.split(/\s+/).filter(Boolean);
+  for(const w of words){if(t.includes(w))score+=18;if(d.includes(w))score+=5}
+  return score;
+}
+
+function renderResults(){
+  const q=norm(input.value);
+  const items=sectionCandidates().map(x=>({...x,score:rank(x,q)})).filter(x=>!q||x.score>0).sort((a,b)=>b.score-a.score||a.title.localeCompare(b.title)).slice(0,18);
+  results.innerHTML='';
+  if(!items.length){results.innerHTML='<div class="el-search-empty">No matching section found. Try a broader word such as “savings”, “vendor”, “report” or “policy”.</div>';return}
+  for(const item of items){
+    const b=document.createElement('button');b.type='button';b.className='el-search-result';
+    b.innerHTML=`<b></b><span></span>`;b.querySelector('b').textContent=item.title;b.querySelector('span').textContent=item.detail||'Jump to this section';
+    b.addEventListener('click',()=>jumpTo(item.el));results.appendChild(b);
+  }
+}
+
+function openSearch(){
+  markInteraction(12000);lastFocus=document.activeElement;overlay.classList.add('show');document.body.style.overflow='hidden';input.value='';renderResults();setTimeout(()=>input.focus({preventScroll:true}),20);
+}
+function closeSearch(){
+  overlay.classList.remove('show');document.body.style.overflow='';try{lastFocus?.focus?.({preventScroll:true})}catch{}
+}
+function jumpTo(el){
+  markInteraction(10000);overlay.classList.remove('show');document.body.style.overflow='';
+  requestAnimationFrame(()=>{
+    const top=Math.max(0,el.getBoundingClientRect().top+window.scrollY-88);
+    window.scrollTo({top,behavior:'smooth'});
+    el.classList.remove('el-search-highlight');void el.offsetWidth;el.classList.add('el-search-highlight');
+    setTimeout(()=>el.classList.remove('el-search-highlight'),1300);
+  });
+}
+
+input.addEventListener('input',renderResults);
+input.addEventListener('keydown',e=>{if(e.key==='Enter'){const first=results.querySelector('.el-search-result');if(first)first.click()}else if(e.key==='Escape')closeSearch()});
+closeBtn.addEventListener('click',closeSearch);
+overlay.addEventListener('pointerdown',e=>{if(e.target===overlay)closeSearch()});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&overlay.classList.contains('show'))closeSearch();if(e.key==='/'&&!overlay.classList.contains('show')&&!/INPUT|TEXTAREA|SELECT/.test(document.activeElement?.tagName||'')){e.preventDefault();openSearch()}});
+
+function mountButton(){
+  const nav=document.querySelector('.topbar .nav');if(!nav||nav.querySelector('.el-search-btn'))return;
+  const btn=document.createElement('button');btn.type='button';btn.className='el-search-btn';btn.title='Search ExpenseLeak';btn.setAttribute('aria-label','Search ExpenseLeak');
+  btn.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M16 16l4.2 4.2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>';
+  const account=nav.querySelector('.signin');if(account)nav.insertBefore(btn,account);else nav.appendChild(btn);btn.addEventListener('click',openSearch);
+}
+
+mountButton();
+new MutationObserver(mountButton).observe(document.documentElement,{childList:true,subtree:true});
+})();
