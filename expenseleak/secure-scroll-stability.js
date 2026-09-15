@@ -3,23 +3,20 @@
 if(window.__expenseLeakScrollStability)return;
 window.__expenseLeakScrollStability=true;
 
-// Global interaction guard. Dynamic workspace modules can use this signal to
-// avoid rebuilding form-heavy sections while a user is tapping, typing or
-// choosing a native mobile select option.
 let busyUntil=0;
-const markBusy=(ms=12000)=>{busyUntil=Math.max(busyUntil,Date.now()+ms)};
-const isBusy=()=>Date.now()<busyUntil||!!document.activeElement?.matches?.('input,select,textarea,button');
+const markBusy=(ms=5000)=>{busyUntil=Math.max(busyUntil,Date.now()+ms)};
+const isBusy=()=>Date.now()<busyUntil;
 window.ExpenseLeakMarkInteraction=markBusy;
 window.ExpenseLeakIsInteracting=isBusy;
 
 ['pointerdown','touchstart','touchmove','keydown','input','change','focusin'].forEach(type=>{
-  document.addEventListener(type,()=>markBusy(type==='focusin'||type==='input'||type==='change'?15000:7000),{capture:true,passive:type!=='keydown'});
+  document.addEventListener(type,()=>{
+    const ms=type==='focusin'?7000:type==='input'?6000:type==='change'?4500:type==='keydown'?4500:3000;
+    markBusy(ms);
+  },{capture:true,passive:type!=='keydown'});
 });
-document.addEventListener('focusout',()=>{busyUntil=Math.max(busyUntil,Date.now()+1800)},{capture:true});
+document.addEventListener('focusout',()=>markBusy(1600),{capture:true});
 
-// Background dashboard polling is useful, but on a very long mobile workspace
-// it must never interrupt active controls. Long-running refreshes are heavily
-// throttled and deferred while the user is interacting.
 const nativeSetInterval=window.setInterval.bind(window);
 window.setInterval=(fn,delay,...args)=>{
   const ms=Number(delay)||0;
@@ -28,21 +25,18 @@ window.setInterval=(fn,delay,...args)=>{
       if(isBusy())return;
       try{return fn(...cbArgs)}catch(e){console.error(e)}
     };
-    return nativeSetInterval(wrapped,900000,...args); // max one background refresh / 15 min
+    return nativeSetInterval(wrapped,900000,...args);
   }
   return nativeSetInterval(fn,delay,...args);
 };
 
-// Many modules debounce DOM rebuilds through short setTimeout(render...). If a
-// form/select is open, defer those rebuilds instead of destroying the active
-// control and making Android jump to a different scroll position.
 const nativeSetTimeout=window.setTimeout.bind(window);
 window.setTimeout=(fn,delay=0,...args)=>{
   const source=typeof fn==='function'?Function.prototype.toString.call(fn):'';
   const looksLikeUiRefresh=/\b(render|refresh|schedule)\b/i.test(source);
   if(looksLikeUiRefresh&&Number(delay)<=5000){
     const guarded=()=>{
-      if(isBusy())return nativeSetTimeout(guarded,1200);
+      if(isBusy())return nativeSetTimeout(guarded,700);
       try{return fn(...args)}catch(e){console.error(e)}
     };
     return nativeSetTimeout(guarded,delay);
@@ -59,17 +53,14 @@ style.textContent=`
   [id^="el"]{scroll-margin-top:84px}
 
   @media(max-width:760px){
-    /* Expensive fixed/blur effects are reduced on Android to keep scrolling and
-       native controls responsive. Visual appearance stays essentially the same. */
     body{background-attachment:scroll!important}
     body:before{position:absolute!important}
     .topbar{backdrop-filter:none!important;-webkit-backdrop-filter:none!important;background:rgba(5,19,34,.97)!important}
     .el-userbar{backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
     .preview-box,.el-panel,.el-ops-panel,.el-gov-panel{contain:layout paint style}
+    input,select,textarea,button{-webkit-tap-highlight-color:transparent;touch-action:manipulation}
   }
 
-  /* Mobile readability pass: preserve the design while making the smallest
-     labels easier to read. */
   @media(max-width:560px){
     .brand{font-size:19px!important}
     .brand small{font-size:9px!important}
