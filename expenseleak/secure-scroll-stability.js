@@ -5,11 +5,12 @@ window.__expenseLeakScrollStability=true;
 
 let busyUntil=0,deferredWorkspaceDetail=null,deferredTimer=null;
 let layoutSettlingUntil=0,layoutClassTimer=null;
+let scrolling=false,scrollIdleTimer=null;
 const isEditor=el=>!!(el&&(el.matches?.('input,textarea,select,[contenteditable="true"]')||el.isContentEditable));
 const activeEditor=()=>isEditor(document.activeElement);
 const markBusy=(ms=5000)=>{busyUntil=Math.max(busyUntil,Date.now()+ms)};
 const isBusy=()=>Date.now()<busyUntil;
-const shouldDefer=()=>isBusy()||activeEditor();
+const shouldDefer=()=>isBusy()||activeEditor()||scrolling;
 const layoutIsSettling=()=>Date.now()<layoutSettlingUntil;
 function markLayoutSettling(ms=2600){
   layoutSettlingUntil=Math.max(layoutSettlingUntil,Date.now()+ms);
@@ -54,7 +55,7 @@ function flushDeferredWorkspace(){
     if(!deferredWorkspaceDetail)return;
     const detail=deferredWorkspaceDetail;deferredWorkspaceDetail=null;
     window.dispatchEvent(new CustomEvent('expenseleak:workspace-ready',{detail}));
-  },900);
+  },650);
 }
 
 window.addEventListener('expenseleak:workspace-ready',e=>{
@@ -65,7 +66,7 @@ window.addEventListener('expenseleak:workspace-ready',e=>{
 },true);
 
 const durations={
-  pointerdown:2500,touchstart:3000,touchmove:2200,keydown:4500,
+  pointerdown:900,touchstart:900,touchmove:650,keydown:4500,
   beforeinput:9000,input:10000,paste:12000,change:6500,focusin:15000
 };
 for(const type of Object.keys(durations)){
@@ -76,8 +77,21 @@ for(const type of Object.keys(durations)){
     }
   },{capture:true,passive:!['keydown','beforeinput','paste'].includes(type)});
 }
+
+window.addEventListener('scroll',()=>{
+  scrolling=true;
+  markBusy(500);
+  document.body?.classList.add('el-user-scrolling');
+  clearTimeout(scrollIdleTimer);
+  scrollIdleTimer=setTimeout(()=>{
+    scrolling=false;
+    document.body?.classList.remove('el-user-scrolling');
+    if(deferredWorkspaceDetail)flushDeferredWorkspace();
+  },360);
+},{passive:true});
+
 document.addEventListener('focusout',()=>{
-  markBusy(2600);
+  markBusy(1200);
   setTimeout(()=>{
     setFormActive(activeEditor());
     if(!activeEditor()&&deferredWorkspaceDetail)flushDeferredWorkspace();
@@ -92,12 +106,14 @@ window.addEventListener('load',()=>markLayoutSettling(1500),{once:true});
 const style=document.createElement('style');
 style.id='elScrollStabilityStyles';
 style.textContent=`
-  html,body{scroll-behavior:auto!important;overflow-anchor:none!important}
+  html,body{scroll-behavior:auto!important;overflow-anchor:auto!important}
   body{overscroll-behavior-y:none}
-  .el-userbar,.el-auth-modal,.topbar,[id^="el"]{overflow-anchor:none!important}
+  .wrap,[id^="el"]{overflow-anchor:auto!important}
+  .el-userbar,.el-auth-modal,.topbar,.el-search-lite{overflow-anchor:none!important}
   [id^="el"]{scroll-margin-top:84px}
   body.el-form-active [id^="el"],body.el-form-active .preview-box,body.el-form-active .el-panel,body.el-form-active .el-gov-panel{animation:none!important;transition:none!important}
   body.el-layout-settling [id^="el"],body.el-layout-settling .preview-box,body.el-layout-settling .el-panel,body.el-layout-settling .el-gov-panel{animation:none!important;transition:none!important}
+  body.el-user-scrolling [id^="el"],body.el-user-scrolling .preview-box,body.el-user-scrolling .el-panel,body.el-user-scrolling .el-gov-panel{animation:none!important;transition:none!important}
 
   @media(max-width:760px){
     body{background-attachment:scroll!important}
