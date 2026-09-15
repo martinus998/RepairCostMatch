@@ -94,7 +94,7 @@
     const band=document.getElementById('resultBand')?.textContent.trim()||'—';
     const text=document.getElementById('resultText')?.textContent.trim()||'';
     const zip=document.getElementById('zip')?.value.trim()||'Not provided';
-    return `RepairCostMatch — Repair Planning Summary\n\nProblem: ${selected('problem')}\nSeverity: ${selected('severity')}\nFoundation/space: ${selected('foundation')}\nZIP: ${zip}\nPlanning band: ${band}\n${text}\n\nEducational planning only — not a contractor quote or structural diagnosis.\nReviewed Sep 13, 2026.\nhttps://martinus998.github.io/RepairCostMatch/`;
+    return `RepairCostMatch — Repair Planning Summary\n\nProblem: ${selected('problem')}\nSeverity: ${selected('severity')}\nFoundation/space: ${selected('foundation')}\nZIP: ${zip}\nPlanning band: ${band}\n${text}\n\nEducational planning only — not a contractor quote or structural diagnosis.\nReviewed Sep 13, 2026.\nhttps://repaircostmatch.com/`;
   }
 
   document.addEventListener('click',async e=>{

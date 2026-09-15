@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://martinus998.github.io/RepairCostMatch/sitemap.xml
+Sitemap: https://repaircostmatch.com/sitemap.xml
