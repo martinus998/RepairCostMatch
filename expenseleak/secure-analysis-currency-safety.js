@@ -1,0 +1,14 @@
+(()=>{
+'use strict';
+const U='https://bkyuyqicybqqifenhhux.supabase.co',K='sb_publishable_o-RgVfTUjzfne4DC9QcGfQ_4QGg5CVr';
+let sb,businessId,timer,observer;
+const sleep=m=>new Promise(r=>setTimeout(r,m));
+const clean=s=>String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+function schedule(ms=250){clearTimeout(timer);timer=setTimeout(()=>run().catch(console.error),ms)}
+async function context(){const {data:{user}}=await sb.auth.getUser();if(!user){document.querySelector('#elAnalysisCurrencySafety')?.remove();return false}businessId=window.ExpenseLeakSelectedBusinessId||null;return !!businessId}
+async function currencies(){const sets=new Set();for(const [table,columns] of [['expenseleak_transactions','currency'],['expenseleak_contracts','currency'],['expenseleak_findings','currency']]){const {data,error}=await sb.from(table).select(columns).eq('business_id',businessId).limit(5000);if(error)continue;for(const row of data||[]){const c=String(row.currency||'').trim().toUpperCase();if(/^[A-Z]{3}$/.test(c))sets.add(c)}}return [...sets].sort()}
+function mountNote(curs,unsafe){let note=document.querySelector('#elAnalysisCurrencySafety');if(!note){note=document.createElement('div');note.id='elAnalysisCurrencySafety';note.className='el-gov-note';const result=document.querySelector('#elSecureResults'),anchor=result||document.querySelector('#audit');if(anchor&&anchor!==document.body)anchor.insertAdjacentElement('afterend',note);else(document.querySelector('.wrap')||document.body).appendChild(note)}if(unsafe){note.innerHTML=`<b>Currency safety active:</b> the older immediate analysis card is hidden because this workspace uses ${clean(curs.length?curs.join(', '):'an unconfirmed currency')}. Use the Currency-safe Financial Summary and Realized Savings Tracker for monetary totals.`;note.style.display=''}else note.style.display='none'}
+async function run(){if(!(await context()))return;const curs=await currencies(),unsafe=curs.length>1||(curs.length===1&&curs[0]!=='USD');const result=document.querySelector('#elSecureResults');if(result){result.style.display=unsafe?'none':'';result.dataset.currencySafety=unsafe?'quarantined':'safe'}mountNote(curs,unsafe)}
+async function init(){for(let i=0;i<80&&!window.supabase;i++)await sleep(100);if(!window.supabase)return;sb=window.supabase.createClient(U,K,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});observer=new MutationObserver(()=>schedule(120));observer.observe(document.body,{childList:true,subtree:true});await run().catch(console.error);sb.auth.onAuthStateChange(()=>schedule(350));window.addEventListener('expenseleak:workspace-ready',()=>schedule(50));document.addEventListener('click',e=>{if(e.target?.id==='elAnalyzeSecure'||e.target?.id==='elDash')schedule(2200)},true)}
+init().catch(console.error);
+})();
