@@ -88,7 +88,7 @@ jobs:
           for token in ['Currency-safe Financial Summary','never adds different currencies together','ambiguous findings','ExpenseLeakSelectedBusinessId','currencyGuard']:
             if token not in currency: errors.append(f'Currency safety guard missing token: {token}')
           beta=Path('expenseleak/secure-beta-readiness.js').read_text(encoding='utf-8')
-          for token in ['Beta Readiness Runbook','expenseleak_beta_readiness','Core beta','Real connector E2E','Paid checkout','ExpenseLeakSelectedBusinessId']:
+          for token in ['Beta Readiness Runbook','expenseleak_beta_readiness','Core programmatic','Manual core E2E evidence','Release candidate','manual_core_e2e_ready','extended_release_candidate_ready','Paid checkout','ExpenseLeakSelectedBusinessId']:
             if token not in beta: errors.append(f'Beta readiness runbook missing token: {token}')
           e2e=Path('expenseleak/secure-beta-e2e.js').read_text(encoding='utf-8')
           for token in ['Beta E2E Evidence','expenseleak_beta_e2e_runs','expenseleak_beta_e2e_latest','Do not paste secrets','does not enable checkout','billing_lifecycle','vendor_portal']:
@@ -108,7 +108,7 @@ jobs:
           for token in ['Create review action','data-ap-review','data-ap-matched','does not automatically remove access']:
             if token not in advanced: errors.append(f'Advanced intelligence missing controlled-action token: {token}')
           savings=Path('expenseleak/secure-savings.js').read_text(encoding='utf-8')
-          for token in ['Realized Savings Tracker','Only workspace-confirmed values','Currency totals are kept separate']:
+          for token in ['Realized Savings Tracker','Only workspace-confirmed values','Currency totals are kept separate','finding.currency']:
             if token not in savings: errors.append(f'Savings workflow missing evidence/safety token: {token}')
           executive=Path('expenseleak/secure-executive.js').read_text(encoding='utf-8')
           for token in ['Save management report','Executive Management Snapshot']:
@@ -119,7 +119,7 @@ jobs:
           if '?vendor_portal=' in connectors:
             errors.append('Vendor Portal token must not be placed in URL query parameters')
           billing=Path('expenseleak/secure-billing-readiness.js').read_text(encoding='utf-8')
-          for token in ['Billing & Entitlement Readiness','expenseleak_workspace_entitlements','expenseleak_paid_launch_gate','Live checkout','server-side launch control','ExpenseLeakSelectedBusinessId']:
+          for token in ['Billing & Entitlement Readiness','expenseleak_workspace_entitlements','expenseleak_paid_launch_gate','expenseleak_billing_e2e_evidence','expenseleak_commercial_plan_public','Commercial billing target','Selected commercial Stripe account','Live checkout','server-side launch controls','ExpenseLeakSelectedBusinessId']:
             if token not in billing: errors.append(f'Billing readiness missing paid-launch guardrail: {token}')
           for page in ['privacy.html','terms.html','security.html','support.html']:
             text=Path('expenseleak/'+page).read_text(encoding='utf-8')
