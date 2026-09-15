@@ -6,11 +6,14 @@ window.__expenseLeakScrollStability=true;
 let busyUntil=0,deferredWorkspaceDetail=null,deferredTimer=null;
 let layoutSettlingUntil=0,layoutClassTimer=null;
 let scrolling=false,scrollIdleTimer=null;
+let booting=true,platformReady=!!window.ExpenseLeakPlatformScriptsReady,bootObserver=null,bootRaf=0;
+const bootStarted=performance.now();
+let bootLastChange=bootStarted,bootLastHeight=document.documentElement.scrollHeight;
 const isEditor=el=>!!(el&&(el.matches?.('input,textarea,select,[contenteditable="true"]')||el.isContentEditable));
 const activeEditor=()=>isEditor(document.activeElement);
 const markBusy=(ms=5000)=>{busyUntil=Math.max(busyUntil,Date.now()+ms)};
 const isBusy=()=>Date.now()<busyUntil;
-const shouldDefer=()=>isBusy()||activeEditor()||scrolling;
+const shouldDefer=()=>isBusy()||activeEditor()||scrolling||booting;
 const layoutIsSettling=()=>Date.now()<layoutSettlingUntil;
 function markLayoutSettling(ms=2600){
   layoutSettlingUntil=Math.max(layoutSettlingUntil,Date.now()+ms);
@@ -58,6 +61,57 @@ function flushDeferredWorkspace(){
   },650);
 }
 
+function finishBoot(){
+  if(!booting)return;
+  booting=false;
+  cancelAnimationFrame(bootRaf);
+  bootObserver?.disconnect();
+  document.documentElement.classList.remove('el-initializing');
+  document.body?.classList.remove('el-initializing');
+  const bar=document.querySelector('#elInitBar');
+  if(bar){bar.classList.add('done');setTimeout(()=>bar.remove(),260)}
+  window.removeEventListener('wheel',blockBootScroll,true);
+  document.removeEventListener('touchmove',blockBootScroll,true);
+  window.dispatchEvent(new CustomEvent('expenseleak:initial-layout-stable'));
+  if(deferredWorkspaceDetail)flushDeferredWorkspace();
+}
+function blockBootScroll(e){if(booting&&e.cancelable)e.preventDefault()}
+function bootTick(){
+  if(!booting)return;
+  const now=performance.now();
+  const height=document.documentElement.scrollHeight;
+  if(Math.abs(height-bootLastHeight)>2){bootLastHeight=height;bootLastChange=now}
+  const domReady=document.readyState!=='loading';
+  const scriptsReady=platformReady||now-bootStarted>=2200;
+  const quiet=now-bootLastChange>=620;
+  const minimum=now-bootStarted>=900;
+  if((domReady&&scriptsReady&&quiet&&minimum)||now-bootStarted>=4200){finishBoot();return}
+  bootRaf=requestAnimationFrame(bootTick);
+}
+function startBootGuard(){
+  if(!booting)return;
+  document.documentElement.classList.add('el-initializing');
+  document.body?.classList.add('el-initializing');
+  if(document.body&&!document.querySelector('#elInitBar')){
+    const bar=document.createElement('div');bar.id='elInitBar';bar.setAttribute('aria-hidden','true');bar.innerHTML='<i></i>';document.body.appendChild(bar);
+  }
+  bootObserver?.disconnect();
+  if(document.body){
+    bootObserver=new MutationObserver(()=>{bootLastChange=performance.now()});
+    bootObserver.observe(document.body,{childList:true,subtree:true});
+  }
+  window.addEventListener('wheel',blockBootScroll,{capture:true,passive:false});
+  document.addEventListener('touchmove',blockBootScroll,{capture:true,passive:false});
+  cancelAnimationFrame(bootRaf);
+  bootRaf=requestAnimationFrame(bootTick);
+}
+window.addEventListener('expenseleak:platform-scripts-ready',()=>{
+  platformReady=true;
+  bootLastChange=performance.now();
+  markLayoutSettling(650);
+});
+if(document.body)startBootGuard();else document.addEventListener('DOMContentLoaded',startBootGuard,{once:true});
+
 window.addEventListener('expenseleak:workspace-ready',e=>{
   if(!shouldDefer())return;
   deferredWorkspaceDetail=e.detail||deferredWorkspaceDetail||{};
@@ -79,6 +133,7 @@ for(const type of Object.keys(durations)){
 }
 
 window.addEventListener('scroll',()=>{
+  if(booting)return;
   scrolling=true;
   markBusy(500);
   document.body?.classList.add('el-user-scrolling');
@@ -108,8 +163,12 @@ style.id='elScrollStabilityStyles';
 style.textContent=`
   html,body{scroll-behavior:auto!important;overflow-anchor:auto!important}
   body{overscroll-behavior-y:none}
+  html.el-initializing,html.el-initializing body{overflow:hidden!important;overscroll-behavior:none!important}
+  #elInitBar{position:fixed;z-index:20000;left:0;right:0;top:0;height:3px;background:rgba(87,190,255,.14);pointer-events:none;overflow:hidden;opacity:1;transition:opacity .22s ease}
+  #elInitBar i{display:block;height:100%;width:38%;background:linear-gradient(90deg,transparent,#69d8ff,#4d9dff,transparent);animation:elInitSweep 1.05s ease-in-out infinite}
+  #elInitBar.done{opacity:0}@keyframes elInitSweep{0%{transform:translateX(-120%)}100%{transform:translateX(360%)}}
   .wrap,[id^="el"]{overflow-anchor:auto!important}
-  .el-userbar,.el-auth-modal,.topbar,.el-search-lite{overflow-anchor:none!important}
+  .el-userbar,.el-auth-modal,.topbar,.el-search-lite,#elInitBar{overflow-anchor:none!important}
   [id^="el"]{scroll-margin-top:84px}
   body.el-form-active [id^="el"],body.el-form-active .preview-box,body.el-form-active .el-panel,body.el-form-active .el-gov-panel{animation:none!important;transition:none!important}
   body.el-layout-settling [id^="el"],body.el-layout-settling .preview-box,body.el-layout-settling .el-panel,body.el-layout-settling .el-gov-panel{animation:none!important;transition:none!important}
