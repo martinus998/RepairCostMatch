@@ -23,18 +23,27 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          bad=$(find . -type f \( -name '.env' -o -name '.env.*' -o -name '*.pem' -o -name '*.key' -o -name '*.p12' -o -name '*.pfx' -o -name '*.jks' -o -name '*.keystore' -o -name 'credentials*.json' -o -name 'service-account*.json' -o -name 'secrets.json' -o -name '*.secret' \) ! -name '.env.example' -print)
+          bad=$(find . -type f \( -name '.env' -o -name '.env.*' -o -name '*.pem' -o -name '*.key' -o -name '*.p12' -o -name '*.pfx' -o -name '*.jks' -o -name '*.keystore' -o -name 'credentials*.json' -o -name 'service-account*.json' -o -name 'secrets.json' -o -name '*.secret' -o -name '*.sqlite' -o -name '*.sqlite3' \) ! -name '.env.example' -print)
           if [ -n "$bad" ]; then
             echo "Sensitive file(s) must not be committed:"
             echo "$bad"
             exit 1
           fi
-      - name: Scan for common live credentials
+      - name: Scan for common credentials
         shell: bash
         run: |
           set -euo pipefail
-          patterns='AKIA[0-9A-Z]{16}|ghp_[A-Za-z0-9]{30,}|github_pat_[A-Za-z0-9_]{30,}|sk_live_[A-Za-z0-9]{16,}|rk_live_[A-Za-z0-9]{16,}|sk-proj-[A-Za-z0-9_-]{20,}|xox[baprs]-[A-Za-z0-9-]{10,}|BEGIN (RSA |EC |OPENSSH )?PRIVATE KEY'
+          patterns='AKIA[0-9A-Z]{16}|ghp_[A-Za-z0-9]{30,}|github_pat_[A-Za-z0-9_]{30,}|sk_(live|test)_[A-Za-z0-9]{16,}|rk_(live|test)_[A-Za-z0-9]{16,}|whsec_[A-Za-z0-9]{16,}|sk-proj-[A-Za-z0-9_-]{20,}|xox[baprs]-[A-Za-z0-9-]{10,}|GOCSPX-[A-Za-z0-9_-]{20,}|BEGIN (RSA |EC |OPENSSH )?PRIVATE KEY'
           if grep -RInE --exclude-dir=.git --exclude='security-audit.yml' "$patterns" .; then
-            echo 'Potential live credential detected.'
+            echo 'Potential credential detected.'
+            exit 1
+          fi
+      - name: Block obvious secret assignments
+        shell: bash
+        run: |
+          set -euo pipefail
+          patterns='(STRIPE_SECRET_KEY|STRIPE_WEBHOOK_SECRET|SUPABASE_SERVICE_ROLE_KEY|GOOGLE_CLIENT_SECRET|MICROSOFT_CLIENT_SECRET|SLACK_CLIENT_SECRET|XERO_CLIENT_SECRET|QUICKBOOKS_CLIENT_SECRET|OPENAI_API_KEY)[[:space:]]*[:=][[:space:]]*["'"'']?[A-Za-z0-9_./+-]{12,}'
+          if grep -RInE --exclude-dir=.git --exclude='security-audit.yml' "$patterns" .; then
+            echo 'Potential hard-coded secret assignment detected.'
             exit 1
           fi
