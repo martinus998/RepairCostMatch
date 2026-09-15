@@ -4,14 +4,47 @@ if(window.__expenseLeakScrollStability)return;
 window.__expenseLeakScrollStability=true;
 
 let busyUntil=0,deferredWorkspaceDetail=null,deferredTimer=null;
+let layoutSettlingUntil=0,layoutClassTimer=null;
 const isEditor=el=>!!(el&&(el.matches?.('input,textarea,select,[contenteditable="true"]')||el.isContentEditable));
 const activeEditor=()=>isEditor(document.activeElement);
 const markBusy=(ms=5000)=>{busyUntil=Math.max(busyUntil,Date.now()+ms)};
 const isBusy=()=>Date.now()<busyUntil;
 const shouldDefer=()=>isBusy()||activeEditor();
+const layoutIsSettling=()=>Date.now()<layoutSettlingUntil;
+function markLayoutSettling(ms=2600){
+  layoutSettlingUntil=Math.max(layoutSettlingUntil,Date.now()+ms);
+  markBusy(ms);
+  document.body?.classList.add('el-layout-settling');
+  clearTimeout(layoutClassTimer);
+  layoutClassTimer=setTimeout(()=>document.body?.classList.remove('el-layout-settling'),ms+120);
+}
+function waitForStableLayout(options={}){
+  const timeout=Math.max(600,Number(options.timeout)||3600);
+  const stableFor=Math.max(180,Number(options.stableFor)||450);
+  return new Promise(resolve=>{
+    const started=performance.now();
+    let lastChange=started;
+    let lastHeight=document.documentElement.scrollHeight;
+    let lastViewport=Math.round(window.visualViewport?.height||window.innerHeight||0);
+    const tick=()=>{
+      const now=performance.now();
+      const height=document.documentElement.scrollHeight;
+      const viewport=Math.round(window.visualViewport?.height||window.innerHeight||0);
+      if(Math.abs(height-lastHeight)>2||Math.abs(viewport-lastViewport)>2){
+        lastHeight=height;lastViewport=viewport;lastChange=now;
+      }
+      if((!layoutIsSettling()&&now-lastChange>=stableFor)||now-started>=timeout){resolve();return}
+      requestAnimationFrame(tick);
+    };
+    requestAnimationFrame(tick);
+  });
+}
 window.ExpenseLeakMarkInteraction=markBusy;
 window.ExpenseLeakIsInteracting=isBusy;
 window.ExpenseLeakShouldDeferUiRefresh=shouldDefer;
+window.ExpenseLeakLayoutIsSettling=layoutIsSettling;
+window.ExpenseLeakMarkLayoutSettling=markLayoutSettling;
+window.ExpenseLeakWaitForStableLayout=waitForStableLayout;
 
 function setFormActive(on){document.body?.classList.toggle('el-form-active',!!on)}
 function flushDeferredWorkspace(){
@@ -50,7 +83,11 @@ document.addEventListener('focusout',()=>{
     if(!activeEditor()&&deferredWorkspaceDetail)flushDeferredWorkspace();
   },80);
 },{capture:true});
-document.addEventListener('visibilitychange',()=>{if(!document.hidden)markBusy(1800)});
+document.addEventListener('visibilitychange',()=>{
+  if(!document.hidden)markLayoutSettling(2600);
+});
+window.addEventListener('pageshow',e=>{if(e.persisted)markLayoutSettling(3000)});
+window.addEventListener('load',()=>markLayoutSettling(1500),{once:true});
 
 const style=document.createElement('style');
 style.id='elScrollStabilityStyles';
@@ -60,6 +97,7 @@ style.textContent=`
   .el-userbar,.el-auth-modal,.topbar,[id^="el"]{overflow-anchor:none!important}
   [id^="el"]{scroll-margin-top:84px}
   body.el-form-active [id^="el"],body.el-form-active .preview-box,body.el-form-active .el-panel,body.el-form-active .el-gov-panel{animation:none!important;transition:none!important}
+  body.el-layout-settling [id^="el"],body.el-layout-settling .preview-box,body.el-layout-settling .el-panel,body.el-layout-settling .el-gov-panel{animation:none!important;transition:none!important}
 
   @media(max-width:760px){
     body{background-attachment:scroll!important}
