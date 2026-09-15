@@ -6,6 +6,18 @@ window.__expenseLeakSectionSearch=true;
 const cleanText=s=>String(s||'').replace(/\s+/g,' ').trim();
 const norm=s=>cleanText(s).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
 const markInteraction=(ms=8000)=>{try{window.ExpenseLeakMarkInteraction?.(ms)}catch{}};
+const privateSections=[
+  {title:'Realized Savings Tracker',selector:'#elSavingsRealized',aliases:'realized savings confirmed savings savings outcomes savings tracker'},
+  {title:'Renewal Intelligence & Savings Planning',selector:'#elRenewalIntel',aliases:'renewal renewals savings forecast'},
+  {title:'Executive Command Center',selector:'#elExecutive',aliases:'executive management reports command center'},
+  {title:'Procurement & Governance Center',selector:'#elProcurement',aliases:'procurement governance vendors contracts'},
+  {title:'Policy Center & Exception Management',selector:'#elPolicyCenter',aliases:'policy policies exceptions approvals'},
+  {title:'Beta E2E Evidence',selector:'#elBetaE2E',aliases:'e2e beta evidence testing'},
+  {title:'Connector E2E Verification',selector:'#elConnectorVerification',aliases:'connector e2e verification integrations'},
+  {title:'Advanced Spend Controls',selector:'#elOptimize',aliases:'advanced spend controls forecast unmanaged spend vendor risk'},
+  {title:'Compliance, Audit & Executive Reporting',selector:'#elCompliance',aliases:'compliance audit reporting evidence'},
+  {title:'Team, Cost Centers & Approval Rules',selector:'#elTeam',aliases:'team cost centers approvals roles permissions'}
+];
 
 const style=document.createElement('style');
 style.textContent=`
@@ -16,7 +28,7 @@ style.textContent=`
 .el-search-overlay.show{display:flex}.el-search-modal{width:min(720px,calc(100vw - 32px));max-height:min(720px,calc(100vh - 116px));overflow:hidden;border:1px solid #2b78aa;border-radius:18px;background:#061a2f;box-shadow:0 24px 80px rgba(0,0,0,.55);display:flex;flex-direction:column}
 .el-search-head{padding:14px;display:grid;grid-template-columns:1fr auto;gap:10px;border-bottom:1px solid #17496f}.el-search-input{width:100%;height:46px;border:1px solid #286d9d;border-radius:12px;background:#08243d;color:#f7fbff;padding:0 14px;font:inherit;font-size:16px;outline:none}.el-search-input:focus{border-color:#6bd8ff;box-shadow:0 0 0 2px rgba(100,216,255,.12)}
 .el-search-close{width:46px;height:46px;border:1px solid #286d9d;border-radius:12px;background:#08243d;color:#d7ebfa;font-size:24px;cursor:pointer}.el-search-help{padding:9px 15px;color:#86a9c4;font-size:11px;border-bottom:1px solid #123d5f}.el-search-results{overflow:auto;padding:8px;overscroll-behavior:contain}
-.el-search-result{width:100%;text-align:left;border:1px solid transparent;background:transparent;color:#edf8ff;border-radius:12px;padding:11px 12px;cursor:pointer;display:block}.el-search-result:hover,.el-search-result:focus-visible{border-color:#286d9d;background:#092943;outline:none}.el-search-result b{display:block;font-size:13px;color:#79d9ff;margin-bottom:3px}.el-search-result span{display:block;font-size:11px;color:#9db8ce;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.el-search-empty{padding:26px 14px;text-align:center;color:#94aec5;font-size:13px}
+.el-search-result{width:100%;text-align:left;border:1px solid transparent;background:transparent;color:#edf8ff;border-radius:12px;padding:11px 12px;cursor:pointer;display:block}.el-search-result:hover,.el-search-result:focus-visible{border-color:#286d9d;background:#092943;outline:none}.el-search-result b{display:block;font-size:13px;color:#79d9ff;margin-bottom:3px}.el-search-result span{display:block;font-size:11px;color:#9db8ce;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.el-search-result.locked b:after{content:'  🔒';font-size:11px}.el-search-result.locked span{color:#ffb46f}.el-search-empty{padding:26px 14px;text-align:center;color:#94aec5;font-size:13px}
 .el-search-highlight{animation:elSearchPulse 1.15s ease-out}@keyframes elSearchPulse{0%{box-shadow:0 0 0 0 rgba(100,216,255,.65)}100%{box-shadow:0 0 0 12px rgba(100,216,255,0)}}
 @media(max-width:900px){.el-search-overlay{padding-top:78px}.el-search-modal{width:min(680px,calc(100vw - 24px))}}
 `;
@@ -34,13 +46,14 @@ const input=overlay.querySelector('.el-search-input');
 const results=overlay.querySelector('.el-search-results');
 const closeBtn=overlay.querySelector('.el-search-close');
 let lastFocus=null;
+const signedIn=()=>!!document.querySelector('#elUserbar.show')||/account/i.test(document.querySelector('.topbar .signin')?.textContent||'');
 
 function sectionCandidates(){
   const seen=new Set(),out=[];
-  const add=(el,title,detail='')=>{
-    if(!el||!el.isConnected||seen.has(el))return;
+  const add=(el,title,detail='',meta={})=>{
+    if(el&&(!el.isConnected||seen.has(el)))return;
     title=cleanText(title);if(!title)return;
-    seen.add(el);out.push({el,title,detail:cleanText(detail)});
+    if(el)seen.add(el);out.push({el,title,detail:cleanText(detail),...meta});
   };
   document.querySelectorAll('section[id],.preview-box[id],[id^="el"]').forEach(el=>{
     if(el.closest('.el-search-overlay'))return;
@@ -55,46 +68,48 @@ function sectionCandidates(){
   document.querySelectorAll('.section').forEach(el=>{
     const h=el.querySelector('.section-title h2');if(h)add(el,h.textContent,el.querySelector('.section-title p')?.textContent||'');
   });
+  for(const p of privateSections){
+    const el=document.querySelector(p.selector);
+    if(el){
+      if(!seen.has(el))add(el,p.title,'Private workspace section',{aliases:p.aliases,private:true});
+    }else{
+      add(null,p.title,signedIn()?'Workspace section is still loading — tap to retry.':'Sign in to open this private workspace section.',{aliases:p.aliases,private:true,locked:!signedIn(),selector:p.selector});
+    }
+  }
   return out;
 }
 
 function rank(item,q){
-  const t=norm(item.title),d=norm(item.detail);let score=0;
-  if(!q)return 1;
-  if(t===q)score+=120;
-  if(t.startsWith(q))score+=85;
-  if(t.includes(q))score+=60;
+  const t=norm(item.title),d=norm(item.detail),a=norm(item.aliases||'');let score=0;
+  if(!q)return item.locked?0:1;
+  if(t===q)score+=150;
+  if(t.startsWith(q))score+=100;
+  if(t.includes(q))score+=75;
+  if(a.includes(q))score+=55;
   const words=q.split(/\s+/).filter(Boolean);
-  for(const w of words){if(t.includes(w))score+=18;if(d.includes(w))score+=5}
+  for(const w of words){if(t.includes(w))score+=20;if(a.includes(w))score+=12;if(d.includes(w))score+=4}
   return score;
 }
 
 function renderResults(){
   const q=norm(input.value);
-  const items=sectionCandidates().map(x=>({...x,score:rank(x,q)})).filter(x=>!q||x.score>0).sort((a,b)=>b.score-a.score||a.title.localeCompare(b.title)).slice(0,18);
+  const items=sectionCandidates().map(x=>({...x,score:rank(x,q)})).filter(x=>!q?!x.locked:x.score>0).sort((a,b)=>b.score-a.score||Number(a.locked)-Number(b.locked)||a.title.localeCompare(b.title)).slice(0,18);
   results.innerHTML='';
   if(!items.length){results.innerHTML='<div class="el-search-empty">No matching section found. Try a broader word such as “savings”, “vendor”, “report” or “policy”.</div>';return}
   for(const item of items){
-    const b=document.createElement('button');b.type='button';b.className='el-search-result';
+    const b=document.createElement('button');b.type='button';b.className='el-search-result'+(item.locked?' locked':'');
     b.innerHTML=`<b></b><span></span>`;b.querySelector('b').textContent=item.title;b.querySelector('span').textContent=item.detail||'Jump to this section';
-    b.addEventListener('click',()=>jumpTo(item.el));results.appendChild(b);
+    b.addEventListener('click',()=>activate(item));results.appendChild(b);
   }
 }
 
-function openSearch(){
-  markInteraction(12000);lastFocus=document.activeElement;overlay.classList.add('show');document.body.style.overflow='hidden';input.value='';renderResults();setTimeout(()=>input.focus({preventScroll:true}),20);
-}
-function closeSearch(){
-  overlay.classList.remove('show');document.body.style.overflow='';try{lastFocus?.focus?.({preventScroll:true})}catch{}
-}
-function jumpTo(el){
-  markInteraction(10000);overlay.classList.remove('show');document.body.style.overflow='';
-  requestAnimationFrame(()=>{
-    const top=Math.max(0,el.getBoundingClientRect().top+window.scrollY-88);
-    window.scrollTo({top,behavior:'smooth'});
-    el.classList.remove('el-search-highlight');void el.offsetWidth;el.classList.add('el-search-highlight');
-    setTimeout(()=>el.classList.remove('el-search-highlight'),1300);
-  });
+function openSearch(){markInteraction(12000);lastFocus=document.activeElement;overlay.classList.add('show');document.body.style.overflow='hidden';input.value='';renderResults();setTimeout(()=>input.focus({preventScroll:true}),20)}
+function closeSearch(){overlay.classList.remove('show');document.body.style.overflow='';try{lastFocus?.focus?.({preventScroll:true})}catch{}}
+function jumpTo(el){markInteraction(10000);overlay.classList.remove('show');document.body.style.overflow='';requestAnimationFrame(()=>{const top=Math.max(0,el.getBoundingClientRect().top+window.scrollY-88);window.scrollTo({top,behavior:'smooth'});el.classList.remove('el-search-highlight');void el.offsetWidth;el.classList.add('el-search-highlight');setTimeout(()=>el.classList.remove('el-search-highlight'),1300)})}
+function activate(item){
+  if(item.el&&item.el.isConnected)return jumpTo(item.el);
+  if(item.locked){closeSearch();const a=document.querySelector('.topbar .signin');if(a){a.click();return}location.hash='audit';return}
+  if(item.selector){const el=document.querySelector(item.selector);if(el)return jumpTo(el);results.innerHTML='<div class="el-search-empty">That workspace section is still loading. Wait a moment and search again.</div>'}
 }
 
 input.addEventListener('input',renderResults);
@@ -111,5 +126,5 @@ function mountButton(){
 }
 
 mountButton();
-new MutationObserver(mountButton).observe(document.documentElement,{childList:true,subtree:true});
+new MutationObserver(()=>{mountButton();if(overlay.classList.contains('show'))renderResults()}).observe(document.documentElement,{childList:true,subtree:true});
 })();
