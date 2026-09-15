@@ -108,7 +108,7 @@ jobs:
           for token in ['Create review action','data-ap-review','data-ap-matched','does not automatically remove access']:
             if token not in advanced: errors.append(f'Advanced intelligence missing controlled-action token: {token}')
           savings=Path('expenseleak/secure-savings.js').read_text(encoding='utf-8')
-          for token in ['Realized Savings Tracker','Only workspace-confirmed values','Currency totals are kept separate','finding.currency']:
+          for token in ['Realized Savings Tracker','Only workspace-confirmed values','Currency totals are kept separate','findingCurrency']:
             if token not in savings: errors.append(f'Savings workflow missing evidence/safety token: {token}')
           executive=Path('expenseleak/secure-executive.js').read_text(encoding='utf-8')
           for token in ['Save management report','Executive Management Snapshot']:
