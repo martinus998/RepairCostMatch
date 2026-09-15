@@ -3,14 +3,51 @@
 if(window.__expenseLeakScrollStability)return;
 window.__expenseLeakScrollStability=true;
 
-// Keep background dashboard polling conservative. Several private workspace
-// modules refresh independently and frequent full-panel re-renders can move a
-// long mobile page while someone is reading it.
+// Global interaction guard. Dynamic workspace modules can use this signal to
+// avoid rebuilding form-heavy sections while a user is tapping, typing or
+// choosing a native mobile select option.
+let busyUntil=0;
+const markBusy=(ms=12000)=>{busyUntil=Math.max(busyUntil,Date.now()+ms)};
+const isBusy=()=>Date.now()<busyUntil||!!document.activeElement?.matches?.('input,select,textarea,button');
+window.ExpenseLeakMarkInteraction=markBusy;
+window.ExpenseLeakIsInteracting=isBusy;
+
+['pointerdown','touchstart','touchmove','keydown','input','change','focusin'].forEach(type=>{
+  document.addEventListener(type,()=>markBusy(type==='focusin'||type==='input'||type==='change'?15000:7000),{capture:true,passive:type!=='keydown'});
+});
+document.addEventListener('focusout',()=>{busyUntil=Math.max(busyUntil,Date.now()+1800)},{capture:true});
+
+// Background dashboard polling is useful, but on a very long mobile workspace
+// it must never interrupt active controls. Long-running refreshes are heavily
+// throttled and deferred while the user is interacting.
 const nativeSetInterval=window.setInterval.bind(window);
 window.setInterval=(fn,delay,...args)=>{
   const ms=Number(delay)||0;
-  const stableDelay=ms>=30000&&ms<=120000?300000:ms;
-  return nativeSetInterval(fn,stableDelay,...args);
+  if(ms>=30000&&ms<=600000){
+    const wrapped=(...cbArgs)=>{
+      if(isBusy())return;
+      try{return fn(...cbArgs)}catch(e){console.error(e)}
+    };
+    return nativeSetInterval(wrapped,900000,...args); // max one background refresh / 15 min
+  }
+  return nativeSetInterval(fn,delay,...args);
+};
+
+// Many modules debounce DOM rebuilds through short setTimeout(render...). If a
+// form/select is open, defer those rebuilds instead of destroying the active
+// control and making Android jump to a different scroll position.
+const nativeSetTimeout=window.setTimeout.bind(window);
+window.setTimeout=(fn,delay=0,...args)=>{
+  const source=typeof fn==='function'?Function.prototype.toString.call(fn):'';
+  const looksLikeUiRefresh=/\b(render|refresh|schedule)\b/i.test(source);
+  if(looksLikeUiRefresh&&Number(delay)<=5000){
+    const guarded=()=>{
+      if(isBusy())return nativeSetTimeout(guarded,1200);
+      try{return fn(...args)}catch(e){console.error(e)}
+    };
+    return nativeSetTimeout(guarded,delay);
+  }
+  return nativeSetTimeout(fn,delay,...args);
 };
 
 const style=document.createElement('style');
@@ -20,6 +57,16 @@ style.textContent=`
   body{overflow-anchor:auto}
   .el-userbar,.el-auth-modal,.topbar{overflow-anchor:none}
   [id^="el"]{scroll-margin-top:84px}
+
+  @media(max-width:760px){
+    /* Expensive fixed/blur effects are reduced on Android to keep scrolling and
+       native controls responsive. Visual appearance stays essentially the same. */
+    body{background-attachment:scroll!important}
+    body:before{position:absolute!important}
+    .topbar{backdrop-filter:none!important;-webkit-backdrop-filter:none!important;background:rgba(5,19,34,.97)!important}
+    .el-userbar{backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
+    .preview-box,.el-panel,.el-ops-panel,.el-gov-panel{contain:layout paint style}
+  }
 
   /* Mobile readability pass: preserve the design while making the smallest
      labels easier to read. */
@@ -58,26 +105,15 @@ style.textContent=`
     #elPublicProductDemo .el-demo-view-head p{font-size:10px!important}
     #elPublicProductDemo .el-demo-pill{font-size:9px!important}
     #elPublicProductDemo .el-demo-panel h4{font-size:11.5px!important}
-    #elPublicProductDemo .el-demo-item span,
-    #elPublicProductDemo .el-demo-item small,
-    #elPublicProductDemo .el-demo-item b{font-size:9.5px!important}
+    #elPublicProductDemo .el-demo-item span,#elPublicProductDemo .el-demo-item small,#elPublicProductDemo .el-demo-item b{font-size:9.5px!important}
     #elPublicProductDemo .el-demo-bar-line{font-size:9.5px!important}
-    #elPublicProductDemo .el-demo-mini span,
-    #elPublicProductDemo .el-demo-mini small{font-size:9.5px!important}
+    #elPublicProductDemo .el-demo-mini span,#elPublicProductDemo .el-demo-mini small{font-size:9.5px!important}
     #elPublicProductDemo .el-demo-step b{font-size:10px!important}
     #elPublicProductDemo .el-demo-step span{font-size:9px!important}
     #elPublicProductDemo .el-pdemo-card h3{font-size:12.5px!important}
-    #elPublicProductDemo .el-pdemo-card p,
-    #elPublicProductDemo .el-pdemo-row,
-    #elPublicProductDemo .el-pdemo-row b{font-size:9.5px!important}
-    #elPublicProductDemo .el-pdemo-caps span,
-    #elPublicProductDemo .el-pdemo-foot p,
-    #elPublicProductDemo .el-pdemo-open{font-size:9.5px!important}
+    #elPublicProductDemo .el-pdemo-card p,#elPublicProductDemo .el-pdemo-row,#elPublicProductDemo .el-pdemo-row b{font-size:9.5px!important}
+    #elPublicProductDemo .el-pdemo-caps span,#elPublicProductDemo .el-pdemo-foot p,#elPublicProductDemo .el-pdemo-open{font-size:9.5px!important}
   }
 `;
 document.head.appendChild(style);
-
-// Important: do not manually compensate scroll position with scrollBy here.
-// That approach can fight the browser's own touch scrolling on Android and
-// create the exact up/down jumping this guard is supposed to prevent.
 })();
