@@ -121,12 +121,14 @@ jobs:
                   es = es.replace('</body>', '<script src="secure-live-sync.js?v=1" defer></script></body>', 1)
               if 'secure-search.js' not in es:
                   es = es.replace('</body>', '<script src="secure-search.js?v=1" defer></script></body>', 1)
+              if 'secure-auth-resume.js' not in es:
+                  es = es.replace('</body>', '<script src="secure-auth-resume.js?v=1" defer></script></body>', 1)
               secure_assets = (
                   'secure-app.css','secure-ops.css','secure-governance.css','secure-executive.css',
                   'secure-app.js','secure-ops.js','secure-governance.js','secure-procurement.js',
                   'secure-savings.js','secure-compliance.js','secure-executive.js','secure-optimization.js',
                   'secure-renewals.js','secure-enterprise-ops.js','secure-policy-center.js','secure-platform.js',
-                  'secure-live-sync.js','secure-search.js'
+                  'secure-live-sync.js','secure-search.js','secure-auth-resume.js'
               )
               for asset in secure_assets:
                   es = es.replace(asset+'?v=1', asset+'?v='+build)
