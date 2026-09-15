@@ -81,38 +81,11 @@ async function jump(item){
     }
     let el=document.querySelector(item.selector);
     if(!el&&wait){await wait({timeout:1800,stableFor:300});el=document.querySelector(item.selector)}
-    if(!el){alert('This section is still loading. Please wait a moment and try again.');jumping=false;return}
-
-    const desiredTop=82;
-    let cancelled=false,armed=false,followTimer=0;
-    const cancel=()=>{if(armed)cancelled=true};
-    const align=()=>{
-      if(cancelled||!el.isConnected)return;
-      const delta=el.getBoundingClientRect().top-desiredTop;
-      if(Math.abs(delta)>2)window.scrollBy(0,delta);
-    };
-    const cleanup=()=>{
-      clearTimeout(followTimer);
-      document.removeEventListener('pointerdown',cancel,true);
-      document.removeEventListener('touchstart',cancel,true);
-      document.removeEventListener('keydown',cancel,true);
-      window.removeEventListener('wheel',cancel,true);
-      jumping=false;
-    };
-    document.addEventListener('pointerdown',cancel,true);
-    document.addEventListener('touchstart',cancel,true);
-    document.addEventListener('keydown',cancel,true);
-    window.addEventListener('wheel',cancel,{capture:true,passive:true});
-    align();
-    setTimeout(()=>{armed=true},180);
-    const until=performance.now()+1900;
-    const follow=()=>{
-      if(cancelled||performance.now()>=until){cleanup();return}
-      align();
-      followTimer=setTimeout(follow,120);
-    };
-    followTimer=setTimeout(follow,120);
-  }catch(err){console.error(err);jumping=false}
+    if(!el){alert('This section is still loading. Please wait a moment and try again.');return}
+    const top=Math.max(0,el.getBoundingClientRect().top+window.scrollY-82);
+    window.scrollTo({top,left:0,behavior:'auto'});
+  }catch(err){console.error(err)}
+  finally{jumping=false}
 }
 
 input.addEventListener('input',()=>{clearTimeout(timer);timer=setTimeout(render,90)});
