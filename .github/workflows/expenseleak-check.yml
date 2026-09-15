@@ -44,7 +44,7 @@ jobs:
             'expenseleak/index.html','expenseleak/privacy.html','expenseleak/terms.html',
             'expenseleak/security.html','expenseleak/support.html','expenseleak/launch-center.js',
             'expenseleak/secure-platform.js','expenseleak/secure-platform-core.js',
-            'expenseleak/secure-connectors.js','expenseleak/secure-connector-verification.js','expenseleak/secure-connector-recovery.js','expenseleak/secure-currency-guard.js','expenseleak/secure-data-quality.js',
+            'expenseleak/secure-connectors.js','expenseleak/secure-connector-verification.js','expenseleak/secure-connector-recovery.js','expenseleak/secure-currency-guard.js','expenseleak/secure-beta-readiness.js','expenseleak/secure-data-quality.js',
             'expenseleak/secure-data-ops.js','expenseleak/secure-executive.js',
             'expenseleak/secure-advanced-intelligence.js','expenseleak/secure-savings.js',
             'expenseleak/secure-renewals.js','expenseleak/secure-procurement.js',
@@ -62,7 +62,7 @@ jobs:
           for token in ['ExpenseLeak AI','Run Free Audit','Paid access stays disabled']:
             if token not in idx: errors.append(f'ExpenseLeak index missing safety/launch token: {token}')
           platform=Path('expenseleak/secure-platform.js').read_text(encoding='utf-8')
-          for token in ['public-product-demo.js','public-competitor-demo.js','secure-connectors.js','secure-connector-verification.js','secure-connector-recovery.js','secure-currency-guard.js','launch-center.js','secure-data-quality.js','secure-advanced-intelligence.js','secure-billing-readiness.js','secure-reliability.js']:
+          for token in ['public-product-demo.js','public-competitor-demo.js','secure-connectors.js','secure-connector-verification.js','secure-connector-recovery.js','secure-currency-guard.js','secure-beta-readiness.js','launch-center.js','secure-data-quality.js','secure-advanced-intelligence.js','secure-billing-readiness.js','secure-reliability.js']:
             if token not in platform: errors.append(f'ExpenseLeak loader missing {token}')
           if '?v=1' in platform or '?v=2' in platform:
             errors.append('ExpenseLeak child loader must inherit the deploy version; fixed child cache tokens are not allowed')
@@ -87,6 +87,9 @@ jobs:
           currency=Path('expenseleak/secure-currency-guard.js').read_text(encoding='utf-8')
           for token in ['Currency-safe Financial Summary','never adds different currencies together','ambiguous findings','ExpenseLeakSelectedBusinessId','currencyGuard']:
             if token not in currency: errors.append(f'Currency safety guard missing token: {token}')
+          beta=Path('expenseleak/secure-beta-readiness.js').read_text(encoding='utf-8')
+          for token in ['Beta Readiness Runbook','expenseleak_beta_readiness','Core beta','Real connector E2E','Paid checkout','ExpenseLeakSelectedBusinessId']:
+            if token not in beta: errors.append(f'Beta readiness runbook missing token: {token}')
           workspace_scoped=[
             'secure-data-ops.js','secure-executive.js','secure-advanced-intelligence.js',
             'secure-savings.js','secure-renewals.js','secure-procurement.js','secure-team.js',
