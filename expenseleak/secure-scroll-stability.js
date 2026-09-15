@@ -3,62 +3,72 @@
 if(window.__expenseLeakScrollStability)return;
 window.__expenseLeakScrollStability=true;
 
-let busyUntil=0;
+let busyUntil=0,deferredWorkspaceDetail=null,deferredTimer=null;
+const isEditor=el=>!!(el&&(el.matches?.('input,textarea,select,[contenteditable="true"]')||el.isContentEditable));
+const activeEditor=()=>isEditor(document.activeElement);
 const markBusy=(ms=5000)=>{busyUntil=Math.max(busyUntil,Date.now()+ms)};
 const isBusy=()=>Date.now()<busyUntil;
+const shouldDefer=()=>isBusy()||activeEditor();
 window.ExpenseLeakMarkInteraction=markBusy;
 window.ExpenseLeakIsInteracting=isBusy;
+window.ExpenseLeakShouldDeferUiRefresh=shouldDefer;
 
-['pointerdown','touchstart','touchmove','keydown','input','change','focusin'].forEach(type=>{
-  document.addEventListener(type,()=>{
-    const ms=type==='focusin'?7000:type==='input'?6000:type==='change'?4500:type==='keydown'?4500:3000;
-    markBusy(ms);
-  },{capture:true,passive:type!=='keydown'});
-});
-document.addEventListener('focusout',()=>markBusy(1600),{capture:true});
+function setFormActive(on){document.body?.classList.toggle('el-form-active',!!on)}
+function flushDeferredWorkspace(){
+  clearTimeout(deferredTimer);
+  deferredTimer=setTimeout(()=>{
+    if(shouldDefer())return flushDeferredWorkspace();
+    if(!deferredWorkspaceDetail)return;
+    const detail=deferredWorkspaceDetail;deferredWorkspaceDetail=null;
+    window.dispatchEvent(new CustomEvent('expenseleak:workspace-ready',{detail}));
+  },900);
+}
 
-const nativeSetInterval=window.setInterval.bind(window);
-window.setInterval=(fn,delay,...args)=>{
-  const ms=Number(delay)||0;
-  if(ms>=30000&&ms<=600000){
-    const wrapped=(...cbArgs)=>{
-      if(isBusy())return;
-      try{return fn(...cbArgs)}catch(e){console.error(e)}
-    };
-    return nativeSetInterval(wrapped,900000,...args);
-  }
-  return nativeSetInterval(fn,delay,...args);
+window.addEventListener('expenseleak:workspace-ready',e=>{
+  if(!shouldDefer())return;
+  deferredWorkspaceDetail=e.detail||deferredWorkspaceDetail||{};
+  e.stopImmediatePropagation();
+  flushDeferredWorkspace();
+},true);
+
+const durations={
+  pointerdown:2500,touchstart:3000,touchmove:2200,keydown:4500,
+  beforeinput:9000,input:10000,paste:12000,change:6500,focusin:15000
 };
-
-const nativeSetTimeout=window.setTimeout.bind(window);
-window.setTimeout=(fn,delay=0,...args)=>{
-  const source=typeof fn==='function'?Function.prototype.toString.call(fn):'';
-  const looksLikeUiRefresh=/\b(render|refresh|schedule)\b/i.test(source);
-  if(looksLikeUiRefresh&&Number(delay)<=5000){
-    const guarded=()=>{
-      if(isBusy())return nativeSetTimeout(guarded,700);
-      try{return fn(...args)}catch(e){console.error(e)}
-    };
-    return nativeSetTimeout(guarded,delay);
-  }
-  return nativeSetTimeout(fn,delay,...args);
-};
+for(const type of Object.keys(durations)){
+  document.addEventListener(type,e=>{
+    markBusy(durations[type]);
+    if(type==='focusin'||type==='beforeinput'||type==='input'||type==='paste'){
+      if(isEditor(e.target))setFormActive(true);
+    }
+  },{capture:true,passive:!['keydown','beforeinput','paste'].includes(type)});
+}
+document.addEventListener('focusout',()=>{
+  markBusy(2600);
+  setTimeout(()=>{
+    setFormActive(activeEditor());
+    if(!activeEditor()&&deferredWorkspaceDetail)flushDeferredWorkspace();
+  },80);
+},{capture:true});
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)markBusy(1800)});
 
 const style=document.createElement('style');
 style.id='elScrollStabilityStyles';
 style.textContent=`
-  html{scroll-behavior:auto!important;overflow-anchor:auto}
-  body{overflow-anchor:auto}
-  .el-userbar,.el-auth-modal,.topbar{overflow-anchor:none}
+  html,body{scroll-behavior:auto!important;overflow-anchor:none!important}
+  body{overscroll-behavior-y:none}
+  .el-userbar,.el-auth-modal,.topbar,[id^="el"]{overflow-anchor:none!important}
   [id^="el"]{scroll-margin-top:84px}
+  body.el-form-active [id^="el"],body.el-form-active .preview-box,body.el-form-active .el-panel,body.el-form-active .el-gov-panel{animation:none!important;transition:none!important}
 
   @media(max-width:760px){
     body{background-attachment:scroll!important}
     body:before{position:absolute!important}
     .topbar{backdrop-filter:none!important;-webkit-backdrop-filter:none!important;background:rgba(5,19,34,.97)!important}
     .el-userbar{backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
-    .preview-box,.el-panel,.el-ops-panel,.el-gov-panel{contain:layout paint style}
-    input,select,textarea,button{-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+    input,textarea,select{font-size:16px!important;line-height:1.3!important;scroll-margin-block:120px;-webkit-tap-highlight-color:transparent;touch-action:auto}
+    button{-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+    .preview-box,.el-panel,.el-ops-panel,.el-gov-panel{contain:none!important}
   }
 
   @media(max-width:560px){
