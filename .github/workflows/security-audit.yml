@@ -42,8 +42,29 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          patterns='(STRIPE_SECRET_KEY|STRIPE_WEBHOOK_SECRET|SUPABASE_SERVICE_ROLE_KEY|GOOGLE_CLIENT_SECRET|MICROSOFT_CLIENT_SECRET|SLACK_CLIENT_SECRET|XERO_CLIENT_SECRET|QUICKBOOKS_CLIENT_SECRET|OPENAI_API_KEY)[[:space:]]*[:=][[:space:]]*["'"'']?[A-Za-z0-9_./+-]{12,}'
-          if grep -RInE --exclude-dir=.git --exclude='security-audit.yml' "$patterns" .; then
-            echo 'Potential hard-coded secret assignment detected.'
-            exit 1
-          fi
+          python3 - <<'PY'
+          from pathlib import Path
+          import re, sys
+
+          names = (
+              'STRIPE_SECRET_KEY|STRIPE_WEBHOOK_SECRET|SUPABASE_SERVICE_ROLE_KEY|'
+              'GOOGLE_CLIENT_SECRET|MICROSOFT_CLIENT_SECRET|SLACK_CLIENT_SECRET|'
+              'XERO_CLIENT_SECRET|QUICKBOOKS_CLIENT_SECRET|OPENAI_API_KEY'
+          )
+          rx = re.compile(rf'(?i)\b(?:{names})\b\s*[:=]\s*["\']?([A-Za-z0-9_./+\-=]{{12,}})')
+          bad=[]
+          skip={'.git','node_modules'}
+          for p in Path('.').rglob('*'):
+              if not p.is_file() or any(part in skip for part in p.parts) or p.name=='security-audit.yml':
+                  continue
+              try:
+                  text=p.read_text(encoding='utf-8')
+              except Exception:
+                  continue
+              if rx.search(text):
+                  bad.append(str(p))
+          if bad:
+              print('Potential hard-coded secret assignment detected:')
+              print('\n'.join(bad))
+              sys.exit(1)
+          PY
