@@ -1,19 +1,14 @@
 # RepairCostMatch
 
-RepairCostMatch is a U.S.-focused home repair cost education and contractor-matching project.
+**RepairCostMatch** is a U.S.-focused foundation repair and basement waterproofing cost-planning website for homeowners who want to understand likely repair categories, planning cost ranges and local repair options before contacting a contractor.
 
-## Initial focus
+Live website: https://martinus998.github.io/RepairCostMatch/
 
-- Foundation repair
-- Basement waterproofing
+Core guides:
+- Foundation Repair Cost: https://martinus998.github.io/RepairCostMatch/foundation-repair-cost.html
+- Basement Waterproofing Cost: https://martinus998.github.io/RepairCostMatch/basement-waterproofing-cost.html
+- Foundation Cracks: https://martinus998.github.io/RepairCostMatch/foundation-cracks.html
+- Bowing Basement Wall: https://martinus998.github.io/RepairCostMatch/bowing-basement-wall.html
+- About RepairCostMatch: https://martinus998.github.io/RepairCostMatch/about.html
 
-## Product promise
-
-Describe the problem → understand likely causes → see a planning cost range → compare local repair options.
-
-## Safety and compliance
-
-- Planning ranges are educational estimates, not contractor quotes.
-- No claim that every local contractor or the entire market is compared.
-- No customer data is sent to a partner until an approved licensed/qualified partner integration and consent flow are enabled.
-- Private API keys and partner secrets must never be committed to this public repository.
+RepairCostMatch provides educational planning information rather than contractor quotes, structural diagnoses or engineering opinions.
