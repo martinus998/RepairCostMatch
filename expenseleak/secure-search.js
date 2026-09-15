@@ -23,7 +23,7 @@ const ITEMS=[
 
 const normalize=s=>String(s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim();
 const esc=s=>String(s||'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
-let open=false,timer=0,lastFocus=null;
+let open=false,timer=0,lastFocus=null,jumping=false;
 
 const css=document.createElement('style');
 css.textContent=`
@@ -57,7 +57,7 @@ function render(){
   const q=normalize(input.value);
   const list=ITEMS.map(x=>({x,n:score(x,q)})).filter(v=>!q||v.n>0).sort((a,b)=>b.n-a.n||a.x.title.localeCompare(b.x.title)).slice(0,12);
   if(!list.length){results.innerHTML='<div class="el-search-lite-empty">No matching section found.</div>';return}
-  results.innerHTML=list.map((v,i)=>`<button class="el-search-lite-result" type="button" data-i="${ITEMS.indexOf(v.x)}"><b>${esc(v.x.title)}</b><span>Jump to this section</span></button>`).join('');
+  results.innerHTML=list.map(v=>`<button class="el-search-lite-result" type="button" data-i="${ITEMS.indexOf(v.x)}"><b>${esc(v.x.title)}</b><span>Jump to this section</span></button>`).join('');
 }
 function closeSearch(){
   if(!open)return;open=false;panel.classList.remove('show');clearTimeout(timer);try{lastFocus?.focus?.({preventScroll:true})}catch{}
@@ -67,15 +67,52 @@ function openSearch(){
   open=true;lastFocus=document.activeElement;panel.classList.add('show');input.value='';render();
   setTimeout(()=>{try{input.focus({preventScroll:true})}catch{}},0);
 }
-function jump(item){
+async function jump(item){
+  if(jumping)return;
+  jumping=true;
   closeSearch();
-  const el=document.querySelector(item.selector);
-  if(!el){
-    alert('This section is still loading. Please wait a moment and try again.');
-    return;
-  }
-  const top=Math.max(0,el.getBoundingClientRect().top+window.scrollY-82);
-  window.scrollTo(0,top);
+  try{
+    const wait=window.ExpenseLeakWaitForStableLayout;
+    if(wait){
+      const returning=!!window.ExpenseLeakLayoutIsSettling?.();
+      await wait(returning?{timeout:3900,stableFor:480}:{timeout:1200,stableFor:260});
+    }else{
+      await new Promise(r=>setTimeout(r,220));
+    }
+    let el=document.querySelector(item.selector);
+    if(!el&&wait){await wait({timeout:1800,stableFor:300});el=document.querySelector(item.selector)}
+    if(!el){alert('This section is still loading. Please wait a moment and try again.');jumping=false;return}
+
+    const desiredTop=82;
+    let cancelled=false,armed=false,followTimer=0;
+    const cancel=()=>{if(armed)cancelled=true};
+    const align=()=>{
+      if(cancelled||!el.isConnected)return;
+      const delta=el.getBoundingClientRect().top-desiredTop;
+      if(Math.abs(delta)>2)window.scrollBy(0,delta);
+    };
+    const cleanup=()=>{
+      clearTimeout(followTimer);
+      document.removeEventListener('pointerdown',cancel,true);
+      document.removeEventListener('touchstart',cancel,true);
+      document.removeEventListener('keydown',cancel,true);
+      window.removeEventListener('wheel',cancel,true);
+      jumping=false;
+    };
+    document.addEventListener('pointerdown',cancel,true);
+    document.addEventListener('touchstart',cancel,true);
+    document.addEventListener('keydown',cancel,true);
+    window.addEventListener('wheel',cancel,{capture:true,passive:true});
+    align();
+    setTimeout(()=>{armed=true},180);
+    const until=performance.now()+1900;
+    const follow=()=>{
+      if(cancelled||performance.now()>=until){cleanup();return}
+      align();
+      followTimer=setTimeout(follow,120);
+    };
+    followTimer=setTimeout(follow,120);
+  }catch(err){console.error(err);jumping=false}
 }
 
 input.addEventListener('input',()=>{clearTimeout(timer);timer=setTimeout(render,90)});
