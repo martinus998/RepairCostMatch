@@ -44,7 +44,9 @@ jobs:
             'expenseleak/index.html','expenseleak/privacy.html','expenseleak/terms.html',
             'expenseleak/security.html','expenseleak/support.html','expenseleak/launch-center.js',
             'expenseleak/secure-platform.js','expenseleak/secure-platform-core.js',
-            'expenseleak/secure-connectors.js','expenseleak/secure-connector-verification.js','expenseleak/secure-connector-recovery.js','expenseleak/secure-currency-guard.js','expenseleak/secure-beta-readiness.js','expenseleak/secure-beta-e2e.js','expenseleak/secure-data-quality.js',
+            'expenseleak/secure-connectors.js','expenseleak/secure-connector-verification.js','expenseleak/secure-connector-recovery.js',
+            'expenseleak/secure-currency-guard.js','expenseleak/secure-currency-preferences.js','expenseleak/secure-analysis-currency-safety.js','expenseleak/secure-currency-dashboard.js',
+            'expenseleak/secure-beta-readiness.js','expenseleak/secure-beta-e2e.js','expenseleak/secure-data-quality.js',
             'expenseleak/secure-data-ops.js','expenseleak/secure-executive.js',
             'expenseleak/secure-advanced-intelligence.js','expenseleak/secure-savings.js',
             'expenseleak/secure-renewals.js','expenseleak/secure-procurement.js',
@@ -53,46 +55,78 @@ jobs:
             'expenseleak/secure-enterprise-ops.js','expenseleak/secure-optimization.js',
             'expenseleak/secure-vault-webhooks.js','expenseleak/secure-competitor-suite.js',
             'expenseleak/secure-ops.js','expenseleak/secure-billing-readiness.js',
+            'expenseleak/secure-strict-paid-launch.js','expenseleak/secure-launch-approvals.js',
             'expenseleak/secure-reliability.js','expenseleak/secure-app.js',
             'expenseleak/public-product-demo.js','expenseleak/public-competitor-demo.js'
           ]
           for p in required:
             if not Path(p).is_file(): errors.append(f'Missing required ExpenseLeak launch file: {p}')
+
           idx=Path('expenseleak/index.html').read_text(encoding='utf-8')
           for token in ['ExpenseLeak AI','Run Free Audit','Paid access stays disabled']:
             if token not in idx: errors.append(f'ExpenseLeak index missing safety/launch token: {token}')
+
+          # ExpenseLeak must remain out of search indexes until the commercial launch gate is deliberately changed.
+          for page in ['index.html','privacy.html','terms.html','security.html','support.html']:
+            text=Path('expenseleak/'+page).read_text(encoding='utf-8').lower().replace(' ', '')
+            if 'name="robots"content="noindex,nofollow"' not in text:
+              errors.append(f'{page} must remain noindex,nofollow before paid launch')
+
           platform=Path('expenseleak/secure-platform.js').read_text(encoding='utf-8')
-          for token in ['public-product-demo.js','public-competitor-demo.js','secure-connectors.js','secure-connector-verification.js','secure-connector-recovery.js','secure-currency-guard.js','secure-beta-readiness.js','secure-beta-e2e.js','launch-center.js','secure-data-quality.js','secure-advanced-intelligence.js','secure-billing-readiness.js','secure-reliability.js']:
+          for token in [
+            'public-product-demo.js','public-competitor-demo.js','secure-connectors.js','secure-connector-verification.js','secure-connector-recovery.js',
+            'secure-currency-guard.js','secure-currency-preferences.js','secure-analysis-currency-safety.js','secure-currency-dashboard.js',
+            'secure-beta-readiness.js','secure-beta-e2e.js','launch-center.js','secure-data-quality.js','secure-advanced-intelligence.js',
+            'secure-billing-readiness.js','secure-strict-paid-launch.js','secure-launch-approvals.js','secure-reliability.js'
+          ]:
             if token not in platform: errors.append(f'ExpenseLeak loader missing {token}')
           if '?v=1' in platform or '?v=2' in platform:
             errors.append('ExpenseLeak child loader must inherit the deploy version; fixed child cache tokens are not allowed')
+
           app=Path('expenseleak/secure-app.js').read_text(encoding='utf-8')
           for token in ['expenseleak_accessible_workspaces','expenseleak_user_preferences','ExpenseLeakSelectedBusinessId','elWorkspaceSwitch']:
             if token not in app: errors.append(f'Secure app missing multi-workspace safety token: {token}')
+
           launch=Path('expenseleak/launch-center.js').read_text(encoding='utf-8')
           for token in ['Paid launch remains gated separately','expenseleak_activation_readiness','expenseleak_data_quality_summary','First value ready','data-el-onboard','ExpenseLeakSelectedBusinessId']:
             if token not in launch: errors.append(f'Launch center missing required activation/gate token: {token}')
+
           quality=Path('expenseleak/secure-data-quality.js').read_text(encoding='utf-8')
           for token in ['Data Quality & Launch Readiness','zero connector errors','high-severity alerts','ExpenseLeakSelectedBusinessId','expenseleak_accessible_workspaces']:
             if token not in quality: errors.append(f'Data quality module missing readiness/workspace token: {token}')
+
           reliability=Path('expenseleak/secure-reliability.js').read_text(encoding='utf-8')
           for token in ['Reliability & Recovery Center','ExpenseLeakSelectedBusinessId','Run health check','No private document contents','unhandledrejection']:
             if token not in reliability: errors.append(f'Reliability center missing recovery token: {token}')
+
           verification=Path('expenseleak/secure-connector-verification.js').read_text(encoding='utf-8')
           for token in ['Connector E2E Verification','expenseleak_connector_verification','recent_e2e_success','Evidence records','ExpenseLeakSelectedBusinessId']:
             if token not in verification: errors.append(f'Connector verification missing launch-readiness token: {token}')
+
           recovery=Path('expenseleak/secure-connector-recovery.js').read_text(encoding='utf-8')
           for token in ['Connector Recovery & Beta Guardrails','invalid_grant','insufficient','rate','retry_after','Reconnect','ExpenseLeakSelectedBusinessId','never mark a connector ready from OAuth alone']:
             if token not in recovery: errors.append(f'Connector recovery missing beta failure guardrail: {token}')
+
           currency=Path('expenseleak/secure-currency-guard.js').read_text(encoding='utf-8')
           for token in ['Currency-safe Financial Summary','never adds different currencies together','ambiguous findings','ExpenseLeakSelectedBusinessId','currencyGuard']:
             if token not in currency: errors.append(f'Currency safety guard missing token: {token}')
+
+          currency_pref=Path('expenseleak/secure-currency-preferences.js').read_text(encoding='utf-8')
+          for token in ['Workspace Import Currency','default_currency','Only the workspace owner can change the default import currency','does not convert them automatically']:
+            if token not in currency_pref: errors.append(f'Currency preference module missing safety token: {token}')
+
+          currency_analysis=Path('expenseleak/secure-analysis-currency-safety.js').read_text(encoding='utf-8')
+          for token in ['Currency safety active','Currency-safe Financial Summary','Realized Savings Tracker','quarantined']:
+            if token not in currency_analysis: errors.append(f'Analysis currency safety module missing token: {token}')
+
           beta=Path('expenseleak/secure-beta-readiness.js').read_text(encoding='utf-8')
           for token in ['Beta Readiness Runbook','expenseleak_beta_readiness','Core programmatic','Manual core E2E evidence','Release candidate','manual_core_e2e_ready','extended_release_candidate_ready','Paid checkout','ExpenseLeakSelectedBusinessId']:
             if token not in beta: errors.append(f'Beta readiness runbook missing token: {token}')
+
           e2e=Path('expenseleak/secure-beta-e2e.js').read_text(encoding='utf-8')
           for token in ['Beta E2E Evidence','expenseleak_beta_e2e_runs','expenseleak_beta_e2e_latest','Do not paste secrets','does not enable checkout','billing_lifecycle','vendor_portal']:
             if token not in e2e: errors.append(f'Beta E2E evidence module missing token: {token}')
+
           workspace_scoped=[
             'secure-data-ops.js','secure-executive.js','secure-advanced-intelligence.js',
             'secure-savings.js','secure-renewals.js','secure-procurement.js','secure-team.js',
@@ -104,27 +138,44 @@ jobs:
             text=Path('expenseleak/'+file).read_text(encoding='utf-8')
             for token in ['ExpenseLeakSelectedBusinessId','expenseleak_accessible_workspaces','expenseleak:workspace-ready']:
               if token not in text: errors.append(f'{file} missing selected-workspace safety token: {token}')
+
           advanced=Path('expenseleak/secure-advanced-intelligence.js').read_text(encoding='utf-8')
           for token in ['Create review action','data-ap-review','data-ap-matched','does not automatically remove access']:
             if token not in advanced: errors.append(f'Advanced intelligence missing controlled-action token: {token}')
+
           savings=Path('expenseleak/secure-savings.js').read_text(encoding='utf-8')
           for token in ['Realized Savings Tracker','Only workspace-confirmed values','Currency totals are kept separate','findingCurrency']:
             if token not in savings: errors.append(f'Savings workflow missing evidence/safety token: {token}')
+
           executive=Path('expenseleak/secure-executive.js').read_text(encoding='utf-8')
           for token in ['Save management report','Executive Management Snapshot']:
             if token not in executive: errors.append(f'Executive reporting missing E2E token: {token}')
+
           connectors=Path('expenseleak/secure-connectors.js').read_text(encoding='utf-8')
           for token in ['#vendor_portal=','history.replaceState','public-upload','private ExpenseLeak evidence vault','Do not upload passwords','ExpenseLeakSelectedBusinessId']:
             if token not in connectors: errors.append(f'Connector/Vendor Portal hardening missing token: {token}')
           if '?vendor_portal=' in connectors:
             errors.append('Vendor Portal token must not be placed in URL query parameters')
+
           billing=Path('expenseleak/secure-billing-readiness.js').read_text(encoding='utf-8')
-          for token in ['Billing & Entitlement Readiness','expenseleak_workspace_entitlements','expenseleak_paid_launch_gate','expenseleak_billing_e2e_evidence','expenseleak_commercial_plan_public','Commercial billing target','Selected commercial Stripe account','Live checkout','server-side launch controls','ExpenseLeakSelectedBusinessId']:
+          for token in ['Billing & Entitlement Readiness','expenseleak_workspace_entitlements','expenseleak_paid_launch_gate','expenseleak_billing_e2e_evidence','expenseleak_commercial_plan_public','Commercial billing target','Selected commercial Stripe account','coherent Stripe chain','Live checkout','server-side launch controls','ExpenseLeakSelectedBusinessId']:
             if token not in billing: errors.append(f'Billing readiness missing paid-launch guardrail: {token}')
+
+          strict=Path('expenseleak/secure-strict-paid-launch.js').read_text(encoding='utf-8')
+          for token in ['Strict Paid Launch Gate','expenseleak_strict_paid_launch_gate','30-day freshness window','Wrong-account test events','Fail-closed policy','Live checkout']:
+            if token not in strict: errors.append(f'Strict paid launch module missing token: {token}')
+
+          approvals=Path('expenseleak/secure-launch-approvals.js').read_text(encoding='utf-8')
+          for token in ['Owner Launch Approval Ledger','expenseleak-launch-approval','Only the workspace owner','browser users cannot edit or delete approval history','workspace_checkout']:
+            if token not in approvals: errors.append(f'Launch approval ledger missing token: {token}')
+          if "sb.rpc('expenseleak_record_launch_decision'" in approvals or 'sb.rpc("expenseleak_record_launch_decision"' in approvals:
+            errors.append('Launch approvals must route through the protected Edge Function, not a browser-callable SECURITY DEFINER RPC')
+
           for page in ['privacy.html','terms.html','security.html','support.html']:
             text=Path('expenseleak/'+page).read_text(encoding='utf-8')
             if '<title>' not in text.lower(): errors.append(f'{page} missing title')
             if 'name="description"' not in text: errors.append(f'{page} missing description')
+
           if errors:
             print('\n'.join('ERROR: '+e for e in errors));sys.exit(1)
           print('ExpenseLeak launch check passed.')
