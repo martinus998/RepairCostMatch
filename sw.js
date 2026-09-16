@@ -1,4 +1,4 @@
-const CACHE='rcm-shell-v7';
+const CACHE='rcm-shell-v8';
 const CORE=['./','index.html','style.css','blueprint-home.css','pro-home.css','trust-center.css','trust-center.js','readability-tune.css','pro-package.css','smart-tools.css','smart-tools.js','quote-checker.css','quote-checker.js','provider-market.css','provider-market.js','other-problem.js','app.js','favicon.svg','foundation-repair-cost.html','basement-waterproofing-cost.html','foundation-cracks.html','bowing-basement-wall.html'];
 self.addEventListener('install',event=>{event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(CORE)).then(()=>self.skipWaiting()));});
 self.addEventListener('activate',event=>{event.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k!==CACHE).map(k=>caches.delete(k)))).then(()=>self.clients.claim()));});
