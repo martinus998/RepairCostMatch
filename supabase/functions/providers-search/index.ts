@@ -80,7 +80,7 @@ Deno.serve(async (req: Request) => {
   if (!/^\d{5}$/.test(zip)) return new Response(JSON.stringify({ error: "Invalid ZIP" }), { status: 400, headers });
   if (!ALLOWED_SERVICES.has(service)) return new Response(JSON.stringify({ error: "Unsupported service" }), { status: 400, headers });
 
-  const key = Deno.env.get("GOOGLE_PLACES_API_KEY");
+  const key = Deno.env.get("GOOGLE_PLACES_API_KEY") || Deno.env.get("GOOGLE_MAPS_API_KEY");
   if (!key) return new Response(JSON.stringify({ error: "Provider source is not configured" }), { status: 503, headers });
 
   const { error: logError } = await supabase.from("provider_search_events").insert({ entitlement_token_hash: tokenHash });
