@@ -20,7 +20,54 @@
     .other-problem-status.warn{background:#fff3e8;color:#8a4c22}
     .other-problem-status.ok{background:#e9f8f2;color:#23654e}
     .other-analysis-summary{margin:12px 0;padding:12px 14px;border-left:4px solid #ef7629;border-radius:10px;background:#fff7f0;color:#294d5d;font-size:12px;line-height:1.45}
-    @media(max-width:560px){.other-problem-card{padding:11px;margin-top:12px}.other-problem-card h3{font-size:15px}.other-problem-card p{font-size:10px}.other-problem-input{min-height:68px;font-size:11px}.other-problem-analyze{font-size:10px;padding:8px 10px}.other-problem-note,.other-problem-status{font-size:9px}}
+    @media(max-width:560px){
+      .modal .modal-card{width:calc(100vw - 12px)!important;max-width:calc(100vw - 12px)!important;margin:1vh auto!important;max-height:98dvh!important;padding:16px 14px 0!important}
+      .modal .progress{margin-bottom:13px!important}
+      .modal .step h2{font-size:28px!important;line-height:1.08!important;margin:4px 0 10px!important}
+      .modal .choice-grid{gap:8px!important}
+      .modal .choice-grid button{padding:11px 14px!important;min-height:54px!important}
+      .other-problem-card{padding:9px 10px;margin-top:9px;border-radius:14px}
+      .other-problem-card h3{font-size:14px;margin-bottom:5px}
+      .other-problem-card p{display:none}
+      .other-problem-input{min-height:54px;font-size:11px;padding:8px 9px}
+      .other-problem-actions{margin-top:6px}
+      .other-problem-analyze{font-size:10px;padding:8px 10px}
+      .other-problem-note{display:none}
+      .other-problem-status{display:none;font-size:9px;padding:6px 8px;margin-top:6px}
+      .other-problem-status.ok,.other-problem-status.warn{display:block}
+      .modal .step.active{padding-bottom:92px!important}
+      .modal.open .step[data-step="1"].active .step-actions,
+      .modal.open .step[data-step="2"].active .step-actions,
+      .modal.open .step[data-step="3"].active .step-actions,
+      .modal.open .step[data-step="4"].active .step-actions{
+        position:fixed!important;
+        left:50%!important;
+        right:auto!important;
+        bottom:max(8px,env(safe-area-inset-bottom))!important;
+        transform:translateX(-50%)!important;
+        width:min(calc(100vw - 24px),616px)!important;
+        max-width:calc(100vw - 24px)!important;
+        margin:0!important;
+        padding:8px!important;
+        justify-content:center!important;
+        background:rgba(255,253,248,.97)!important;
+        border:1px solid rgba(19,37,42,.08)!important;
+        border-radius:16px!important;
+        box-shadow:0 10px 30px rgba(19,37,42,.18)!important;
+        z-index:180!important;
+      }
+      .modal.open .step[data-step="1"].active .step-actions .btn,
+      .modal.open .step[data-step="2"].active .step-actions .btn,
+      .modal.open .step[data-step="3"].active .step-actions .btn,
+      .modal.open .step[data-step="4"].active .step-actions .btn{
+        width:100%!important;
+        min-width:0!important;
+        min-height:52px!important;
+        margin:0!important;
+        text-align:center!important;
+        font-size:16px!important;
+      }
+    }
   `;
   document.head.appendChild(style);
 
@@ -148,10 +195,6 @@
     if(lastAnalysis.severity)setChoice('severity',lastAnalysis.severity);
     if(lastAnalysis.foundation)setChoice('foundation',lastAnalysis.foundation);
 
-    // If the description identifies the issue but does not contain enough detail
-    // for the current required field, select the existing "Not sure" option so
-    // the homeowner is not trapped in the wizard. We stay cautious rather than
-    // inventing a severity or foundation type.
     if(stepNumber===2&&!document.querySelector('.choice-grid[data-field="severity"] button.selected')){
       if(setChoice('severity','unknown'))lastAnalysis.severity='unknown';
     }
