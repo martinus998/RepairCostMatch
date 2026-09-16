@@ -130,7 +130,7 @@
           <article class="pro-value-card"><b>Personal Repair Plan</b><small>Get practical next steps, questions to ask, documents to request and project summaries you can save or share.</small></article>
         </div>
         <div class="pro-value-proof"><span>✓ No monthly subscription</span><span>✓ No automatic contractor calls</span><span>✓ You choose who to contact</span><span>✓ Verification labels only when supported</span></div>
-        <div class="pro-value-actions"><a class="btn primary js-show-pro" href="#pro-package">Unlock Pro · $9.99 one-time →</a><button type="button" class="btn secondary" data-pro-free>Start the free repair check</button></div>
+        <div class="pro-value-actions"><a class="btn primary" href="https://buy.stripe.com/9B64gybqK2HDalT19N1Fe00" rel="nofollow noopener">Unlock Pro · $9.99 one-time →</a><button type="button" class="btn secondary" data-pro-free>Start the free repair check</button></div>
         <small class="pro-value-note">RepairCostMatch provides educational planning, not a structural diagnosis or contractor quote. Provider fields vary by location and connected data source. License and insurance are shown as verified only when supported by a reliable source; provider-specific pricing is shown only when reliable source data exists.</small>`;
       const diy=document.getElementById('diy-home');
       const hero=document.querySelector('.pro-hero');
