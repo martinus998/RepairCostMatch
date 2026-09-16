@@ -1,4 +1,18 @@
 /* RepairCostMatch mobile readability pass — slightly larger type/icons, slightly more breathing room. */
+
+/* Conversion order: show the Pro offer immediately after the planning result. */
+.step[data-step="5"].active{display:flex!important;flex-direction:column}
+.step[data-step="5"]>.eyebrow{order:0}
+.step[data-step="5"]>h2{order:1}
+.step[data-step="5"]>.result-box{order:2}
+.step[data-step="5"]>.quote-locked{order:3;margin-top:12px}
+.step[data-step="5"]>.result-pro-upsell{order:4;margin-top:10px}
+.step[data-step="5"]>#resultReasons{order:5}
+.step[data-step="5"]>.other-analysis-summary{order:6}
+.step[data-step="5"]>.result-intel{order:7}
+.step[data-step="5"]>.other-problem-card{order:8}
+.step[data-step="5"]>.step-actions{order:9}
+
 @media (max-width:560px){
   .brand small:after{font-size:6px!important;letter-spacing:.15em}
   .site-header>.btn{font-size:10px!important;padding:9px 10px!important}
