@@ -36,37 +36,6 @@
       .other-problem-status{display:none;font-size:9px;padding:6px 8px;margin-top:6px}
       .other-problem-status.ok,.other-problem-status.warn{display:block}
       .modal .step.active{padding-bottom:92px!important}
-      .modal.open .step[data-step="1"].active .step-actions,
-      .modal.open .step[data-step="2"].active .step-actions,
-      .modal.open .step[data-step="3"].active .step-actions,
-      .modal.open .step[data-step="4"].active .step-actions{
-        position:fixed!important;
-        left:50%!important;
-        right:auto!important;
-        bottom:max(8px,env(safe-area-inset-bottom))!important;
-        transform:translateX(-50%)!important;
-        width:min(calc(100vw - 24px),616px)!important;
-        max-width:calc(100vw - 24px)!important;
-        margin:0!important;
-        padding:8px!important;
-        justify-content:center!important;
-        background:rgba(255,253,248,.97)!important;
-        border:1px solid rgba(19,37,42,.08)!important;
-        border-radius:16px!important;
-        box-shadow:0 10px 30px rgba(19,37,42,.18)!important;
-        z-index:180!important;
-      }
-      .modal.open .step[data-step="1"].active .step-actions .btn,
-      .modal.open .step[data-step="2"].active .step-actions .btn,
-      .modal.open .step[data-step="3"].active .step-actions .btn,
-      .modal.open .step[data-step="4"].active .step-actions .btn{
-        width:100%!important;
-        min-width:0!important;
-        min-height:52px!important;
-        margin:0!important;
-        text-align:center!important;
-        font-size:16px!important;
-      }
     }
   `;
   document.head.appendChild(style);
@@ -239,4 +208,101 @@
     input.addEventListener('input',()=>syncText(input.value,input));
     card.querySelector('.other-problem-analyze').addEventListener('click',()=>analyzeCard(card));
   });
+})();
+
+// Mobile wizard action dock: physically separates Continue/Done from the scrollable step content.
+(function(){
+  'use strict';
+  const modal=document.getElementById('repairModal');
+  if(!modal)return;
+
+  const dock=document.createElement('div');
+  dock.id='wizardActionDock';
+  dock.className='wizard-action-dock';
+  dock.setAttribute('aria-live','polite');
+  modal.appendChild(dock);
+
+  const parents=new WeakMap();
+  document.querySelectorAll('#repairModal .step-actions button').forEach(button=>{
+    parents.set(button,button.parentElement);
+  });
+
+  const dockStyle=document.createElement('style');
+  dockStyle.id='wizardActionDockStyles';
+  dockStyle.textContent=`
+    #wizardActionDock{display:none}
+    @media(max-width:700px){
+      #repairModal .modal-card{padding-bottom:92px!important;overflow-y:auto!important;overflow-x:hidden!important}
+      #repairModal .step.active{padding-bottom:12px!important}
+      #repairModal .step-actions{display:none!important}
+      #repairModal.open #wizardActionDock{
+        display:flex!important;
+        position:fixed!important;
+        left:50%!important;
+        right:auto!important;
+        bottom:max(8px,env(safe-area-inset-bottom))!important;
+        transform:translateX(-50%)!important;
+        width:min(calc(100vw - 28px),612px)!important;
+        max-width:calc(100vw - 28px)!important;
+        margin:0!important;
+        padding:8px!important;
+        align-items:center!important;
+        justify-content:center!important;
+        background:rgba(255,253,248,.985)!important;
+        border:1px solid rgba(19,37,42,.10)!important;
+        border-radius:17px!important;
+        box-shadow:0 -6px 26px rgba(19,37,42,.20)!important;
+        z-index:1200!important;
+        box-sizing:border-box!important;
+      }
+      #wizardActionDock .btn,
+      #wizardActionDock button{
+        display:block!important;
+        width:100%!important;
+        max-width:none!important;
+        min-width:0!important;
+        min-height:54px!important;
+        margin:0!important;
+        padding:12px 16px!important;
+        border-radius:13px!important;
+        text-align:center!important;
+        font-size:17px!important;
+        line-height:1.2!important;
+      }
+    }
+  `;
+  document.head.appendChild(dockStyle);
+
+  function restoreDockButton(){
+    const button=dock.querySelector('button');
+    if(!button)return;
+    const parent=parents.get(button);
+    if(parent)parent.appendChild(button);
+  }
+
+  function syncDock(){
+    restoreDockButton();
+    if(!window.matchMedia('(max-width:700px)').matches){
+      dock.style.display='none';
+      return;
+    }
+    const active=modal.querySelector('.step.active');
+    const button=active?.querySelector('.step-actions button');
+    if(button){
+      parents.set(button,button.parentElement);
+      dock.appendChild(button);
+      dock.style.display=modal.classList.contains('open')?'flex':'none';
+    }else{
+      dock.style.display='none';
+    }
+  }
+
+  const observer=new MutationObserver(mutations=>{
+    if(mutations.some(m=>m.type==='attributes'&&(m.attributeName==='class'||m.attributeName==='aria-hidden'))){
+      requestAnimationFrame(syncDock);
+    }
+  });
+  observer.observe(modal,{subtree:true,attributes:true,attributeFilter:['class','aria-hidden']});
+  window.addEventListener('resize',()=>requestAnimationFrame(syncDock),{passive:true});
+  requestAnimationFrame(syncDock);
 })();
