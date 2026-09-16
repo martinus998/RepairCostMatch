@@ -41,7 +41,7 @@
   function classify(text){
     const t=String(text||'').toLowerCase().replace(/\s+/g,' ').trim();
     const categories={
-      'foundation-cracks':['foundation crack','wall crack','crack in wall','stair step','stair-step','vertical crack','diagonal crack','brick crack','masonry crack','cracked foundation','gap in wall','foundation split','cracking'],
+      'foundation-cracks':['foundation crack','wall crack','wall crak','wall craks','crack in wall','stair step','stair-step','vertical crack','diagonal crack','brick crack','masonry crack','cracked foundation','gap in wall','foundation split','cracking'],
       water:['water','wet','moisture','damp','seep','seepage','leak','basement leak','mold','mildew','musty','efflorescence','sump','flood','drainage','standing water'],
       uneven:['uneven floor','sloping floor','slope','sagging floor','settlement','settling','sinking','house sinking','foundation sinking','door sticks','sticking door','window sticks','floor gap','gap above door','low spot'],
       bowing:['bowing wall','bowed wall','leaning wall','bulging wall','wall bulging','horizontal crack','wall moving inward','inward wall','pushed in wall','basement wall moving']
@@ -61,12 +61,13 @@
   }
 
   function setChoice(field,value){
-    if(!value)return;
+    if(!value)return false;
     const grid=document.querySelector(`.choice-grid[data-field="${field}"]`);
     const button=grid?.querySelector(`button[data-value="${value}"]`);
-    if(!grid||!button)return;
+    if(!grid||!button)return false;
     grid.querySelectorAll('button').forEach(b=>b.classList.remove('selected'));
     button.classList.add('selected');
+    return true;
   }
 
   function syncText(value,source){
@@ -142,17 +143,33 @@
     }
     syncText(value,input);
     lastAnalysis=classify(value);
+    const stepNumber=Number(card.closest('.step')?.dataset.step||0);
     if(lastAnalysis.problem)setChoice('problem',lastAnalysis.problem);
     if(lastAnalysis.severity)setChoice('severity',lastAnalysis.severity);
     if(lastAnalysis.foundation)setChoice('foundation',lastAnalysis.foundation);
+
+    // If the description identifies the issue but does not contain enough detail
+    // for the current required field, select the existing "Not sure" option so
+    // the homeowner is not trapped in the wizard. We stay cautious rather than
+    // inventing a severity or foundation type.
+    if(stepNumber===2&&!document.querySelector('.choice-grid[data-field="severity"] button.selected')){
+      if(setChoice('severity','unknown'))lastAnalysis.severity='unknown';
+    }
+    if(stepNumber===3&&!document.querySelector('.choice-grid[data-field="foundation"] button.selected')){
+      if(setChoice('foundation','unknown'))lastAnalysis.foundation='unknown';
+    }
 
     if(lastAnalysis.outside&&!lastAnalysis.problem){
       showStatus(card,'This may be outside the site’s current foundation and waterproofing scope. We will keep the result cautious and recommend the right type of professional.','warn');
     }else if(lastAnalysis.problem){
       const extras=[];
-      if(lastAnalysis.severity)extras.push(`severity: ${lastAnalysis.severity}`);
-      if(lastAnalysis.foundation)extras.push(`space: ${lastAnalysis.foundation}`);
-      showStatus(card,`Closest match: ${LABELS[lastAnalysis.problem]}. We updated the matching choices${extras.length?' ('+extras.join(', ')+')':''}. Please review them before continuing.`,'ok');
+      if(lastAnalysis.severity)extras.push(`severity: ${lastAnalysis.severity==='unknown'?'not sure':lastAnalysis.severity}`);
+      if(lastAnalysis.foundation)extras.push(`space: ${lastAnalysis.foundation==='unknown'?'not sure':lastAnalysis.foundation}`);
+      showStatus(card,`Closest match: ${LABELS[lastAnalysis.problem]}. We updated the matching choices${extras.length?' ('+extras.join(', ')+')':''}. You can continue and review them before relying on the result.`,'ok');
+    }else if(stepNumber===2&&document.querySelector('.choice-grid[data-field="severity"] button.selected')){
+      showStatus(card,'We could not confidently infer severity from that wording, so we selected “Not sure” instead of guessing. You can continue.','ok');
+    }else if(stepNumber===3&&document.querySelector('.choice-grid[data-field="foundation"] button.selected')){
+      showStatus(card,'We could not confidently infer the foundation type from that wording, so we selected “Not sure” instead of guessing. You can continue.','ok');
     }else{
       showStatus(card,'No confident match yet. Add where the issue is, what it looks like, how large it is and whether it is changing.','warn');
     }
