@@ -18,6 +18,14 @@
   <link rel="stylesheet" href="blueprint-home.css?v=pro3">
   <link rel="stylesheet" href="pro-home.css?v=pro5">
   <link rel="stylesheet" href="trust-center.css?v=pro5">
+  <style>
+    .hero-pro-link{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:14px;padding:11px 13px;border:1px solid rgba(255,139,69,.46);border-radius:14px;background:linear-gradient(135deg,rgba(239,118,41,.16),rgba(2,43,72,.9));text-decoration:none;color:#fff;box-shadow:0 12px 30px rgba(0,0,0,.16)}
+    .hero-pro-link span{display:block;color:#ff9b61;font-size:9px;letter-spacing:1.4px;font-weight:950}.hero-pro-link b{display:block;margin-top:2px;font-size:12px;line-height:1.3}.hero-pro-link strong{color:#fff0e7;font-size:11px;white-space:nowrap}
+    .result-pro-upsell{margin-top:14px;padding:14px;border:1px solid rgba(255,139,69,.42);border-radius:14px;background:linear-gradient(145deg,rgba(239,118,41,.14),rgba(5,45,73,.94))}.result-pro-upsell .mini-label{display:block;color:#ff9b61;font-size:9px;letter-spacing:1.3px;font-weight:950;margin-bottom:4px}.result-pro-upsell h3{margin:0 0 5px;font-size:17px}.result-pro-upsell p{margin:0 0 10px;color:#b9d7e4;font-size:12px;line-height:1.45}.result-pro-upsell .btn{width:100%}
+    html[data-pro-access="active"] .pro-conversion-prompt{display:none!important}
+    #pro-package{scroll-margin-top:84px}
+    @media(max-width:560px){.hero-pro-link{padding:9px 10px;gap:8px}.hero-pro-link span{font-size:7px}.hero-pro-link b{font-size:9px}.hero-pro-link strong{font-size:8px}.result-pro-upsell{padding:11px}.result-pro-upsell h3{font-size:14px}.result-pro-upsell p{font-size:10px}}
+  </style>
   <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"Organization","name":"RepairCostMatch","url":"https://repaircostmatch.com/","logo":"https://repaircostmatch.com/favicon.svg"},{"@type":"WebSite","name":"RepairCostMatch","url":"https://repaircostmatch.com/","inLanguage":"en-US"},{"@type":"WebApplication","name":"RepairCostMatch Home Repair Cost Planner","applicationCategory":"HomeApplication","operatingSystem":"Web","isAccessibleForFree":true,"url":"https://repaircostmatch.com/"},{"@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Is RepairCostMatch a real contractor quote?","acceptedAnswer":{"@type":"Answer","text":"No. RepairCostMatch provides an educational planning range, not a contractor quote or structural diagnosis."}},{"@type":"Question","name":"How accurate is the repair cost range?","acceptedAnswer":{"@type":"Answer","text":"The range is intended for early budgeting. Actual prices depend on cause, severity, repair method, soil, access, labor rates, engineering needs and local conditions."}},{"@type":"Question","name":"Do I need to enter my phone number?","acceptedAnswer":{"@type":"Answer","text":"No. The current planning tool can be used without entering a phone number."}},{"@type":"Question","name":"Do you share my repair profile?","acceptedAnswer":{"@type":"Answer","text":"In the current version, the repair profile and ZIP stay in the browser. Information would only be shared with a future matching partner after explicit consent."}}]}]}</script>
 </head>
 <body>
@@ -35,6 +43,7 @@
         <p>Describe what you see. Get a realistic planning range, understand the likely repair category, and know what type of professional to contact.</p>
         <div class="hero-actions"><button class="btn primary js-start">Check my problem →</button><a class="btn secondary" href="repair-guides.html">Browse repair guides</a></div>
         <div class="trust-points"><span>✓ No phone number</span><span>✓ Planning estimate</span><span>✓ No fake quotes</span></div>
+        <a class="hero-pro-link pro-conversion-prompt js-show-pro" href="#pro-package"><span><span>REPAIRCOSTMATCH PRO</span><b>Want local company matches and side-by-side comparison?</b></span><strong>$9.99 one-time →</strong></a>
       </div>
 
       <aside class="snapshot-card" id="costs">
@@ -103,10 +112,29 @@
     <section class="step" data-step="2"><span class="eyebrow">STEP 2 OF 5</span><h2>How severe does it look?</h2><div class="choice-grid" data-field="severity"><button data-value="minor">Small / localized</button><button data-value="moderate">Noticeable / recurring</button><button data-value="major">Large / worsening</button><button data-value="unknown">Not sure</button></div><div class="step-actions"><button class="btn primary next-step">Continue</button></div></section>
     <section class="step" data-step="3"><span class="eyebrow">STEP 3 OF 5</span><h2>What type of foundation or space?</h2><div class="choice-grid" data-field="foundation"><button data-value="basement">Basement</button><button data-value="slab">Slab</button><button data-value="crawlspace">Crawl space</button><button data-value="unknown">Not sure</button></div><div class="step-actions"><button class="btn primary next-step">Continue</button></div></section>
     <section class="step" data-step="4"><span class="eyebrow">STEP 4 OF 5</span><h2>Where is the property?</h2><label class="field">ZIP code<input id="zip" inputmode="numeric" maxlength="5" autocomplete="postal-code" placeholder="e.g. 75201"></label><div class="step-actions"><button class="btn primary next-step">Continue</button></div></section>
-    <section class="step" data-step="5"><span class="eyebrow">STEP 5 OF 5</span><h2>Your planning snapshot</h2><div class="result-box"><span>Educational cost band</span><strong id="resultBand">—</strong><p id="resultText">Complete the steps to see a planning range.</p></div><div id="resultReasons"></div><div class="quote-locked"><b>Local contractor matching is not live yet.</b><br>Repair-profile information is only shared after explicit consent.</div><div class="step-actions"><button class="btn secondary" data-close>Done</button></div></section>
+    <section class="step" data-step="5"><span class="eyebrow">STEP 5 OF 5</span><h2>Your planning snapshot</h2><div class="result-box"><span>Educational cost band</span><strong id="resultBand">—</strong><p id="resultText">Complete the steps to see a planning range.</p></div><div id="resultReasons"></div><div class="quote-locked"><b>Local contractor matching is not live yet.</b><br>Repair-profile information is only shared after explicit consent.</div><div class="result-pro-upsell pro-conversion-prompt"><span class="mini-label">FREE CHECK COMPLETE</span><h3>Want more than the free planning snapshot?</h3><p>Unlock RepairCostMatch Pro for local company matches, provider details and side-by-side comparison before you call. One-time purchase — no monthly subscription.</p><a class="btn primary js-show-pro" href="#pro-package">See Pro · $9.99 one-time →</a></div><div class="step-actions"><button class="btn secondary" data-close>Done</button></div></section>
   </div></div>
 
   <script src="app.js?v=pro5" defer></script>
   <script src="trust-center.js?v=pro5" defer></script>
+  <script>
+    window.addEventListener('DOMContentLoaded',function(){
+      const pro=document.getElementById('pro-package');
+      const problems=document.getElementById('problems');
+      if(pro&&problems&&pro.nextElementSibling!==problems) problems.insertAdjacentElement('beforebegin',pro);
+
+      document.addEventListener('click',function(e){
+        const trigger=e.target.closest('.js-show-pro');
+        if(!trigger)return;
+        e.preventDefault();
+        const modal=document.getElementById('repairModal');
+        if(modal&&modal.classList.contains('open')){
+          const close=modal.querySelector('[data-close]');
+          if(close)close.click();
+        }
+        setTimeout(function(){document.getElementById('pro-package')?.scrollIntoView({behavior:'smooth',block:'start'});},80);
+      });
+    });
+  </script>
 </body>
 </html>
