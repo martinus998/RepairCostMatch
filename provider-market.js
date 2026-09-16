@@ -119,6 +119,7 @@
           <div><span class="eyebrow">EVERYTHING INCLUDED IN REPAIRCOSTMATCH PRO</span><h2 id="proValueTitle">Know more before you repair, hire or sign.</h2><p>Pro combines repair planning, AI help, DIY screening, local company data and quote safeguards in one place so you can make a more informed next move.</p></div>
           <div class="pro-value-price"><b>$9.99</b><span>one-time · no subscription</span></div>
         </div>
+        <div class="pro-value-actions"><a class="btn primary" href="https://buy.stripe.com/9B64gybqK2HDalT19N1Fe00" rel="nofollow noopener">Unlock Pro · $9.99 one-time →</a><button type="button" class="btn secondary" data-pro-free>Start the free repair check</button></div>
         <div class="pro-value-grid">
           <article class="pro-value-card"><b>AI Repair Assistant</b><small>Ask follow-up questions after your repair check using the context of the problem you entered. Higher-risk work is routed to professional-first guidance.</small></article>
           <article class="pro-value-card"><b>Risk + DIY suitability</b><small>See a transparent <strong>0–100 screening score</strong>, whether limited DIY work may be appropriate and clear stop conditions.</small></article>
@@ -130,7 +131,6 @@
           <article class="pro-value-card"><b>Personal Repair Plan</b><small>Get practical next steps, questions to ask, documents to request and project summaries you can save or share.</small></article>
         </div>
         <div class="pro-value-proof"><span>✓ No monthly subscription</span><span>✓ No automatic contractor calls</span><span>✓ You choose who to contact</span><span>✓ Verification labels only when supported</span></div>
-        <div class="pro-value-actions"><a class="btn primary" href="https://buy.stripe.com/9B64gybqK2HDalT19N1Fe00" rel="nofollow noopener">Unlock Pro · $9.99 one-time →</a><button type="button" class="btn secondary" data-pro-free>Start the free repair check</button></div>
         <small class="pro-value-note">RepairCostMatch provides educational planning, not a structural diagnosis or contractor quote. Provider fields vary by location and connected data source. License and insurance are shown as verified only when supported by a reliable source; provider-specific pricing is shown only when reliable source data exists.</small>`;
       const diy=document.getElementById('diy-home');
       const hero=document.querySelector('.pro-hero');
