@@ -1,14 +1,22 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "npm:@supabase/supabase-js@2";
 
-const SITE_ORIGIN = "https://martinus998.github.io";
+const PRIMARY_ORIGIN = "https://repaircostmatch.com";
+const ALLOWED_ORIGINS = new Set([
+  PRIMARY_ORIGIN,
+  "https://www.repaircostmatch.com",
+  "https://martinus998.github.io",
+]);
 const LIVE_PAYMENT_LINK = "plink_1UFMsNBGKCKsYnS9SdXaKFIG";
 const LIVE_AMOUNT = 999;
 const LIVE_CURRENCY = "usd";
 
+function allowedOrigin(origin: string | null) {
+  return origin && ALLOWED_ORIGINS.has(origin) ? origin : PRIMARY_ORIGIN;
+}
 function headers(origin: string | null) {
   return {
-    "Access-Control-Allow-Origin": origin === SITE_ORIGIN ? SITE_ORIGIN : SITE_ORIGIN,
+    "Access-Control-Allow-Origin": allowedOrigin(origin),
     "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
     "Access-Control-Allow-Methods": "POST, OPTIONS",
     "Vary": "Origin",
@@ -29,7 +37,7 @@ Deno.serve(async (req: Request) => {
   const origin = req.headers.get("origin");
   if (req.method === "OPTIONS") return new Response("ok", { headers: headers(origin) });
   if (req.method !== "POST") return json({ error: "method_not_allowed" }, 405, origin);
-  if (origin && origin !== SITE_ORIGIN) return json({ error: "origin_not_allowed" }, 403, origin);
+  if (origin && !ALLOWED_ORIGINS.has(origin)) return json({ error: "origin_not_allowed" }, 403, origin);
 
   const publishableKeys = JSON.parse(Deno.env.get("SUPABASE_PUBLISHABLE_KEYS") || "{}");
   const expectedPublicKey = publishableKeys["default"];
