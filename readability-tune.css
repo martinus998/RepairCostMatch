@@ -101,3 +101,46 @@ html,body{max-width:100%;overflow-x:hidden!important}
   .ai-form button{width:100%!important;min-height:48px!important;margin-top:9px!important;padding:11px 14px!important;font-size:13px!important}
   .ai-fineprint{font-size:9px!important;line-height:1.45!important;padding:0 13px 13px!important}
 }
+
+/* Hard mobile wizard fix: the action bar must stay visible on the actual phone viewport. */
+@media (max-width:700px){
+  #repairModal{overflow:hidden!important}
+  #repairModal .modal-card{
+    width:calc(100vw - 12px)!important;
+    max-width:calc(100vw - 12px)!important;
+    height:calc(100dvh - 12px)!important;
+    max-height:calc(100dvh - 12px)!important;
+    margin:6px auto!important;
+    padding:14px 14px 88px!important;
+    overflow-y:auto!important;
+    overflow-x:hidden!important;
+  }
+  #repairModal .step.active{padding-bottom:74px!important}
+  #repairModal .step-actions{
+    position:fixed!important;
+    left:14px!important;
+    right:14px!important;
+    bottom:max(10px,env(safe-area-inset-bottom))!important;
+    z-index:1000!important;
+    width:auto!important;
+    max-width:none!important;
+    margin:0!important;
+    padding:8px!important;
+    display:flex!important;
+    justify-content:center!important;
+    background:rgba(255,253,248,.98)!important;
+    border:1px solid rgba(19,37,42,.10)!important;
+    border-radius:18px!important;
+    box-shadow:0 -8px 28px rgba(19,37,42,.18)!important;
+  }
+  #repairModal .step-actions .btn,
+  #repairModal .step-actions button{
+    display:block!important;
+    width:100%!important;
+    min-width:0!important;
+    min-height:54px!important;
+    margin:0!important;
+    font-size:17px!important;
+    border-radius:14px!important;
+  }
+}
