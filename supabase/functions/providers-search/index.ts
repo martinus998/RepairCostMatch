@@ -1,7 +1,14 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "npm:@supabase/supabase-js@2";
 
-const SITE_ORIGIN = "https://martinus998.github.io";
+const PRIMARY_ORIGIN = "https://repaircostmatch.com";
+const ALLOWED_ORIGINS = new Set([
+  PRIMARY_ORIGIN,
+  "https://www.repaircostmatch.com",
+  "https://martinus998.github.io",
+  "http://localhost:8000",
+  "http://127.0.0.1:8000",
+]);
 const LIVE_PAYMENT_LINK = "plink_1UFMsNBGKCKsYnS9SdXaKFIG";
 const LIVE_AMOUNT = 999;
 const LIVE_CURRENCY = "usd";
@@ -15,9 +22,9 @@ const ALLOWED_SERVICES = new Set([
 ]);
 
 function cors(origin: string | null) {
-  const allowed = origin === SITE_ORIGIN || origin === "http://localhost:8000" || origin === "http://127.0.0.1:8000";
+  const allowed = !!origin && ALLOWED_ORIGINS.has(origin);
   return {
-    "Access-Control-Allow-Origin": allowed && origin ? origin : SITE_ORIGIN,
+    "Access-Control-Allow-Origin": allowed && origin ? origin : PRIMARY_ORIGIN,
     "Access-Control-Allow-Methods": "GET, OPTIONS",
     "Access-Control-Allow-Headers": "content-type, authorization, apikey, x-rcm-pro-token",
     "Vary": "Origin",
@@ -37,14 +44,10 @@ Deno.serve(async (req: Request) => {
   const headers = cors(origin);
   if (req.method === "OPTIONS") return new Response(null, { status: 204, headers });
   if (req.method !== "GET") return new Response(JSON.stringify({ error: "Method not allowed" }), { status: 405, headers });
-  if (origin && origin !== SITE_ORIGIN && origin !== "http://localhost:8000" && origin !== "http://127.0.0.1:8000") {
-    return new Response(JSON.stringify({ error: "Origin not allowed" }), { status: 403, headers });
-  }
+  if (origin && !ALLOWED_ORIGINS.has(origin)) return new Response(JSON.stringify({ error: "Origin not allowed" }), { status: 403, headers });
 
   const token = (req.headers.get("x-rcm-pro-token") || "").trim();
-  if (!/^[A-Za-z0-9_-]{40,80}$/.test(token)) {
-    return new Response(JSON.stringify({ error: "Pro access required" }), { status: 401, headers });
-  }
+  if (!/^[A-Za-z0-9_-]{40,80}$/.test(token)) return new Response(JSON.stringify({ error: "Pro access required" }), { status: 401, headers });
   const tokenHash = await sha256(token);
 
   const secretKeys = JSON.parse(Deno.env.get("SUPABASE_SECRET_KEYS") || "{}");
@@ -58,11 +61,7 @@ Deno.serve(async (req: Request) => {
     .eq("entitlement_token_hash", tokenHash)
     .maybeSingle();
   if (entitlementError) return new Response(JSON.stringify({ error: "Access check failed" }), { status: 500, headers });
-  const entitled = !!entitlement &&
-    entitlement.status === "active" &&
-    entitlement.payment_link_id === LIVE_PAYMENT_LINK &&
-    entitlement.amount_total === LIVE_AMOUNT &&
-    entitlement.currency === LIVE_CURRENCY;
+  const entitled = !!entitlement && entitlement.status === "active" && entitlement.payment_link_id === LIVE_PAYMENT_LINK && entitlement.amount_total === LIVE_AMOUNT && entitlement.currency === LIVE_CURRENCY;
   if (!entitled) return new Response(JSON.stringify({ error: "Pro access required" }), { status: 403, headers });
 
   const now = new Date();
@@ -73,9 +72,7 @@ Deno.serve(async (req: Request) => {
     supabase.from("provider_search_events").select("id", { count: "exact", head: true }).eq("entitlement_token_hash", tokenHash).gte("created_at", hourAgo),
   ]);
   if (minuteError || hourError) return new Response(JSON.stringify({ error: "Rate check failed" }), { status: 500, headers });
-  if ((minuteCount || 0) >= MAX_PER_MINUTE || (hourCount || 0) >= MAX_PER_HOUR) {
-    return new Response(JSON.stringify({ error: "Too many searches. Please try again shortly." }), { status: 429, headers });
-  }
+  if ((minuteCount || 0) >= MAX_PER_MINUTE || (hourCount || 0) >= MAX_PER_HOUR) return new Response(JSON.stringify({ error: "Too many searches. Please try again shortly." }), { status: 429, headers });
 
   const url = new URL(req.url);
   const zip = (url.searchParams.get("zip") || "").trim();
@@ -89,33 +86,12 @@ Deno.serve(async (req: Request) => {
   const { error: logError } = await supabase.from("provider_search_events").insert({ entitlement_token_hash: tokenHash });
   if (logError) return new Response(JSON.stringify({ error: "Search audit failed" }), { status: 500, headers });
 
-  const fieldMask = [
-    "places.id",
-    "places.displayName",
-    "places.formattedAddress",
-    "places.rating",
-    "places.userRatingCount",
-    "places.websiteUri",
-    "places.nationalPhoneNumber",
-    "places.googleMapsUri",
-    "places.primaryTypeDisplayName",
-  ].join(",");
-
+  const fieldMask = ["places.id","places.displayName","places.formattedAddress","places.rating","places.userRatingCount","places.websiteUri","places.nationalPhoneNumber","places.googleMapsUri","places.primaryTypeDisplayName"].join(",");
   const google = await fetch("https://places.googleapis.com/v1/places:searchText", {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "X-Goog-Api-Key": key,
-      "X-Goog-FieldMask": fieldMask,
-    },
-    body: JSON.stringify({
-      textQuery: `${service} near ${zip} USA`,
-      languageCode: "en",
-      regionCode: "US",
-      pageSize: 12,
-    }),
+    headers: { "Content-Type": "application/json", "X-Goog-Api-Key": key, "X-Goog-FieldMask": fieldMask },
+    body: JSON.stringify({ textQuery: `${service} near ${zip} USA`, languageCode: "en", regionCode: "US", pageSize: 12 }),
   });
-
   if (!google.ok) {
     const detail = await google.text();
     console.error("Google Places error", google.status, detail.slice(0, 800));
