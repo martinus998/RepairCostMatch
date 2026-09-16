@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="robots" content="noindex,nofollow">
+  <title>RepairCostMatch Owner Test</title>
+  <style>
+    body{margin:0;background:#082d49;color:#fff;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;min-height:100vh;display:grid;place-items:center;padding:20px;box-sizing:border-box}
+    .card{width:min(460px,100%);background:#0b3a5a;border:1px solid rgba(255,255,255,.16);border-radius:20px;padding:22px;box-shadow:0 20px 50px rgba(0,0,0,.28)}
+    h1{margin:0 0 8px;font-size:24px}.muted{color:#b9d7e4;line-height:1.5;font-size:14px}.row{display:flex;gap:8px;margin-top:16px}input{flex:1;padding:13px;border-radius:12px;border:1px solid #8fb8c9;font-size:16px}button{border:0;border-radius:12px;background:#ef7629;color:#fff;font-weight:800;padding:0 16px;font-size:15px}.status{margin-top:12px;font-size:14px;line-height:1.45}.ok{color:#8fffd2}.bad{color:#ffd1b1}a{color:#fff}
+  </style>
+</head>
+<body>
+  <main class="card">
+    <h1>Owner Pro test access</h1>
+    <p class="muted">Use this page only for internal RepairCostMatch testing. The code is single-use and temporary.</p>
+    <div class="row"><input id="code" autocomplete="off" autocapitalize="characters" placeholder="Enter tester code"><button id="activate">Activate</button></div>
+    <div id="status" class="status"></div>
+  </main>
+  <script>
+  (function(){
+    const endpoint='https://vmtbydmhccmztnfedwpi.supabase.co/functions/v1/pro-test-activate';
+    const apiKey='sb_publishable_zMHcVYupndDRspbsYZRRfw_jSLwqmt_';
+    const tokenKey='rcm_pro_entitlement_v1';
+    const input=document.getElementById('code'),btn=document.getElementById('activate'),status=document.getElementById('status');
+    async function activate(){
+      const code=input.value.trim();
+      if(!code){status.textContent='Enter the tester code.';status.className='status bad';return;}
+      btn.disabled=true;status.textContent='Activating test access…';status.className='status';
+      try{
+        const res=await fetch(endpoint,{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json','apikey':apiKey},body:JSON.stringify({code})});
+        const data=await res.json().catch(()=>({}));
+        if(!res.ok||!data.ok||!data.entitlement_token)throw new Error(data.error||'Activation failed');
+        localStorage.setItem(tokenKey,data.entitlement_token);
+        status.textContent='Pro test access activated. Opening RepairCostMatch…';status.className='status ok';
+        setTimeout(()=>location.replace('/'),600);
+      }catch(e){status.textContent='Code is invalid, expired or already used.';status.className='status bad';btn.disabled=false;}
+    }
+    btn.addEventListener('click',activate);input.addEventListener('keydown',e=>{if(e.key==='Enter')activate();});
+  })();
+  </script>
+</body>
+</html>
