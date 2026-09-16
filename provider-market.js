@@ -70,3 +70,79 @@
 
   const plannerZip=document.getElementById('zip');if(plannerZip){const sync=()=>{const z=plannerZip.value.trim();if(/^\d{5}$/.test(z)&&!zipInput.value)zipInput.value=z;};plannerZip.addEventListener('change',sync);sync();}
 })();
+
+// Make the full Pro value visible to every visitor before purchase.
+(function(){
+  'use strict';
+
+  function mountProValue(){
+    const heroLink=document.querySelector('.hero-pro-link');
+    if(heroLink){
+      heroLink.innerHTML='<span><span>REPAIRCOSTMATCH PRO</span><b>AI Repair Assistant · DIY suitability · local companies · quote & contract tools</b></span><strong>$9.99 one-time →</strong>';
+    }
+
+    const pro=document.getElementById('pro-package');
+    if(pro){
+      const title=pro.querySelector('#proPackageTitle');
+      const intro=pro.querySelector('.pro-package-head p');
+      const status=pro.querySelector('.pro-status');
+      if(title)title.textContent='Everything Pro unlocks for $9.99 one-time.';
+      if(intro)intro.textContent='See repair options, understand DIY suitability, ask the AI Repair Assistant, compare local companies and check quotes before you spend.';
+      if(status)status.textContent='Secure one-time checkout · no monthly subscription';
+      const list=pro.querySelector('.plan-card.pro .plan-list');
+      if(list)list.innerHTML='<li>AI Repair Assistant for contextual follow-up questions</li><li>0–100 risk screening score and DIY suitability guidance</li><li>Repair routes, planning cost ranges and materials budget for appropriate minor tasks</li><li>Local companies matched to ZIP and repair type</li><li>Address, phone, website, map, ratings, reviews and distance when available</li><li>Compare up to 3 local providers side by side</li><li>Quote Analyzer plus comparison of up to 3 contractor quotes</li><li>Contract Check for deposit, scope, warranty and timeline red flags</li><li>Personalized Repair Plan, questions to ask and documents to request</li><li>Project history plus save/share summaries</li>';
+      const grid=pro.querySelector('.pro-feature-grid');
+      if(grid)grid.innerHTML='<div class="pro-feature"><b>AI Repair Assistant</b><small>Ask questions using the context of your current repair profile, with safety stop rules built in.</small></div><div class="pro-feature"><b>DIY suitability</b><small>See a screening score, whether limited DIY may be appropriate, and when professional evaluation comes first.</small></div><div class="pro-feature"><b>Local company match</b><small>Find relevant companies by ZIP and repair type with source-backed contact and rating fields when available.</small></div><div class="pro-feature"><b>Provider comparison</b><small>Compare up to 3 companies by available rating, reviews, distance, service fit and verified fields.</small></div><div class="pro-feature"><b>Quote + Contract tools</b><small>Check price against planning ranges, compare quotes and flag deposit, warranty, scope or timing issues.</small></div><div class="pro-feature"><b>Repair Plan</b><small>Keep next steps, questions, documents, project notes and save/share summaries together.</small></div>';
+    }
+
+    if(!document.getElementById('proValueStyle')){
+      const style=document.createElement('style');
+      style.id='proValueStyle';
+      style.textContent=`
+        .pro-value-showcase{margin:22px 0;padding:22px;border:1px solid rgba(255,139,69,.34);border-radius:22px;background:linear-gradient(145deg,#082f4d,#06243d 64%,#102f46);box-shadow:0 18px 44px rgba(0,0,0,.18);color:#fff}
+        .pro-value-top{display:flex;justify-content:space-between;gap:20px;align-items:flex-start}.pro-value-top h2{margin:5px 0 7px;font-size:28px;line-height:1.15;color:#fff}.pro-value-top p{margin:0;max-width:720px;color:#c8dde6;line-height:1.55}.pro-value-price{min-width:120px;padding:12px 14px;border:1px solid rgba(255,139,69,.45);border-radius:15px;background:rgba(239,118,41,.12);text-align:center}.pro-value-price b{display:block;color:#ff9b61;font-size:24px}.pro-value-price span{display:block;margin-top:2px;color:#ffe4d4;font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:.9px}
+        .pro-value-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:16px}.pro-value-card{padding:13px;border:1px solid rgba(156,232,255,.16);border-radius:14px;background:rgba(2,37,61,.7)}.pro-value-card b{display:block;color:#fff;font-size:12px}.pro-value-card small{display:block;margin-top:5px;color:#abcbd6;font-size:9px;line-height:1.45}.pro-value-card strong{color:#ffad7c}
+        .pro-value-proof{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}.pro-value-proof span{padding:7px 9px;border:1px solid rgba(143,255,210,.18);border-radius:999px;background:rgba(72,177,132,.08);color:#c7f2df;font-size:8px;font-weight:850}.pro-value-actions{display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin-top:14px}.pro-value-actions .btn{min-width:190px}.pro-value-note{display:block;margin-top:11px;color:#94b8c6;font-size:8px;line-height:1.45}
+        @media(max-width:760px){.pro-value-grid{grid-template-columns:1fr 1fr}.pro-value-top{display:block}.pro-value-price{display:inline-block;margin-top:12px;min-width:105px}.pro-value-top h2{font-size:22px}}
+        @media(max-width:480px){.pro-value-showcase{padding:15px}.pro-value-grid{grid-template-columns:1fr}.pro-value-top h2{font-size:19px}.pro-value-card b{font-size:11px}.pro-value-card small{font-size:8.5px}.pro-value-actions .btn{width:100%}}
+      `;
+      document.head.appendChild(style);
+    }
+
+    if(!document.getElementById('pro-value-showcase')){
+      const section=document.createElement('section');
+      section.id='pro-value-showcase';
+      section.className='pro-value-showcase';
+      section.setAttribute('aria-labelledby','proValueTitle');
+      section.innerHTML=`
+        <div class="pro-value-top">
+          <div><span class="eyebrow">EVERYTHING INCLUDED IN REPAIRCOSTMATCH PRO</span><h2 id="proValueTitle">Know more before you repair, hire or sign.</h2><p>Pro combines repair planning, AI help, DIY screening, local company data and quote safeguards in one place so you can make a more informed next move.</p></div>
+          <div class="pro-value-price"><b>$9.99</b><span>one-time · no subscription</span></div>
+        </div>
+        <div class="pro-value-grid">
+          <article class="pro-value-card"><b>AI Repair Assistant</b><small>Ask follow-up questions after your repair check using the context of the problem you entered. Higher-risk work is routed to professional-first guidance.</small></article>
+          <article class="pro-value-card"><b>Risk + DIY suitability</b><small>See a transparent <strong>0–100 screening score</strong>, whether limited DIY work may be appropriate and clear stop conditions.</small></article>
+          <article class="pro-value-card"><b>Repair options + costs</b><small>See likely repair routes, broad planning ranges and, for appropriate minor tasks, rough materials, tools, time and DIY materials budget.</small></article>
+          <article class="pro-value-card"><b>Local companies by ZIP</b><small>Match relevant companies to your ZIP and repair type instead of searching blindly.</small></article>
+          <article class="pro-value-card"><b>Useful company details</b><small>See address, phone, website, map, ratings, review counts, distance and other source-backed fields <strong>when available</strong>.</small></article>
+          <article class="pro-value-card"><b>Compare up to 3 providers</b><small>Review available rating, reviews, distance, service fit and verified fields side by side before you contact anyone.</small></article>
+          <article class="pro-value-card"><b>Quote + Contract Check</b><small>Compare contractor pricing with planning ranges, save up to 3 quotes and check deposit, scope, warranty and timeline red flags.</small></article>
+          <article class="pro-value-card"><b>Personal Repair Plan</b><small>Get practical next steps, questions to ask, documents to request and project summaries you can save or share.</small></article>
+        </div>
+        <div class="pro-value-proof"><span>✓ No monthly subscription</span><span>✓ No automatic contractor calls</span><span>✓ You choose who to contact</span><span>✓ Verification labels only when supported</span></div>
+        <div class="pro-value-actions"><a class="btn primary js-show-pro" href="#pro-package">Unlock Pro · $9.99 one-time →</a><button type="button" class="btn secondary" data-pro-free>Start the free repair check</button></div>
+        <small class="pro-value-note">RepairCostMatch provides educational planning, not a structural diagnosis or contractor quote. Provider fields vary by location and connected data source. License and insurance are shown as verified only when supported by a reliable source; provider-specific pricing is shown only when reliable source data exists.</small>`;
+      const diy=document.getElementById('diy-home');
+      const hero=document.querySelector('.pro-hero');
+      (diy||hero)?.insertAdjacentElement('afterend',section);
+      section.querySelector('[data-pro-free]')?.addEventListener('click',()=>document.querySelector('.js-start')?.click());
+    }
+
+    const upsell=document.querySelector('.result-pro-upsell ul');
+    if(upsell)upsell.innerHTML='<li>AI Repair Assistant for follow-up questions</li><li>0–100 risk screening + DIY suitability</li><li>Repair options, planning costs, materials and tools for appropriate minor tasks</li><li>Local companies matched to ZIP and repair type</li><li>Phone, address, website, map, ratings and reviews when available</li><li>Compare up to 3 local providers</li><li>Quote Analyzer + compare up to 3 contractor quotes</li><li>Contract Check for deposit, scope, warranty and timeline red flags</li><li>Personal Repair Plan, questions and documents to request</li><li>Project history plus save/share summaries</li>';
+  }
+
+  if(document.readyState==='loading')window.addEventListener('DOMContentLoaded',()=>setTimeout(mountProValue,0));
+  else setTimeout(mountProValue,0);
+  window.addEventListener('rcm:pro-access',()=>setTimeout(mountProValue,0));
+})();
