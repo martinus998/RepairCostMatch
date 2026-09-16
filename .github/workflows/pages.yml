@@ -40,16 +40,16 @@ jobs:
           build = os.environ.get('GITHUB_SHA','1')[:12]
 
           ga_tag = '''<!-- Google tag (gtag.js) -->
-          <script async src="https://www.googletagmanager.com/gtag/js?id=G-179DB077PE"></script>
+          <script async src="https://www.googletagmanager.com/gtag/js?id=G-4XJJ4PWB79"></script>
           <script>
             window.dataLayer = window.dataLayer || [];
             function gtag(){dataLayer.push(arguments);}
             gtag('js', new Date());
-            gtag('config', 'G-179DB077PE');
+            gtag('config', 'G-4XJJ4PWB79');
           </script>'''
           for html_file in Path('_site').glob('*.html'):
               html = html_file.read_text()
-              if 'G-179DB077PE' not in html and '</head>' in html:
+              if 'G-4XJJ4PWB79' not in html and '</head>' in html:
                   html = html.replace('</head>', ga_tag + '</head>', 1)
                   html_file.write_text(html)
 
