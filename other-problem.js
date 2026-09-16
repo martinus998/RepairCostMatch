@@ -20,22 +20,73 @@
     .other-problem-status.warn{background:#fff3e8;color:#8a4c22}
     .other-problem-status.ok{background:#e9f8f2;color:#23654e}
     .other-analysis-summary{margin:12px 0;padding:12px 14px;border-left:4px solid #ef7629;border-radius:10px;background:#fff7f0;color:#294d5d;font-size:12px;line-height:1.45}
-    @media(max-width:560px){
-      .modal .modal-card{width:calc(100vw - 12px)!important;max-width:calc(100vw - 12px)!important;margin:1vh auto!important;max-height:98dvh!important;padding:16px 14px 0!important}
-      .modal .progress{margin-bottom:13px!important}
-      .modal .step h2{font-size:28px!important;line-height:1.08!important;margin:4px 0 10px!important}
-      .modal .choice-grid{gap:8px!important}
-      .modal .choice-grid button{padding:11px 14px!important;min-height:54px!important}
-      .other-problem-card{padding:9px 10px;margin-top:9px;border-radius:14px}
-      .other-problem-card h3{font-size:14px;margin-bottom:5px}
+
+    #rcmWizardDock{display:none}
+
+    @media(max-width:700px){
+      #repairModal .modal-card{
+        width:calc(100vw - 12px)!important;
+        max-width:calc(100vw - 12px)!important;
+        height:calc(100dvh - 12px)!important;
+        max-height:calc(100dvh - 12px)!important;
+        margin:6px auto!important;
+        padding:14px 14px 92px!important;
+        overflow-y:auto!important;
+        overflow-x:hidden!important;
+        box-sizing:border-box!important;
+      }
+      #repairModal .progress{margin-bottom:11px!important}
+      #repairModal .step h2{font-size:26px!important;line-height:1.05!important;margin:4px 0 9px!important}
+      #repairModal .choice-grid{gap:7px!important}
+      #repairModal .choice-grid button{padding:10px 13px!important;min-height:50px!important}
+      #repairModal .step-actions{display:none!important}
+      #repairModal .step.active{padding-bottom:0!important}
+
+      .other-problem-card{padding:8px 9px;margin-top:8px;border-radius:13px}
+      .other-problem-kicker{font-size:8px;letter-spacing:1px;margin-bottom:2px}
+      .other-problem-card h3{font-size:13px;margin-bottom:4px}
       .other-problem-card p{display:none}
-      .other-problem-input{min-height:54px;font-size:11px;padding:8px 9px}
-      .other-problem-actions{margin-top:6px}
-      .other-problem-analyze{font-size:10px;padding:8px 10px}
+      .other-problem-input{min-height:46px;max-height:92px;font-size:11px;padding:7px 8px;resize:none}
+      .other-problem-actions{margin-top:5px;gap:6px}
+      .other-problem-analyze{font-size:10px;padding:7px 9px}
       .other-problem-note{display:none}
-      .other-problem-status{display:none;font-size:9px;padding:6px 8px;margin-top:6px}
+      .other-problem-status{display:none;font-size:9px;padding:6px 7px;margin-top:5px}
       .other-problem-status.ok,.other-problem-status.warn{display:block}
-      .modal .step.active{padding-bottom:92px!important}
+
+      #rcmWizardDock.is-visible{
+        display:block!important;
+        position:fixed!important;
+        left:10px!important;
+        right:10px!important;
+        bottom:max(8px,env(safe-area-inset-bottom))!important;
+        width:auto!important;
+        margin:0!important;
+        padding:7px!important;
+        background:rgba(255,253,248,.99)!important;
+        border:1px solid rgba(19,37,42,.12)!important;
+        border-radius:16px!important;
+        box-shadow:0 -8px 28px rgba(19,37,42,.22)!important;
+        z-index:2147483000!important;
+        box-sizing:border-box!important;
+      }
+      #rcmWizardDockButton{
+        display:block!important;
+        width:100%!important;
+        min-height:52px!important;
+        margin:0!important;
+        padding:11px 14px!important;
+        border:0!important;
+        border-radius:12px!important;
+        background:#d8753e!important;
+        color:#fff!important;
+        box-shadow:0 10px 22px rgba(216,117,62,.24)!important;
+        font:inherit!important;
+        font-size:16px!important;
+        line-height:1.2!important;
+        font-weight:900!important;
+        text-align:center!important;
+        cursor:pointer!important;
+      }
     }
   `;
   document.head.appendChild(style);
@@ -88,11 +139,14 @@
 
   function syncText(value,source){
     sharedText=value.slice(0,700);
-    document.querySelectorAll('.other-problem-input').forEach(input=>{if(input!==source&&input.value!==sharedText)input.value=sharedText;});
+    document.querySelectorAll('.other-problem-input').forEach(input=>{
+      if(input!==source&&input.value!==sharedText)input.value=sharedText;
+    });
   }
 
   function showStatus(card,text,kind=''){
     const status=card.querySelector('.other-problem-status');
+    if(!status)return;
     status.textContent=text;
     status.className='other-problem-status'+(kind?' '+kind:'');
   }
@@ -130,8 +184,13 @@
       }
     };
     const item=(map[p]||{})[s];
-    if(item){band.textContent=item[0];text.textContent=item[1];}
-    else{band.textContent='Needs evaluation';text.textContent='Your description does not clearly match one of the current foundation or waterproofing categories. A qualified local professional may need to identify the cause before a useful price range can be estimated.';}
+    if(item){
+      band.textContent=item[0];
+      text.textContent=item[1];
+    }else{
+      band.textContent='Needs evaluation';
+      text.textContent='Your description does not clearly match one of the current foundation or waterproofing categories. A qualified local professional may need to identify the cause before a useful price range can be estimated.';
+    }
 
     let summary=document.getElementById('otherAnalysisSummary');
     if(!summary){
@@ -151,10 +210,10 @@
 
   function analyzeCard(card){
     const input=card.querySelector('.other-problem-input');
-    const value=input.value.trim();
+    const value=input?.value.trim()||'';
     if(value.length<6){
       showStatus(card,'Please describe the problem in a little more detail first.','warn');
-      input.focus();
+      input?.focus();
       return;
     }
     syncText(value,input);
@@ -189,7 +248,7 @@
     if(card.closest('.step')?.dataset.step==='5')updateResultFromAnalysis();
   }
 
-  document.querySelectorAll('.step').forEach((step,index)=>{
+  document.querySelectorAll('#repairModal .step').forEach((step,index)=>{
     if(step.querySelector('.other-problem-card'))return;
     const card=document.createElement('div');
     card.className='other-problem-card';
@@ -208,101 +267,54 @@
     input.addEventListener('input',()=>syncText(input.value,input));
     card.querySelector('.other-problem-analyze').addEventListener('click',()=>analyzeCard(card));
   });
-})();
 
-// Mobile wizard action dock: physically separates Continue/Done from the scrollable step content.
-(function(){
-  'use strict';
-  const modal=document.getElementById('repairModal');
-  if(!modal)return;
-
+  // One mobile action system only: a body-level dock with a proxy button.
+  // The original step buttons stay in place for desktop but are hidden on mobile.
   const dock=document.createElement('div');
-  dock.id='wizardActionDock';
-  dock.className='wizard-action-dock';
-  dock.setAttribute('aria-live','polite');
-  modal.appendChild(dock);
+  dock.id='rcmWizardDock';
+  dock.setAttribute('aria-hidden','true');
+  const dockButton=document.createElement('button');
+  dockButton.id='rcmWizardDockButton';
+  dockButton.type='button';
+  dock.appendChild(dockButton);
+  document.body.appendChild(dock);
 
-  const parents=new WeakMap();
-  document.querySelectorAll('#repairModal .step-actions button').forEach(button=>{
-    parents.set(button,button.parentElement);
-  });
-
-  const dockStyle=document.createElement('style');
-  dockStyle.id='wizardActionDockStyles';
-  dockStyle.textContent=`
-    #wizardActionDock{display:none}
-    @media(max-width:700px){
-      #repairModal .modal-card{padding-bottom:92px!important;overflow-y:auto!important;overflow-x:hidden!important}
-      #repairModal .step.active{padding-bottom:12px!important}
-      #repairModal .step-actions{display:none!important}
-      #repairModal.open #wizardActionDock{
-        display:flex!important;
-        position:fixed!important;
-        left:50%!important;
-        right:auto!important;
-        bottom:max(8px,env(safe-area-inset-bottom))!important;
-        transform:translateX(-50%)!important;
-        width:min(calc(100vw - 28px),612px)!important;
-        max-width:calc(100vw - 28px)!important;
-        margin:0!important;
-        padding:8px!important;
-        align-items:center!important;
-        justify-content:center!important;
-        background:rgba(255,253,248,.985)!important;
-        border:1px solid rgba(19,37,42,.10)!important;
-        border-radius:17px!important;
-        box-shadow:0 -6px 26px rgba(19,37,42,.20)!important;
-        z-index:1200!important;
-        box-sizing:border-box!important;
-      }
-      #wizardActionDock .btn,
-      #wizardActionDock button{
-        display:block!important;
-        width:100%!important;
-        max-width:none!important;
-        min-width:0!important;
-        min-height:54px!important;
-        margin:0!important;
-        padding:12px 16px!important;
-        border-radius:13px!important;
-        text-align:center!important;
-        font-size:17px!important;
-        line-height:1.2!important;
-      }
-    }
-  `;
-  document.head.appendChild(dockStyle);
-
-  function restoreDockButton(){
-    const button=dock.querySelector('button');
-    if(!button)return;
-    const parent=parents.get(button);
-    if(parent)parent.appendChild(button);
-  }
+  let sourceButton=null;
 
   function syncDock(){
-    restoreDockButton();
-    if(!window.matchMedia('(max-width:700px)').matches){
-      dock.style.display='none';
+    const mobile=window.matchMedia('(max-width:700px)').matches;
+    const open=modal.classList.contains('open')&&modal.getAttribute('aria-hidden')!=='true';
+    if(!mobile||!open){
+      sourceButton=null;
+      dock.classList.remove('is-visible');
+      dock.setAttribute('aria-hidden','true');
       return;
     }
     const active=modal.querySelector('.step.active');
-    const button=active?.querySelector('.step-actions button');
-    if(button){
-      parents.set(button,button.parentElement);
-      dock.appendChild(button);
-      dock.style.display=modal.classList.contains('open')?'flex':'none';
-    }else{
-      dock.style.display='none';
+    sourceButton=active?.querySelector('.step-actions button')||null;
+    if(!sourceButton){
+      dock.classList.remove('is-visible');
+      dock.setAttribute('aria-hidden','true');
+      return;
     }
+    const label=(sourceButton.textContent||'Continue').trim()||'Continue';
+    dockButton.textContent=label;
+    dockButton.className=sourceButton.className||'btn primary';
+    dock.classList.add('is-visible');
+    dock.setAttribute('aria-hidden','false');
   }
 
-  const observer=new MutationObserver(mutations=>{
-    if(mutations.some(m=>m.type==='attributes'&&(m.attributeName==='class'||m.attributeName==='aria-hidden'))){
-      requestAnimationFrame(syncDock);
-    }
+  dockButton.addEventListener('click',()=>{
+    if(!sourceButton||sourceButton.disabled)return;
+    sourceButton.click();
+    requestAnimationFrame(syncDock);
   });
+
+  const observer=new MutationObserver(()=>requestAnimationFrame(syncDock));
   observer.observe(modal,{subtree:true,attributes:true,attributeFilter:['class','aria-hidden']});
   window.addEventListener('resize',()=>requestAnimationFrame(syncDock),{passive:true});
+  if(window.visualViewport){
+    window.visualViewport.addEventListener('resize',()=>requestAnimationFrame(syncDock),{passive:true});
+  }
   requestAnimationFrame(syncDock);
 })();
