@@ -67,6 +67,37 @@
   const note=upsell.querySelector('.pro-note');
   if(title)title.textContent='Unlock the full Pro repair toolkit.';
   if(intro)intro.textContent='Go from a rough planning result to a practical hiring checklist with local provider data, quote comparison and contract safeguards.';
-  if(list)list.innerHTML='<li>Local companies matched to your ZIP and repair type</li><li>Company address, phone, website and map when available</li><li>Ratings, review counts, distance and service-fit details when available</li><li>Compare up to 3 local providers side by side</li><li>License and insurance status only when separately verified</li><li>Availability details only when returned by the connected source</li><li>Quote Analyzer — see how a contractor price compares with the planning band</li><li>Compare up to 3 contractor quotes by price, scope and warranty</li><li>Contract Check for deposit, scope, warranty and timeline red flags</li><li>Repair Plan with next steps, questions to ask and documents to request</li><li>Provider-specific pricing only when a reliable source exists</li><li>You choose who to contact — no automatic contractor calls</li>';
+  if(list)list.innerHTML='<li>Local companies matched to your ZIP and repair type</li><li>Company address, phone, website and map when available</li><li>Ratings, review counts, distance and service-fit details when available</li><li>Compare up to 3 local providers side by side</li><li>Build a local market context from your saved real contractor quotes</li><li>License and insurance status only when separately verified</li><li>Availability details only when returned by the connected source</li><li>Quote Analyzer — see how a contractor price compares with the planning band</li><li>Compare up to 3 contractor quotes by price, scope and warranty</li><li>Contract Check for deposit, scope, warranty and timeline red flags</li><li>Repair Plan with next steps, questions to ask and documents to request</li><li>You choose who to contact — no automatic contractor calls</li>';
   if(note)note.textContent='One-time purchase — no monthly subscription. Provider fields vary by location and connected data source; unverified fields are clearly labeled.';
+})();
+
+// Conversion funnel measurement. Sends only fixed event names and coarse feature labels to GA4.
+(function(){
+  const send=(name,params={})=>{if(typeof window.gtag!=='function')return;try{window.gtag('event',name,{...params,page_path:location.pathname});}catch(_){}};
+  const once=(key,fn)=>{try{if(sessionStorage.getItem(key)==='1')return;sessionStorage.setItem(key,'1');}catch(_){}fn();};
+
+  if(location.pathname==='/'||location.pathname.endsWith('/index.html'))once('rcm_home_view_v1',()=>send('rcm_home_view'));
+
+  document.addEventListener('click',e=>{
+    const el=e.target?.closest?.('button,a');if(!el)return;
+    if(el.classList?.contains('js-start')||el.classList?.contains('js-problem'))send('rcm_repair_check_start');
+    if(el.classList?.contains('js-show-pro'))send('rcm_pro_interest');
+    if(el.matches?.('a[href*="buy.stripe.com"]'))send('begin_checkout',{currency:'USD',value:9.99,product:'repaircostmatch_pro'});
+    if(el.id==='providerSearch')send('rcm_provider_search');
+    if(el.hasAttribute?.('data-provider-compare'))send('rcm_provider_compare_select');
+    if(el.id==='compareProviders')send('rcm_provider_compare_open');
+    if(el.id==='pqAnalyze')send('rcm_quote_analyze');
+    if(el.id==='scanContract')send('rcm_contract_check');
+    if(el.id==='buildPlan')send('rcm_repair_plan_build');
+    if(el.id==='saveProject')send('rcm_project_save');
+    if(el.id==='localContextSave')send('rcm_local_quote_context_save');
+    if(el.id==='localProviderSave')send('rcm_provider_shortlist_save');
+  },true);
+
+  const band=document.getElementById('resultBand');
+  if(band){
+    let last='';
+    const report=()=>{const value=(band.textContent||'').trim();if(!value||value==='—'||value===last)return;last=value;send('rcm_repair_result_view');};
+    new MutationObserver(report).observe(band,{childList:true,subtree:true,characterData:true});
+  }
 })();
