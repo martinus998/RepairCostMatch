@@ -28,6 +28,7 @@ jobs:
           node --check quote-checker.js
           node --check provider-market.js
           node --check local-market-context.js
+          node --check pro-onboarding.js
           node --check billing-live.js
           node --check sw.js
       - name: Verify saved Pro access survives temporary failures
@@ -50,7 +51,7 @@ jobs:
               'style.css','blueprint-home.css','pro-home.css','trust-center.css',
               'trust-center.js','readability-tune.css','pro-package.css','smart-tools.css',
               'smart-tools.js','quote-checker.css','quote-checker.js','provider-market.css',
-              'provider-market.js','local-market-context.js','billing-live.js','manifest.webmanifest','sw.js',
+              'provider-market.js','local-market-context.js','pro-onboarding.js','billing-live.js','manifest.webmanifest','sw.js',
               'supabase/functions/providers-search/index.ts',
               'supabase/functions/pro-verify-payment/index.ts',
               'supabase/functions/pro-check-entitlement/index.ts',
@@ -122,6 +123,12 @@ jobs:
           for token in ['rcm_quotes_v2','rcm_provider_shortlist_v1','without inventing a ZIP price multiplier','Save selected shortlist']:
               if token not in local_market: errors.append(f'local-market-context missing expected trust token: {token}')
 
+          onboarding = (root/'pro-onboarding.js').read_text(encoding='utf-8') if (root/'pro-onboarding.js').exists() else ''
+          for token in ['PRO · START HERE','Run repair check','Compare local companies','Check real quotes','Review the contract','Build your repair plan']:
+              if token not in onboarding: errors.append(f'pro-onboarding missing expected workflow token: {token}')
+          for forbidden in ['buy.stripe.com','pro_entitlements','x-rcm-pro-token']:
+              if forbidden in onboarding: errors.append(f'pro-onboarding must stay presentation-only: {forbidden}')
+
           verify = (root/'supabase/functions/pro-verify-payment/index.ts').read_text(encoding='utf-8') if (root/'supabase/functions/pro-verify-payment/index.ts').exists() else ''
           for token in ['STRIPE_LIVE_RESTRICTED_KEY','payment_status','EXPECTED_PAYMENT_LINK','EXPECTED_AMOUNT','cs_live_','already_verified','stripe_checkout_session_id','https://repaircostmatch.com']:
               if token not in verify: errors.append(f'pro-verify-payment missing expected live security token: {token}')
@@ -137,5 +144,5 @@ jobs:
           if errors:
               print('\n'.join('ERROR: '+e for e in errors))
               sys.exit(1)
-          print(f'Launch check passed: {checked_html} site HTML pages validated plus live Pro billing/provider marketplace/local-market/PWA assets.')
+          print(f'Launch check passed: {checked_html} site HTML pages validated plus live Pro billing/provider marketplace/local-market/onboarding/PWA assets.')
           PY
