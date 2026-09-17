@@ -6,6 +6,16 @@
   document.head.appendChild(s);
 })();
 
+// Source-backed local market context. Kept separate from the core repair planner.
+(function(){
+  if(document.querySelector('script[data-local-market-context]'))return;
+  const s=document.createElement('script');
+  s.src='local-market-context.js?v=20260917-local1';
+  s.defer=true;
+  s.dataset.localMarketContext='1';
+  document.head.appendChild(s);
+})();
+
 // RepairCostMatch visual helpers.
 (function(){
   const iconSvgs=[
