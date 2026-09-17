@@ -27,6 +27,7 @@ jobs:
           node --check smart-tools.js
           node --check quote-checker.js
           node --check provider-market.js
+          node --check local-market-context.js
           node --check billing-live.js
           node --check sw.js
       - name: Verify saved Pro access survives temporary failures
@@ -49,7 +50,7 @@ jobs:
               'style.css','blueprint-home.css','pro-home.css','trust-center.css',
               'trust-center.js','readability-tune.css','pro-package.css','smart-tools.css',
               'smart-tools.js','quote-checker.css','quote-checker.js','provider-market.css',
-              'provider-market.js','billing-live.js','manifest.webmanifest','sw.js',
+              'provider-market.js','local-market-context.js','billing-live.js','manifest.webmanifest','sw.js',
               'supabase/functions/providers-search/index.ts',
               'supabase/functions/pro-verify-payment/index.ts',
               'supabase/functions/pro-check-entitlement/index.ts',
@@ -117,6 +118,10 @@ jobs:
           for token in ['rcm_pro_entitlement_v1','x-rcm-pro-token','Verified Pro access is required']:
               if token not in market: errors.append(f'provider-market missing expected Pro gate token: {token}')
 
+          local_market = (root/'local-market-context.js').read_text(encoding='utf-8') if (root/'local-market-context.js').exists() else ''
+          for token in ['rcm_quotes_v2','rcm_provider_shortlist_v1','without inventing a ZIP price multiplier','Save selected shortlist']:
+              if token not in local_market: errors.append(f'local-market-context missing expected trust token: {token}')
+
           verify = (root/'supabase/functions/pro-verify-payment/index.ts').read_text(encoding='utf-8') if (root/'supabase/functions/pro-verify-payment/index.ts').exists() else ''
           for token in ['STRIPE_LIVE_RESTRICTED_KEY','payment_status','EXPECTED_PAYMENT_LINK','EXPECTED_AMOUNT','cs_live_','already_verified','stripe_checkout_session_id','https://repaircostmatch.com']:
               if token not in verify: errors.append(f'pro-verify-payment missing expected live security token: {token}')
@@ -132,5 +137,5 @@ jobs:
           if errors:
               print('\n'.join('ERROR: '+e for e in errors))
               sys.exit(1)
-          print(f'Launch check passed: {checked_html} site HTML pages validated plus live Pro billing/provider marketplace/PWA assets.')
+          print(f'Launch check passed: {checked_html} site HTML pages validated plus live Pro billing/provider marketplace/local-market/PWA assets.')
           PY
