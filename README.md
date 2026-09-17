@@ -4,7 +4,8 @@
 
 Live website: https://repaircostmatch.com/
 
-Core guides:
+Core tools and guides:
+- Foundation Repair Cost Calculator: https://repaircostmatch.com/foundation-repair-cost-calculator.html
 - Home Repair Guide Hub: https://repaircostmatch.com/repair-guides.html
 - Foundation Repair Cost: https://repaircostmatch.com/foundation-repair-cost.html
 - Basement Waterproofing Cost: https://repaircostmatch.com/basement-waterproofing-cost.html
