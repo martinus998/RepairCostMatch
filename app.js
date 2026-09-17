@@ -16,6 +16,16 @@
   document.head.appendChild(s);
 })();
 
+// Pro onboarding is presentation-only and never changes entitlement or checkout state.
+(function(){
+  if(document.querySelector('script[data-pro-onboarding]'))return;
+  const s=document.createElement('script');
+  s.src='pro-onboarding.js?v=20260917-onboard1';
+  s.defer=true;
+  s.dataset.proOnboarding='1';
+  document.head.appendChild(s);
+})();
+
 // RepairCostMatch visual helpers.
 (function(){
   const iconSvgs=[
