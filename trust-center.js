@@ -139,7 +139,19 @@
   function markActive(){document.documentElement.dataset.proAccess='active';pro.dataset.proAccess='active';const badge=pro.querySelector('.pro-package-badge');if(badge)badge.textContent='PRO ACCESS VERIFIED';}
   function clearReturnParams(){const clean=new URL(location.href);clean.searchParams.delete('pro_test');clean.searchParams.delete('session_id');history.replaceState({},'',clean.pathname+(clean.search||'')+(clean.hash||''));}
   async function verifyReturn(){if(!returned||!sessionId)return false;setStatus('Verifying payment securely…');try{const {res,data}=await post(VERIFY_URL,{session_id:sessionId});if(res.ok&&data.ok&&data.entitlement_token){localStorage.setItem(TOKEN_KEY,data.entitlement_token);markActive();setStatus('Test Pro payment verified securely.','ok');clearReturnParams();return true;}if(data.error==='billing_not_configured')setStatus('Secure server verification is waiting for the Stripe server secret.','warn');else setStatus('Payment was not accepted for Pro access. Pro remains locked.','warn');return false;}catch(_){setStatus('Secure payment verification is temporarily unavailable. Pro remains locked.','warn');return false;}}
-  async function checkStored(){const token=localStorage.getItem(TOKEN_KEY);if(!token){setStatus(billingTest?'Test mode ready — Pro is still locked.':'Pro checkout is in secure final testing.');return false;}try{const {res,data}=await post(CHECK_URL,{entitlement_token:token});if(res.ok&&data.active){markActive();setStatus('Pro access verified.','ok');return true;}localStorage.removeItem(TOKEN_KEY);setStatus('Saved Pro access is no longer valid.','warn');return false;}catch(_){setStatus('Could not verify saved access. Pro stays locked.','warn');return false;}}
+  async function checkStored(){
+    const token=localStorage.getItem(TOKEN_KEY);
+    if(!token){setStatus(billingTest?'Test mode ready — Pro is still locked.':'Secure checkout ready.');return false;}
+    try{
+      const {res,data}=await post(CHECK_URL,{entitlement_token:token});
+      if(localStorage.getItem(TOKEN_KEY)!==token)return false;
+      if(res.ok&&data.active===true){markActive();setStatus('Pro access verified.','ok');return true;}
+      delete document.documentElement.dataset.proAccess;delete pro.dataset.proAccess;
+      if(res.ok&&data.active===false){localStorage.removeItem(TOKEN_KEY);setStatus('Saved Pro access is no longer valid.','warn');}
+      else setStatus('Access verification is temporarily unavailable. Your purchase is saved. Please do not pay again.','warn');
+      return false;
+    }catch(_){if(localStorage.getItem(TOKEN_KEY)!==token)return false;delete document.documentElement.dataset.proAccess;delete pro.dataset.proAccess;setStatus('Could not verify saved access. Your purchase is saved. Please do not pay again.','warn');return false;}
+  }
   if(billingTest){const a=document.createElement('a');a.className='pro-test-pay';a.href=TEST_CHECKOUT;a.rel='nofollow';a.textContent='TEST secure checkout · $9.99';actions.appendChild(a);}
   (async()=>{const verified=await verifyReturn();if(!verified)await checkStored();})();
 })();

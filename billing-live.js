@@ -282,8 +282,21 @@
     if(entitlementCheckInFlight)return document.documentElement.dataset.proAccess==='active';
     const token=localStorage.getItem(TOKEN_KEY);if(!token){markInactive();setStatus('Secure checkout ready.');return false;}
     entitlementCheckInFlight=true;
-    try{const {res,data}=await post(CHECK_URL,{entitlement_token:token});if(res.ok&&data.active){markActive();setStatus('Pro access verified.','ok');return true;}localStorage.removeItem(TOKEN_KEY);markInactive();setStatus('Secure checkout ready.');}
-    catch(_){setStatus('Could not verify saved access. Pro stays locked.','warn');}
+    try{
+      const {res,data}=await post(CHECK_URL,{entitlement_token:token});
+      // A concurrent payment verification may have replaced this receipt.
+      if(localStorage.getItem(TOKEN_KEY)!==token)return false;
+      if(res.ok&&data.active===true){markActive();setStatus('Pro access verified.','ok');return true;}
+      markInactive();
+      if(res.ok&&data.active===false){
+        localStorage.removeItem(TOKEN_KEY);
+        setStatus('Saved Pro access is no longer valid. Contact support if you need help.','warn');
+      }else{
+        if(payLink&&payLink.isConnected)payLink.remove();
+        setStatus('Access verification is temporarily unavailable. Your purchase is saved; we will retry. Please do not pay again.','warn');
+      }
+    }
+    catch(_){if(localStorage.getItem(TOKEN_KEY)!==token)return false;markInactive();if(payLink&&payLink.isConnected)payLink.remove();setStatus('Access verification is temporarily unavailable. Your purchase is saved; we will retry. Please do not pay again.','warn');}
     finally{entitlementCheckInFlight=false;}
     return false;
   }
@@ -292,7 +305,7 @@
   document.addEventListener('visibilitychange',recheckWhenVisible);
   window.addEventListener('focus',()=>{if(localStorage.getItem(TOKEN_KEY))checkSaved();});
   window.addEventListener('pageshow',()=>{if(localStorage.getItem(TOKEN_KEY))checkSaved();});
-  setInterval(()=>{if(document.visibilityState==='visible'&&document.documentElement.dataset.proAccess==='active'&&localStorage.getItem(TOKEN_KEY))checkSaved();},ACTIVE_RECHECK_MS);
+  setInterval(()=>{if(document.visibilityState==='visible'&&localStorage.getItem(TOKEN_KEY))checkSaved();},ACTIVE_RECHECK_MS);
 
   (async()=>{const verified=await verifyLiveReturn();if(!verified)await checkSaved();sanitizeLegacyState();renderProResult();})();
 })();
