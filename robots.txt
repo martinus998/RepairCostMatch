@@ -2,3 +2,4 @@ User-agent: *
 Allow: /
 
 Sitemap: https://repaircostmatch.com/sitemap.xml
+Sitemap: https://repaircostmatch.com/sitemap-growth.xml
