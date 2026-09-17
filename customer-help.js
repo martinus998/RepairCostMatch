@@ -1,5 +1,5 @@
 // Set the confirmed public support inbox before exposing an email link.
-const REPAIR_SUPPORT_EMAIL = '';
+const REPAIR_SUPPORT_EMAIL = 'Martinus998@azet.sk';
 (() => {
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(REPAIR_SUPPORT_EMAIL)) return;
   document.querySelectorAll('[data-customer-support]').forEach(container => {
