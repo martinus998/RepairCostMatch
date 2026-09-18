@@ -269,10 +269,17 @@
   function cleanReturnParams(){const u=new URL(location.href);u.searchParams.delete('pro_live');u.searchParams.delete('session_id');u.searchParams.delete('billing_test');u.searchParams.delete('pro_test');history.replaceState({},'',u.pathname+(u.search||'')+(u.hash||''));}
 
   async function verifyLiveReturn(){
-    const params=new URLSearchParams(location.search),returned=params.get('pro_live')==='success',sessionId=params.get('session_id')||'';
+    const params=new URLSearchParams(location.search);
+    let returned=params.get('pro_live')==='success',sessionId=params.get('session_id')||'';
+    try{
+      if(!returned||!/^cs_live_[A-Za-z0-9_]+$/.test(sessionId)){
+        const saved=JSON.parse(sessionStorage.getItem('rcm.pending-pro-return')||'null');
+        if(saved?.expires>Date.now()&&/^cs_live_[A-Za-z0-9_]+$/.test(saved.id)){returned=true;sessionId=saved.id;}
+      }
+    }catch(_){}
     if(!returned||!/^cs_live_[A-Za-z0-9_]+$/.test(sessionId))return false;
     setStatus('Verifying payment securely…');
-    try{const {res,data}=await post(VERIFY_URL,{session_id:sessionId});if(res.ok&&data.ok&&data.entitlement_token){localStorage.setItem(TOKEN_KEY,data.entitlement_token);markActive();setStatus('Pro payment verified securely.','ok');cleanReturnParams();return true;}markInactive();setStatus('Payment could not be verified. Pro remains locked.','warn');}
+    try{const {res,data}=await post(VERIFY_URL,{session_id:sessionId});if(res.ok&&data.ok&&data.entitlement_token){localStorage.setItem(TOKEN_KEY,data.entitlement_token);try{sessionStorage.removeItem('rcm.pending-pro-return');}catch(_){}markActive();setStatus('Pro payment verified securely.','ok');cleanReturnParams();return true;}markInactive();setStatus('Payment could not be verified. Pro remains locked.','warn');}
     catch(_){markInactive();setStatus('Secure payment verification is temporarily unavailable. Pro remains locked.','warn');}
     return false;
   }
