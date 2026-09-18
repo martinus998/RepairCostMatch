@@ -49,7 +49,7 @@ jobs:
           </script>'''
           for html_file in Path('_site').glob('*.html'):
               html = html_file.read_text()
-              if 'G-4XJJ4PWB79' not in html and '</head>' in html:
+              if 'site-analytics.js' not in html and 'G-4XJJ4PWB79' not in html and '</head>' in html:
                   html = html.replace('</head>', ga_tag + '</head>', 1)
                   html_file.write_text(html)
 
