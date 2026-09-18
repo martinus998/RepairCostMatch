@@ -32,6 +32,67 @@
     document.head.appendChild(ga);
   }
 
+  // Lightweight GA4 event tracking. Never sends ZIP codes, names, quote text, or other form values.
+  function track(name, params = {}) {
+    if (ownerDevice || typeof window.gtag !== 'function') return;
+    try { window.gtag('event', name, params); } catch {}
+  }
+  window.rcmTrack = track;
+
+  document.addEventListener('click', (event) => {
+    const el = event.target instanceof Element ? event.target.closest('a,button') : null;
+    if (!el) return;
+    const href = el instanceof HTMLAnchorElement ? (el.getAttribute('href') || '') : '';
+
+    if (el.matches('.js-start,.js-problem')) {
+      track('repair_check_start', { page_path: location.pathname });
+    }
+    if (href.includes('buy.stripe.com') || el.matches('.pro-live-pay')) {
+      track('begin_checkout', {
+        currency: 'USD',
+        value: 9.99,
+        items: [{ item_name: 'RepairCostMatch Pro', price: 9.99, quantity: 1 }]
+      });
+    }
+    if (el.closest('.provider-card') && (href.startsWith('http') || href.startsWith('tel:'))) {
+      track('provider_outbound', {
+        destination_type: href.startsWith('tel:') ? 'phone' : 'website',
+        page_path: location.pathname
+      });
+    }
+  }, true);
+
+  const markPlannerComplete = () => {
+    const result = document.getElementById('resultBand');
+    if (!result || !result.textContent || result.textContent.trim() === '—') return;
+    try {
+      if (sessionStorage.getItem('rcm.ga.repair_complete') === '1') return;
+      sessionStorage.setItem('rcm.ga.repair_complete', '1');
+    } catch {}
+    track('repair_check_complete', { page_path: location.pathname });
+  };
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
+      const result = document.getElementById('resultBand');
+      if (result) new MutationObserver(markPlannerComplete).observe(result, {childList:true,characterData:true,subtree:true});
+    }, {once:true});
+  } else {
+    const result = document.getElementById('resultBand');
+    if (result) new MutationObserver(markPlannerComplete).observe(result, {childList:true,characterData:true,subtree:true});
+  }
+
+  window.addEventListener('rcm:purchase-verified', () => {
+    try {
+      if (sessionStorage.getItem('rcm.ga.purchase_sent') === '1') return;
+      sessionStorage.setItem('rcm.ga.purchase_sent', '1');
+    } catch {}
+    track('purchase', {
+      currency: 'USD',
+      value: 9.99,
+      items: [{ item_name: 'RepairCostMatch Pro', price: 9.99, quantity: 1 }]
+    });
+  });
+
   // First-party live dashboard tracking for every public RepairCostMatch page.
   if (!document.querySelector('script[data-rcm-live-tracker]')) {
     const live = document.createElement('script');
