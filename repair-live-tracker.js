@@ -1,4 +1,6 @@
 (() => {
+  if (window.__RCM_LIVE_TRACKER__) return;
+  window.__RCM_LIVE_TRACKER__ = true;
   const params = new URLSearchParams(location.search);
   try {
     if (params.get('owner') === '1') localStorage.setItem('rcm_owner_device','1');
