@@ -1,3 +1,4 @@
+// RepairCostMatch production analytics: GA4 + first-party live counters.
 (() => {
   if (window.__RCM_SITE_ANALYTICS__) return;
   window.__RCM_SITE_ANALYTICS__ = true;
