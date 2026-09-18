@@ -279,7 +279,7 @@
     }catch(_){}
     if(!returned||!/^cs_live_[A-Za-z0-9_]+$/.test(sessionId))return false;
     setStatus('Verifying payment securely…');
-    try{const {res,data}=await post(VERIFY_URL,{session_id:sessionId});if(res.ok&&data.ok&&data.entitlement_token){localStorage.setItem(TOKEN_KEY,data.entitlement_token);try{sessionStorage.removeItem('rcm.pending-pro-return');}catch(_){}markActive();setStatus('Pro payment verified securely.','ok');cleanReturnParams();return true;}markInactive();setStatus('Payment could not be verified. Pro remains locked.','warn');}
+    try{const {res,data}=await post(VERIFY_URL,{session_id:sessionId});if(res.ok&&data.ok&&data.entitlement_token){localStorage.setItem(TOKEN_KEY,data.entitlement_token);try{sessionStorage.removeItem('rcm.pending-pro-return');}catch(_){}markActive();window.dispatchEvent(new CustomEvent('rcm:purchase-verified'));setStatus('Pro payment verified securely.','ok');cleanReturnParams();return true;}markInactive();setStatus('Payment could not be verified. Pro remains locked.','warn');}
     catch(_){markInactive();setStatus('Secure payment verification is temporarily unavailable. Pro remains locked.','warn');}
     return false;
   }
