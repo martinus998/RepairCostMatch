@@ -1,0 +1,56 @@
+name: Install source analytics
+
+on:
+  push:
+    branches: ["main"]
+    paths:
+      - ".github/workflows/install-source-analytics.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  install:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: true
+
+      - name: Add shared analytics loader to public HTML
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+
+          tag = '<script src="/site-analytics.js?v=20260918-ga1" defer></script>'
+          changed = []
+
+          for path in Path('.').glob('*.html'):
+              text = path.read_text()
+              if 'site-analytics.js' in text:
+                  continue
+              if '</head>' not in text:
+                  continue
+              text = text.replace('</head>', tag + '</head>', 1)
+              path.write_text(text)
+              changed.append(str(path))
+
+          print(f'Updated {len(changed)} HTML files')
+          for item in changed:
+              print(item)
+          PY
+
+          if git diff --quiet; then
+            echo "Analytics loader already installed."
+            exit 0
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add ./*.html
+          git commit -m "Install GA4 analytics across RepairCostMatch pages"
+          git push
