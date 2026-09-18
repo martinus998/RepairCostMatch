@@ -2,7 +2,21 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <script id="rcm-checkout-proof-early-scrub">
+  (()=>{try{
+    const u=new URL(location.href);
+    const id=u.searchParams.get('session_id')||'';
+    const returned=u.searchParams.get('pro_live')==='success';
+    if(returned&&/^cs_live_[A-Za-z0-9_]+$/.test(id)){
+      sessionStorage.setItem('rcm.pending-pro-return',JSON.stringify({id,expires:Date.now()+86400000}));
+    }
+    if(u.searchParams.has('session_id')||u.searchParams.has('pro_live')){
+      u.searchParams.delete('session_id');u.searchParams.delete('pro_live');
+      history.replaceState({},'',u.pathname+(u.search||'')+(u.hash||''));
+    }
+  }catch{}})();
+  </script>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Foundation Repair Cost & Local Options | RepairCostMatch</title>
   <meta name="description" content="Understand foundation repair and basement waterproofing costs, common warning signs, and local repair options. Start with your problem and ZIP code.">
   <meta name="robots" content="index,follow,max-image-preview:large">
