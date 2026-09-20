@@ -25,7 +25,7 @@
     </div>
     <p id="providerStatus" class="provider-status">No automatic contractor contact. You choose when and how to contact a company. License, insurance and availability are shown only when the connected source supplies reliable data.</p>
     <div id="providerResults" class="provider-results"></div>
-    <div id="compareTray" class="compare-tray"><div id="comparePicks" class="compare-picks"></div><button type="button" id="compareProviders">Compare selected</button></div>
+    <div id="compareTray" class="compare-tray"><div id="comparePicks" class="compare-picks"></div><button type="button" id="compareProviders">Compare selected</button><button type="button" id="buildQuoteKit">Build quote requests</button></div>
     <div class="provider-disclaimer"><strong>Important:</strong> RepairCostMatch does not guarantee a provider's workmanship, availability, license status, insurance coverage or final price. Ratings and review counts can change. Verify licenses, insurance, scope, warranty and the written quote before hiring.</div>`;
   anchor.insertAdjacentElement('afterend',section);
 
@@ -67,6 +67,52 @@
   function openCompare(){const picks=current.filter(p=>selected.has(providerId(p)));if(picks.length<2){status.textContent='Select at least 2 providers to compare.';status.className='provider-status warn';return;}const query=typeSelect.value;document.getElementById('providerCompareGrid').innerHTML=picks.map(p=>{const l=licenseData(p),i=insuranceData(p);return `<article class="provider-compare-col"><h3>${esc(p.name)}</h3><div class="provider-compare-row"><small>Planning score</small><b>${score(p,query)}/100</b></div><div class="provider-compare-row"><small>Rating</small><b>${esc(ratingText(p))}</b></div><div class="provider-compare-row"><small>Distance</small><b>${Number.isFinite(Number(p.distanceMiles))?`${Number(p.distanceMiles).toFixed(1)} miles`:'Unavailable'}</b></div><div class="provider-compare-row"><small>License</small><b>${esc(l.text)}</b></div><div class="provider-compare-row"><small>Insurance</small><b>${esc(i.text)}</b></div><div class="provider-compare-row"><small>Availability</small><b>${esc(availabilityText(p))}</b></div><div class="provider-compare-row"><small>Provider estimate</small><b>${esc(p.priceEstimate?.label||'No provider-specific estimate')}</b></div></article>`;}).join('');modal.classList.add('open');modal.setAttribute('aria-hidden','false');document.body.style.overflow='hidden';}
   function closeCompare(){modal.classList.remove('open');modal.setAttribute('aria-hidden','true');document.body.style.overflow='';}
   document.getElementById('compareProviders').addEventListener('click',openCompare);document.addEventListener('click',e=>{if(e.target.closest('[data-provider-close]'))closeCompare();});document.addEventListener('keydown',e=>{if(e.key==='Escape'&&modal.classList.contains('open'))closeCompare();});
+
+  const quoteKit=document.createElement('div');quoteKit.className='provider-compare-modal';quoteKit.id='quoteKitModal';quoteKit.setAttribute('aria-hidden','true');quoteKit.innerHTML='<div class="provider-compare-backdrop" data-quote-close></div><div class="provider-compare-dialog" role="dialog" aria-modal="true" aria-labelledby="quoteKitTitle"><button class="provider-compare-close" type="button" data-quote-close aria-label="Close">×</button><span class="eyebrow">3 QUOTE REQUEST KIT</span><h2 id="quoteKitTitle">Send the same scope to each company.</h2><p style="margin-top:-4px;color:#c7dce6">Using the same request makes contractor quotes easier to compare. RepairCostMatch does not send anything automatically — you stay in control.</p><div id="quoteKitGrid" class="provider-compare-grid"></div><div class="provider-disclaimer"><strong>Before hiring:</strong> verify scope, license and insurance where applicable, warranty, deposit, payment schedule, exclusions and the final written price. A request is not a quote or contract.</div></div>';document.body.appendChild(quoteKit);
+
+  function quoteRequestText(p){
+    const zip=zipInput.value.trim();
+    const service=typeSelect.options[typeSelect.selectedIndex]?.textContent||typeSelect.value;
+    return `Hello ${p.name||'there'},
+
+I am comparing up to three local companies for ${service.toLowerCase()} at a property in ZIP ${zip}.
+
+Please provide a written estimate, if you service this area, that includes:
+- recommended repair scope and method
+- labor and material price
+- permits or engineering costs, if applicable
+- expected start date and project duration
+- deposit and payment schedule
+- warranty terms
+- items specifically excluded from the price
+
+Please let me know if an on-site inspection is required before you can quote accurately.
+
+Thank you.`;
+  }
+
+  function openQuoteKit(){
+    const picks=current.filter(p=>selected.has(providerId(p)));
+    if(!picks.length){status.textContent='Select up to 3 providers first.';status.className='provider-status warn';return;}
+    const grid=document.getElementById('quoteKitGrid');
+    grid.innerHTML=picks.map((p,i)=>{
+      const website=cleanUrl(p.website),phone=cleanPhone(p.phone),text=quoteRequestText(p);
+      return `<article class="provider-compare-col"><h3>${esc(p.name||'Local provider')}</h3><p style="font-size:11px;color:#bfd5df;line-height:1.45">Standard request #${i+1} · same scope for a fairer comparison.</p><textarea readonly data-quote-text="${i}" style="width:100%;min-height:230px;padding:10px;border:1px solid rgba(156,232,255,.2);border-radius:10px;background:#061f34;color:#eef9ff;font:11px/1.45 system-ui">${esc(text)}</textarea><div class="provider-actions" style="margin-top:10px"><button type="button" data-copy-quote="${i}">Copy request</button>${website?`<a href="${website}" target="_blank" rel="noopener noreferrer">Open website ↗</a>`:''}${phone?`<a href="tel:${esc(phone)}">Call ${esc(phone)}</a>`:''}</div></article>`;
+    }).join('');
+    quoteKit.classList.add('open');quoteKit.setAttribute('aria-hidden','false');document.body.style.overflow='hidden';
+  }
+  function closeQuoteKit(){quoteKit.classList.remove('open');quoteKit.setAttribute('aria-hidden','true');document.body.style.overflow='';}
+  document.getElementById('buildQuoteKit')?.addEventListener('click',openQuoteKit);
+  document.addEventListener('click',async e=>{
+    if(e.target.closest('[data-quote-close]'))closeQuoteKit();
+    const b=e.target.closest('[data-copy-quote]');
+    if(!b)return;
+    const picks=current.filter(p=>selected.has(providerId(p))),p=picks[Number(b.dataset.copyQuote)];
+    if(!p)return;
+    try{await navigator.clipboard.writeText(quoteRequestText(p));const old=b.textContent;b.textContent='Copied';setTimeout(()=>b.textContent=old,1200);}catch(_){}
+  });
+  document.addEventListener('keydown',e=>{if(e.key==='Escape'&&quoteKit.classList.contains('open'))closeQuoteKit();});
+
 
   const plannerZip=document.getElementById('zip');if(plannerZip){const sync=()=>{const z=plannerZip.value.trim();if(/^\d{5}$/.test(z)&&!zipInput.value)zipInput.value=z;};plannerZip.addEventListener('change',sync);sync();}
 })();
