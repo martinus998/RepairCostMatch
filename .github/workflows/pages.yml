@@ -49,8 +49,24 @@ jobs:
           </script>'''
           for html_file in Path('_site').glob('*.html'):
               html = html_file.read_text()
+              changed = False
+
+              # Ensure every public RepairCostMatch page is counted by the private live dashboard.
+              # Pages with site-analytics.js already load repair-live-tracker.js dynamically.
+              if 'site-analytics.js' not in html and 'repair-live-tracker.js' not in html:
+                  tracker = '<script src="/repair-live-tracker.js?v=20260921-allpages2" defer></script>'
+                  if '</head>' in html:
+                      html = html.replace('</head>', tracker + '</head>', 1)
+                      changed = True
+                  elif '<body' in html:
+                      html = html.replace('<body', tracker + '<body', 1)
+                      changed = True
+
               if 'site-analytics.js' not in html and 'G-4XJJ4PWB79' not in html and '</head>' in html:
                   html = html.replace('</head>', ga_tag + '</head>', 1)
+                  changed = True
+
+              if changed:
                   html_file.write_text(html)
 
           p = Path('_site/index.html')
