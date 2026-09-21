@@ -70,10 +70,14 @@ jobs:
           class Parser(HTMLParser):
               def __init__(self):
                   super().__init__()
-                  self.refs=[]; self.h1=0
+                  self.refs=[]; self.h1=0; self.canonicals=[]; self.robots=''
               def handle_starttag(self, tag, attrs):
                   d=dict(attrs)
                   if tag == 'h1': self.h1 += 1
+                  if tag == 'link' and 'canonical' in (d.get('rel') or '').lower().split():
+                      self.canonicals.append(d.get('href',''))
+                  if tag == 'meta' and (d.get('name') or '').lower() == 'robots':
+                      self.robots = (d.get('content') or '').lower()
                   for key in ('href','src'):
                       if key in d: self.refs.append((tag,key,d[key]))
 
@@ -105,8 +109,23 @@ jobs:
                       errors.append(f'{path}: broken local {key}: {ref}')
 
           sitemap = (root/'sitemap.xml').read_text(encoding='utf-8') if (root/'sitemap.xml').exists() else ''
+          growth_sitemap = (root/'sitemap-growth.xml').read_text(encoding='utf-8') if (root/'sitemap-growth.xml').exists() else ''
+          sitemap_text = sitemap + '\n' + growth_sitemap
           for page in ['foundation-repair-cost.html','basement-waterproofing-cost.html','foundation-cracks.html','bowing-basement-wall.html','about.html','methodology.html','contact.html']:
               if page not in sitemap: errors.append(f'sitemap.xml missing {page}')
+
+          # Every production page that explicitly allows indexing and has a canonical
+          # must be discoverable through one of the site sitemaps.
+          for path in html_files:
+              if path.name == '404.html' or (path.name.startswith('google') and path.name.endswith('.html')):
+                  continue
+              text = path.read_text(encoding='utf-8')
+              p = Parser(); p.feed(text)
+              if 'noindex' in p.robots:
+                  continue
+              for canonical in p.canonicals:
+                  if canonical.startswith('https://repaircostmatch.com/') and canonical not in sitemap_text:
+                      errors.append(f'{path}: indexable canonical missing from sitemap: {canonical}')
 
           robots = (root/'robots.txt').read_text(encoding='utf-8') if (root/'robots.txt').exists() else ''
           if 'sitemap.xml' not in robots.lower(): errors.append('robots.txt does not reference sitemap.xml')
