@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Foundation Repair Quote Comparison Calculator | RepairCostMatch</title>
+<meta name="description" content="Compare up to three foundation repair quotes side by side. Enter written totals and optional pier counts to normalize the math before comparing scope, engineering, permits and warranty.">
+<meta name="robots" content="index,follow,max-image-preview:large">
+<link rel="canonical" href="https://repaircostmatch.com/foundation-repair-quote-comparison-calculator.html">
+<link rel="icon" href="favicon.svg">
+<meta property="og:type" content="website"><meta property="og:site_name" content="RepairCostMatch">
+<meta property="og:title" content="Foundation Repair Quote Comparison Calculator | RepairCostMatch">
+<meta property="og:description" content="Normalize the math from written foundation repair bids before comparing scope.">
+<meta property="og:url" content="https://repaircostmatch.com/foundation-repair-quote-comparison-calculator.html">
+<meta property="og:image" content="https://repaircostmatch.com/repaircostmatch-guide.svg">
+<link rel="stylesheet" href="style.css"><link rel="stylesheet" href="site-pages.css?v=1">
+<script src="/site-analytics.js?v=20260918-ga1" defer></script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@graph":[{"@type":"WebApplication","name":"Foundation Repair Quote Comparison Calculator","url":"https://repaircostmatch.com/foundation-repair-quote-comparison-calculator.html","applicationCategory":"HomeApplication","operatingSystem":"Web","isAccessibleForFree":true,"description":"A free browser-based calculator for comparing written foundation repair quote totals and optional per-pier arithmetic."},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://repaircostmatch.com/"},{"@type":"ListItem","position":2,"name":"Free Tools","item":"https://repaircostmatch.com/free-foundation-repair-tools.html"},{"@type":"ListItem","position":3,"name":"Quote Comparison Calculator","item":"https://repaircostmatch.com/foundation-repair-quote-comparison-calculator.html"}]},{"@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How should I compare foundation repair quotes?","acceptedAnswer":{"@type":"Answer","text":"Compare the diagnosis and written scope before comparing the final price. Check repair method, quantities, engineering, permits, drainage, restoration, warranty and exclusions."}},{"@type":"Question","name":"Can I compare cost per pier between bids?","acceptedAnswer":{"@type":"Answer","text":"Only as arithmetic context. A lower cost per pier is not automatically better because different proposals may use different systems, quantities, engineering, access assumptions or restoration scope."}},{"@type":"Question","name":"Does this calculator decide which contractor is better?","acceptedAnswer":{"@type":"Answer","text":"No. It only normalizes numbers that you enter and does not rank contractors or determine whether a repair is necessary or appropriate."}}]}]}
+</script>
+<style>
+.compare-box{margin:22px 0;padding:20px;border:1px solid #bfd5da;border-radius:18px;background:#f7fbfa}
+.compare-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.bid{padding:16px;border:1px solid #c9dadd;border-radius:14px;background:#fff}.bid h3{margin:0 0 10px}.bid label{display:grid;gap:6px;margin:10px 0;font-weight:800;color:#173b49;font-size:13px}.bid input{padding:11px;border:1px solid #bfd5da;border-radius:10px;font:inherit;color:#173b49;background:#fff}
+.bid-result{margin-top:10px;padding:12px;border-radius:10px;background:#082f49;color:white}.bid-result span{display:block;color:#b8d9e7;font-size:12px}.bid-result strong{display:block;margin-top:4px;font-size:20px}
+.diff-box{margin-top:14px;padding:15px;border-radius:12px;background:#e9f5f5;border:1px solid #c5dcdf}.diff-box strong{display:block;font-size:20px;color:#173b49}.diff-box p{margin:4px 0 0;color:#46646d}
+.scope-list{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}.scope-list label{display:flex;gap:9px;align-items:flex-start;padding:11px;border:1px solid #d3e2e4;border-radius:10px;background:#fff}.scope-list input{margin-top:3px}
+@media(max-width:760px){.compare-grid{grid-template-columns:1fr}.scope-list{grid-template-columns:1fr}}
+</style>
+</head>
+<body class="article-page">
+<header class="site-header"><a class="brand" href="index.html"><span class="brand-mark">RC</span><span><strong>RepairCostMatch</strong><small>Understand the repair before you hire.</small></span></a><nav><a href="free-foundation-repair-tools.html">Free tools</a><a href="repair-guides.html">Repair guides</a><a href="foundation-repair-quote-checker.html">Quote checker</a></nav><a class="btn primary" href="index.html">Check my repair</a></header>
+<main class="shell"><div class="article"><article class="article-body">
+<span class="eyebrow">FREE QUOTE COMPARISON TOOL</span><h1>Foundation repair quote comparison calculator</h1>
+<p>Enter the totals from up to three written contractor proposals. If a quote includes a documented pier count, add it too. The calculator shows the arithmetic side by side, but the scope still matters more than the bottom-line number.</p>
+
+<section class="compare-box" aria-labelledby="compareTitle"><h2 id="compareTitle">Normalize the written bids</h2>
+<div class="compare-grid">
+<div class="bid"><h3>Quote A</h3><label>Written total ($)<input id="aTotal" type="number" min="0" step="50" placeholder="e.g. 12000"></label><label>Pier count (optional)<input id="aPiers" type="number" min="0" step="1" placeholder="e.g. 8"></label><div class="bid-result"><span>Arithmetic per pier</span><strong id="aUnit">—</strong></div></div>
+<div class="bid"><h3>Quote B</h3><label>Written total ($)<input id="bTotal" type="number" min="0" step="50" placeholder="e.g. 15000"></label><label>Pier count (optional)<input id="bPiers" type="number" min="0" step="1" placeholder="e.g. 10"></label><div class="bid-result"><span>Arithmetic per pier</span><strong id="bUnit">—</strong></div></div>
+<div class="bid"><h3>Quote C</h3><label>Written total ($)<input id="cTotal" type="number" min="0" step="50" placeholder="Optional"></label><label>Pier count (optional)<input id="cPiers" type="number" min="0" step="1" placeholder="Optional"></label><div class="bid-result"><span>Arithmetic per pier</span><strong id="cUnit">—</strong></div></div>
+</div>
+<div class="diff-box" aria-live="polite"><strong id="diffTitle">Enter at least two quote totals</strong><p id="diffText">The calculator will show the entered price spread. It will not decide that the higher or lower quote is better.</p></div>
+</section>
+
+<h2>Before comparing price, confirm these scope items</h2>
+<div class="scope-list">
+<label><input type="checkbox"><span><strong>Same diagnosis?</strong><br>Are the contractors solving the same underlying problem?</span></label>
+<label><input type="checkbox"><span><strong>Same repair method?</strong><br>Push piers, helical piers, anchors, drainage and injection are not interchangeable.</span></label>
+<label><input type="checkbox"><span><strong>Same quantity?</strong><br>Compare pier count, anchor count, wall length or other measurable scope.</span></label>
+<label><input type="checkbox"><span><strong>Engineering & permits?</strong><br>Confirm whether they are included, separate or not required for the proposal.</span></label>
+<label><input type="checkbox"><span><strong>Access & restoration?</strong><br>Excavation, concrete, landscaping, drywall and cleanup can change the total.</span></label>
+<label><input type="checkbox"><span><strong>Warranty & exclusions?</strong><br>Compare written coverage, transfer terms and what is not included.</span></label>
+</div>
+
+<h2>Why quote totals can be far apart</h2>
+<p>Two bids can differ because the contractors diagnose different problems, propose different repair areas, use different quantities or include different project-level work. A lower total may reflect a smaller but appropriate scope, or it may exclude work that another bid includes. A higher total may reflect a larger necessary scope, or simply more included items. The number alone does not tell you which explanation is correct.</p>
+
+<h2>Use the quote checker for missing details</h2>
+<p>If a written proposal is vague, open the <a href="foundation-repair-quote-checker.html">Foundation Repair Quote Checker</a>. It checks whether the proposal clearly states the repair method, quantities, payment schedule, engineering, permits, cleanup and warranty, then builds questions from the missing items.</p>
+
+<h2>Use the estimator for budget context</h2>
+<p>If you want a broad planning band before comparing bids, use the <a href="foundation-repair-cost-calculator.html">Foundation Repair Cost Calculator & Estimator</a>. For pier projects, the <a href="foundation-repair-cost-per-pier.html#pier-calculator">Pier Project Calculator</a> lets you enter the actual unit-price range from a written proposal.</p>
+
+<p class="notice">Arithmetic and educational planning only. RepairCostMatch does not rank contractors, determine whether work is needed or choose a structural repair method. Values entered on this page stay in your browser.</p>
+
+<h2>Frequently asked questions</h2>
+<h3>Should I pick the lowest quote?</h3><p>Not from price alone. First confirm that the bids address the same diagnosis and comparable written scope.</p>
+<h3>Why can cost per pier look misleading?</h3><p>One proposal may include engineering, excavation, restoration or lifting that another proposal excludes. Unit-price arithmetic is only one part of the comparison.</p>
+<h3>What if contractors recommend different pier counts?</h3><p>Ask each contractor to show the affected area, support locations and evidence behind the count. If major structural proposals conflict, an independent professional evaluation may help clarify the diagnosis.</p>
+</article>
+<aside class="article-aside"><span class="eyebrow">COMPARE SCOPE FIRST</span><h3>Price is the last row</h3><p>Normalize the math, then confirm whether each proposal is actually solving the same problem with the same scope.</p><a class="btn primary" href="foundation-repair-quote-checker.html">Check quote completeness →</a><p><a href="foundation-repair-cost-calculator.html">Estimate cost range →</a></p><p><a href="free-foundation-repair-tools.html">All free tools →</a></p></aside>
+</div></main>
+<script>
+(()=>{const $=id=>document.getElementById(id),money=n=>'$'+Math.round(n).toLocaleString('en-US');function read(prefix){const total=Math.max(0,parseFloat($(prefix+'Total').value)||0),piers=Math.max(0,parseInt($(prefix+'Piers').value)||0);$(prefix+'Unit').textContent=total&&piers?money(total/piers)+' / pier':'—';return total}function calc(){const vals=[read('a'),read('b'),read('c')].filter(v=>v>0);if(vals.length<2){$('diffTitle').textContent='Enter at least two quote totals';$('diffText').textContent='The calculator will show the entered price spread. It will not decide that the higher or lower quote is better.';return}const lo=Math.min(...vals),hi=Math.max(...vals),diff=hi-lo,pct=lo>0?diff/lo*100:0;$('diffTitle').textContent='Entered spread: '+money(diff)+' ('+pct.toFixed(1)+'%)';$('diffText').textContent='Lowest entered total: '+money(lo)+' · Highest entered total: '+money(hi)+'. Investigate what scope differences explain the spread before comparing value.'}['aTotal','aPiers','bTotal','bPiers','cTotal','cPiers'].forEach(id=>$(id).addEventListener('input',calc));calc()})();
+</script>
+</body></html>
