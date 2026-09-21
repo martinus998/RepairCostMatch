@@ -96,7 +96,7 @@ jobs:
                       continue
                   clean = urlsplit(ref).path
                   if not clean: continue
-                  target = (path.parent / clean).resolve()
+                  target = ((root / clean.lstrip('/')) if clean.startswith('/') else (path.parent / clean)).resolve()
                   try: target.relative_to(root.resolve())
                   except ValueError:
                       errors.append(f'{path}: reference leaves site root: {ref}')
