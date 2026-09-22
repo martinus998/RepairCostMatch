@@ -3,7 +3,7 @@
 
   const VERIFY_URL='https://vmtbydmhccmztnfedwpi.supabase.co/functions/v1/pro-verify-payment';
   const CHECK_URL='https://vmtbydmhccmztnfedwpi.supabase.co/functions/v1/pro-check-entitlement';
-  const LIVE_CHECKOUT='https://buy.stripe.com/9B64gybqK2HDalT19N1Fe00';
+  const LIVE_CHECKOUT='https://buy.stripe.com/28EcN42Ue81X0Lj6u71Fe01';
   const TOKEN_KEY='rcm_pro_entitlement_v1';
   const ACTIVE_RECHECK_MS=60000;
 
@@ -70,7 +70,7 @@
     payLink.className='pro-test-pay pro-live-pay';
     payLink.href=LIVE_CHECKOUT;
     payLink.rel='nofollow noopener';
-    payLink.textContent='Secure checkout · $9.99';
+    payLink.textContent='Secure checkout · $4.99';
     actions.appendChild(payLink);
   }
 
