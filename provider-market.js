@@ -124,7 +124,7 @@ Thank you.`;
   function mountProValue(){
     const heroLink=document.querySelector('.hero-pro-link');
     if(heroLink){
-      heroLink.innerHTML='<span><span>REPAIRCOSTMATCH PRO</span><b>AI Repair Assistant · DIY suitability · local companies · quote & contract tools</b></span><strong>$9.99 one-time →</strong>';
+      heroLink.innerHTML='<span><span>REPAIRCOSTMATCH PRO</span><b>AI Repair Assistant · DIY suitability · local companies · quote & contract tools</b></span><strong>$4.99 one-time →</strong>';
     }
 
     const pro=document.getElementById('pro-package');
@@ -132,7 +132,7 @@ Thank you.`;
       const title=pro.querySelector('#proPackageTitle');
       const intro=pro.querySelector('.pro-package-head p');
       const status=pro.querySelector('.pro-status');
-      if(title)title.textContent='Everything Pro unlocks for $9.99 one-time.';
+      if(title)title.textContent='Everything Pro unlocks for $4.99 one-time.';
       if(intro)intro.textContent='See repair options, understand DIY suitability, ask the AI Repair Assistant, compare local companies and check quotes before you spend.';
       if(status)status.textContent='Secure one-time checkout · no monthly subscription';
       const list=pro.querySelector('.plan-card.pro .plan-list');
@@ -163,9 +163,9 @@ Thank you.`;
       section.innerHTML=`
         <div class="pro-value-top">
           <div><span class="eyebrow">EVERYTHING INCLUDED IN REPAIRCOSTMATCH PRO</span><h2 id="proValueTitle">Know more before you repair, hire or sign.</h2><p>Pro combines repair planning, AI help, DIY screening, local company data and quote safeguards in one place so you can make a more informed next move.</p></div>
-          <div class="pro-value-price"><b>$9.99</b><span>one-time · no subscription</span></div>
+          <div class="pro-value-price"><b>$4.99</b><span>one-time · no subscription</span></div>
         </div>
-        <div class="pro-value-actions"><a class="btn primary" href="https://buy.stripe.com/9B64gybqK2HDalT19N1Fe00" rel="nofollow noopener">Unlock Pro · $9.99 one-time →</a><button type="button" class="btn secondary" data-pro-free>Start the free repair check</button></div>
+        <div class="pro-value-actions"><a class="btn primary" href="https://buy.stripe.com/28EcN42Ue81X0Lj6u71Fe01" rel="nofollow noopener">Unlock Pro · $4.99 one-time →</a><button type="button" class="btn secondary" data-pro-free>Start the free repair check</button></div>
         <div class="pro-value-grid">
           <article class="pro-value-card"><b>AI Repair Assistant</b><small>Ask follow-up questions after your repair check using the context of the problem you entered. Higher-risk work is routed to professional-first guidance.</small></article>
           <article class="pro-value-card"><b>Risk + DIY suitability</b><small>See a transparent <strong>0–100 screening score</strong>, whether limited DIY work may be appropriate and clear stop conditions.</small></article>

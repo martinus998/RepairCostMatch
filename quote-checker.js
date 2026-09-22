@@ -44,7 +44,7 @@
   section.id='pro-decision-center';
   section.innerHTML=`
     <div class="pro-suite-head"><div><span class="eyebrow">REPAIRCOSTMATCH PRO WORKSPACE</span><h2>From problem to contractor decision.</h2><p>Check a quote, compare up to three proposals, review contract terms, build a repair plan, keep project documents together and jump to real local company profiles without giving out your phone number first.</p></div><span class="pro-suite-badge">PRO TOOLKIT</span></div>
-    <div class="pro-lock" id="proToolLock"><b>Pro preview:</b> these tools unlock after your one-time Pro purchase is securely verified. Local company search, quote comparison and contract review stay locked until then. <button type="button" class="pro-action primary" id="goToPro">See Pro · $9.99</button></div>
+    <div class="pro-lock" id="proToolLock"><b>Pro preview:</b> these tools unlock after your one-time Pro purchase is securely verified. Local company search, quote comparison and contract review stay locked until then. <button type="button" class="pro-action primary" id="goToPro">See Pro · $4.99</button></div>
     <div class="pro-suite-nav"><button type="button" class="active" data-pro-tab="quote">Quote Analyzer</button><button type="button" data-pro-tab="compare">Compare 3 Quotes</button><button type="button" data-pro-tab="contract">Contract Check</button><button type="button" data-pro-tab="plan">Repair Plan</button><button type="button" data-pro-tab="docs">Docs & Contact</button></div>
     <div class="pro-protected">
       <div class="pro-panel active" data-pro-panel="quote"><div class="pro-card-grid">
@@ -75,7 +75,7 @@
   let latest=null,planText='',sessionDocs=[];
 
   function isPro(){return document.documentElement.dataset.proAccess==='active';}
-  function syncGate(){section.classList.toggle('locked',!isPro());$('proToolLock').innerHTML=isPro()?'<b>Pro access verified.</b> Your decision tools and local company workflow are unlocked.':'<b>Pro preview:</b> these tools unlock after your one-time Pro purchase is securely verified. Local company search, quote comparison and contract review stay locked until then. <button type="button" class="pro-action primary" id="goToPro">See Pro · $9.99</button>';}
+  function syncGate(){section.classList.toggle('locked',!isPro());$('proToolLock').innerHTML=isPro()?'<b>Pro access verified.</b> Your decision tools and local company workflow are unlocked.':'<b>Pro preview:</b> these tools unlock after your one-time Pro purchase is securely verified. Local company search, quote comparison and contract review stay locked until then. <button type="button" class="pro-action primary" id="goToPro">See Pro · $4.99</button>';}
   syncGate();window.addEventListener('rcm:pro-access',syncGate);
 
   document.addEventListener('click',e=>{if(e.target.id==='goToPro')document.getElementById('pro-package')?.scrollIntoView({behavior:'smooth',block:'start'});const tab=e.target.closest('[data-pro-tab]');if(tab){section.querySelectorAll('[data-pro-tab]').forEach(b=>b.classList.toggle('active',b===tab));section.querySelectorAll('[data-pro-panel]').forEach(p=>p.classList.toggle('active',p.dataset.proPanel===tab.dataset.proTab));}});

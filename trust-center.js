@@ -40,7 +40,7 @@
           </ul>
         </article>
         <article class="plan-card pro">
-          <div class="plan-card-head"><b>RepairCostMatch Pro</b><span>$9.99 ONE-TIME</span></div>
+          <div class="plan-card-head"><b>RepairCostMatch Pro</b><span>$4.99 ONE-TIME</span></div>
           <ul class="plan-list">
             <li>Local companies matched to your ZIP and repair type</li>
             <li>Estimated project range for each listed provider when enough pricing data is available</li>
@@ -152,6 +152,6 @@
       return false;
     }catch(_){if(localStorage.getItem(TOKEN_KEY)!==token)return false;delete document.documentElement.dataset.proAccess;delete pro.dataset.proAccess;setStatus('Could not verify saved access. Your purchase is saved. Please do not pay again.','warn');return false;}
   }
-  if(billingTest){const a=document.createElement('a');a.className='pro-test-pay';a.href=TEST_CHECKOUT;a.rel='nofollow';a.textContent='TEST secure checkout · $9.99';actions.appendChild(a);}
+  if(billingTest){const a=document.createElement('a');a.className='pro-test-pay';a.href=TEST_CHECKOUT;a.rel='nofollow';a.textContent='TEST secure checkout · $4.99';actions.appendChild(a);}
   (async()=>{const verified=await verifyReturn();if(!verified)await checkStored();})();
 })();
