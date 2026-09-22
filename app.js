@@ -92,7 +92,7 @@
     const el=e.target?.closest?.('button,a');if(!el)return;
     if(el.classList?.contains('js-start')||el.classList?.contains('js-problem'))send('rcm_repair_check_start');
     if(el.classList?.contains('js-show-pro'))send('rcm_pro_interest');
-    if(el.matches?.('a[href*="buy.stripe.com"]'))send('begin_checkout',{currency:'USD',value:9.99,product:'repaircostmatch_pro'});
+    if(el.matches?.('a[href*="buy.stripe.com"]'))send('begin_checkout',{currency:'USD',value:4.99,product:'repaircostmatch_pro'});
     if(el.id==='providerSearch')send('rcm_provider_search');
     if(el.hasAttribute?.('data-provider-compare'))send('rcm_provider_compare_select');
     if(el.id==='compareProviders')send('rcm_provider_compare_open');
