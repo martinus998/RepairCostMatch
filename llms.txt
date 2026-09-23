@@ -2,6 +2,8 @@
 > RepairCostMatch helps homeowners understand repair scope, compare planning costs, review contractor quotes and prepare better questions before hiring.
 
 ## Main tools
+- https://repaircostmatch.com/quote-scope-diff.html
+- https://repaircostmatch.com/repair-quote-budget.html
 - https://repaircostmatch.com/foundation-repair-cost-calculator.html
 - https://repaircostmatch.com/foundation-repair-quote-checker.html
 - https://repaircostmatch.com/foundation-repair-quote-comparison-calculator.html
