@@ -1,0 +1,37 @@
+# RepairCostMatch
+> RepairCostMatch helps homeowners understand repair scope, compare planning costs, review contractor quotes and prepare better questions before hiring.
+
+## Main tools
+- https://repaircostmatch.com/foundation-repair-cost-calculator.html
+- https://repaircostmatch.com/foundation-repair-quote-checker.html
+- https://repaircostmatch.com/foundation-repair-quote-comparison-calculator.html
+- https://repaircostmatch.com/free-foundation-repair-tools.html
+
+## Quote decision guides
+- https://repaircostmatch.com/is-my-foundation-repair-quote-too-high.html
+- https://repaircostmatch.com/foundation-repair-second-opinion.html
+- https://repaircostmatch.com/basement-waterproofing-quote-too-high.html
+- https://repaircostmatch.com/crawl-space-encapsulation-quote-too-high.html
+
+## Core cost guides
+- https://repaircostmatch.com/foundation-repair-cost.html
+- https://repaircostmatch.com/foundation-repair-cost-per-pier.html
+- https://repaircostmatch.com/basement-waterproofing-cost.html
+- https://repaircostmatch.com/crawl-space-repair-cost.html
+- https://repaircostmatch.com/crawl-space-encapsulation-cost.html
+- https://repaircostmatch.com/foundation-inspection-cost.html
+- https://repaircostmatch.com/structural-engineer-foundation-cost.html
+
+## Problem-first guides
+- https://repaircostmatch.com/foundation-settling-signs.html
+- https://repaircostmatch.com/foundation-cracks.html
+- https://repaircostmatch.com/water-in-basement-after-rain.html
+- https://repaircostmatch.com/bowing-basement-wall.html
+
+## Methodology and editorial standards
+- https://repaircostmatch.com/methodology.html
+- https://repaircostmatch.com/editorial-policy.html
+- https://repaircostmatch.com/disclosure.html
+
+## Important limitations
+RepairCostMatch provides educational planning information, not structural engineering advice, a contractor diagnosis, a guaranteed local price, or a contractor ranking.
