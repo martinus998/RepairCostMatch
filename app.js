@@ -1,7 +1,7 @@
 // Private near-real-time owner dashboard tracking.
 (function(){
   const s=document.createElement('script');
-  s.src='repair-live-tracker.js?v=20260917-live1';
+  s.src='repair-live-tracker.js?v=20260924-funnel1';
   s.defer=true;
   document.head.appendChild(s);
 })();
