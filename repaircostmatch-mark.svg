@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 320" fill="none" role="img" aria-labelledby="title desc">
+  <title id="title">RepairCostMatch home and foundation mark</title>
+  <desc id="desc">A house above a measured, orange foundation.</desc>
+  <path d="M38 141 160 45l122 96" stroke="#8FE7FF" stroke-width="17" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M68 143v94h184v-94" stroke="#F1FBFF" stroke-width="13" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M120 176h80M120 203h55" stroke="#8FE7FF" stroke-width="11" stroke-linecap="round"/>
+  <path d="M54 243h212" stroke="#FF8A3C" stroke-width="18" stroke-linecap="round"/>
+  <path d="M78 280h164M78 267v26M242 267v26" stroke="#8FE7FF" stroke-width="7" stroke-linecap="round"/>
+</svg>
