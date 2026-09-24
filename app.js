@@ -83,7 +83,11 @@
 
 // Conversion funnel measurement. Sends only fixed event names and coarse feature labels to GA4.
 (function(){
-  const send=(name,params={})=>{if(typeof window.gtag!=='function')return;try{window.gtag('event',name,{...params,page_path:location.pathname});}catch(_){}};
+  const send=(name,params={})=>{
+    if(typeof window.gtag==='function')try{window.gtag('event',name,{...params,page_path:location.pathname});}catch(_){}
+    const map={rcm_repair_check_start:'tool_start',rcm_repair_result_view:'result_view',rcm_pro_interest:'pro_interest',begin_checkout:'checkout_start'};
+    if(map[name]&&typeof window.rcmLiveEvent==='function')void window.rcmLiveEvent(map[name]);
+  };
   const once=(key,fn)=>{try{if(sessionStorage.getItem(key)==='1')return;sessionStorage.setItem(key,'1');}catch(_){}fn();};
 
   if(location.pathname==='/'||location.pathname.endsWith('/index.html'))once('rcm_home_view_v1',()=>send('rcm_home_view'));
