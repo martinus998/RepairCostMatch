@@ -25,6 +25,10 @@
     return {referrer_host,utm_source:(qs.get('utm_source')||'').slice(0,120),utm_medium:(qs.get('utm_medium')||'').slice(0,120),utm_campaign:(qs.get('utm_campaign')||'').slice(0,160)};
   }
 
+  window.rcmLiveEvent=async function(event){
+    try{await fetch(endpoint,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({site,visitor_id:visitorId,session_id:sessionId,path:location.pathname,event})});}catch{}
+  };
+
   async function ping(pageview=false){
     if(document.visibilityState==='hidden'&&!pageview)return;
     if(!pageview&&Date.now()-lastActivity>60000)return;
