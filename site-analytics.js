@@ -102,3 +102,13 @@
     document.head.appendChild(live);
   }
 })();
+
+// Independent presentation module, including for owner devices.
+// Google Pay is not advertised until enabled on this site's own Stripe account.
+(() => {
+  if (document.querySelector('script[data-fast-checkout-labels]')) return;
+  const wallets = document.createElement('script');
+  wallets.src = '/fast-checkout-labels.js?v=20260925-wallets1';
+  wallets.dataset.fastCheckoutLabels = '1';
+  document.head.append(wallets);
+})();
