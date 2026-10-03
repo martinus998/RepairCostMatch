@@ -124,7 +124,7 @@ Thank you.`;
   function mountProValue(){
     const heroLink=document.querySelector('.hero-pro-link');
     if(heroLink){
-      heroLink.innerHTML='<span><span>REPAIRCOSTMATCH PRO</span><b>DIY suitability · local companies · quote & contract tools</b></span><strong>$1.99 one-time →</strong>';
+      heroLink.innerHTML='<span><span>REPAIRCOSTMATCH PRO</span><b>AI repair assistant · local companies · quote & contract tools</b></span><strong>$1.99 one-time →</strong>';
     }
 
     const pro=document.getElementById('pro-package');
@@ -133,12 +133,12 @@ Thank you.`;
       const intro=pro.querySelector('.pro-package-head p');
       const status=pro.querySelector('.pro-status');
       if(title)title.textContent='Everything Pro unlocks for $1.99 one-time.';
-      if(intro)intro.textContent='See repair options, understand DIY suitability, compare local companies and check quotes before you spend.';
+      if(intro)intro.textContent='Ask the AI Repair Assistant, understand DIY suitability, compare local companies and check quotes before you spend.';
       if(status)status.textContent='Secure one-time checkout · no monthly subscription';
       const list=pro.querySelector('.plan-card.pro .plan-list');
-      if(list)list.innerHTML='<li>DIY materials, tools and conservative preparation steps</li><li>0–100 risk screening score and DIY suitability guidance</li><li>Repair routes, planning cost ranges and materials budget for appropriate minor tasks</li><li>Local companies matched to ZIP and repair type</li><li>Address, phone, website, map, ratings, reviews and distance when available</li><li>Compare up to 3 local providers side by side</li><li>Quote Analyzer plus comparison of up to 3 contractor quotes</li><li>Contract Check for deposit, scope, warranty and timeline red flags</li><li>Personalized Repair Plan, questions to ask and documents to request</li><li>Project history plus save/share summaries</li>';
+      if(list)list.innerHTML='<li>AI Repair Assistant plus DIY materials, tools and conservative preparation steps</li><li>0–100 risk screening score and DIY suitability guidance</li><li>Repair routes, planning cost ranges and materials budget for appropriate minor tasks</li><li>Local companies matched to ZIP and repair type</li><li>Address, phone, website, map, ratings, reviews and distance when available</li><li>Compare up to 3 local providers side by side</li><li>Quote Analyzer plus comparison of up to 3 contractor quotes</li><li>Contract Check for deposit, scope, warranty and timeline red flags</li><li>Personalized Repair Plan, questions to ask and documents to request</li><li>Project history plus save/share summaries</li>';
       const grid=pro.querySelector('.pro-feature-grid');
-      if(grid)grid.innerHTML='<div class="pro-feature"><b>Safe preparation</b><small>Review conservative next steps and clear stop conditions. AI chat is not included in the $1.99 package.</small></div><div class="pro-feature"><b>DIY suitability</b><small>See a screening score, whether limited DIY may be appropriate, and when professional evaluation comes first.</small></div><div class="pro-feature"><b>Local company match</b><small>Find relevant companies by ZIP and repair type with source-backed contact and rating fields when available.</small></div><div class="pro-feature"><b>Provider comparison</b><small>Compare up to 3 companies by available rating, reviews, distance, service fit and verified fields.</small></div><div class="pro-feature"><b>Quote + Contract tools</b><small>Check price against planning ranges, compare quotes and flag deposit, warranty, scope or timing issues.</small></div><div class="pro-feature"><b>Repair Plan</b><small>Keep next steps, questions, documents, project notes and save/share summaries together.</small></div>';
+      if(grid)grid.innerHTML='<div class="pro-feature"><b>AI Repair Assistant</b><small>Review conservative next steps and clear stop conditions. Ask the included AI Repair Assistant about your repair profile.</small></div><div class="pro-feature"><b>DIY suitability</b><small>See a screening score, whether limited DIY may be appropriate, and when professional evaluation comes first.</small></div><div class="pro-feature"><b>Local company match</b><small>Find relevant companies by ZIP and repair type with source-backed contact and rating fields when available.</small></div><div class="pro-feature"><b>Provider comparison</b><small>Compare up to 3 companies by available rating, reviews, distance, service fit and verified fields.</small></div><div class="pro-feature"><b>Quote + Contract tools</b><small>Check price against planning ranges, compare quotes and flag deposit, warranty, scope or timing issues.</small></div><div class="pro-feature"><b>Repair Plan</b><small>Keep next steps, questions, documents, project notes and save/share summaries together.</small></div>';
     }
 
     if(!document.getElementById('proValueStyle')){
@@ -167,7 +167,7 @@ Thank you.`;
         </div>
         <div class="pro-value-actions"><a class="btn primary" href="/checkout.html" rel="nofollow noopener">Unlock Pro · $1.99 one-time →</a><button type="button" class="btn secondary" data-pro-free>Start the free repair check</button></div>
         <div class="pro-value-grid">
-          <article class="pro-value-card"><b>Safe preparation</b><small>Materials, tools and conservative next steps. AI chat is not included in the $1.99 package.</small></article>
+          <article class="pro-value-card"><b>AI Repair Assistant</b><small>Materials, tools and conservative next steps. Ask the included AI Repair Assistant about your repair profile.</small></article>
           <article class="pro-value-card"><b>Risk + DIY suitability</b><small>See a transparent <strong>0–100 screening score</strong>, whether limited DIY work may be appropriate and clear stop conditions.</small></article>
           <article class="pro-value-card"><b>Repair options + costs</b><small>See likely repair routes, broad planning ranges and, for appropriate minor tasks, rough materials, tools, time and DIY materials budget.</small></article>
           <article class="pro-value-card"><b>Local companies by ZIP</b><small>Match relevant companies to your ZIP and repair type instead of searching blindly.</small></article>
@@ -185,7 +185,7 @@ Thank you.`;
     }
 
     const upsell=document.querySelector('.result-pro-upsell ul');
-    if(upsell)upsell.innerHTML='<li>DIY materials, tools and conservative preparation steps</li><li>0–100 risk screening + DIY suitability</li><li>Repair options, planning costs, materials and tools for appropriate minor tasks</li><li>Local companies matched to ZIP and repair type</li><li>Phone, address, website, map, ratings and reviews when available</li><li>Compare up to 3 local providers</li><li>Quote Analyzer + compare up to 3 contractor quotes</li><li>Contract Check for deposit, scope, warranty and timeline red flags</li><li>Personal Repair Plan, questions and documents to request</li><li>Project history plus save/share summaries</li>';
+    if(upsell)upsell.innerHTML='<li>AI Repair Assistant plus DIY materials, tools and conservative preparation steps</li><li>0–100 risk screening + DIY suitability</li><li>Repair options, planning costs, materials and tools for appropriate minor tasks</li><li>Local companies matched to ZIP and repair type</li><li>Phone, address, website, map, ratings and reviews when available</li><li>Compare up to 3 local providers</li><li>Quote Analyzer + compare up to 3 contractor quotes</li><li>Contract Check for deposit, scope, warranty and timeline red flags</li><li>Personal Repair Plan, questions and documents to request</li><li>Project history plus save/share summaries</li>';
   }
 
   if(document.readyState==='loading')window.addEventListener('DOMContentLoaded',()=>setTimeout(mountProValue,0));

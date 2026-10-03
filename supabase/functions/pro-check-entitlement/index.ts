@@ -78,5 +78,5 @@ Deno.serve(async (req: Request) => {
   try { valid=await verifiedEntitlement(data); } catch { return json({error:'verification_unavailable'},503,origin); }
 
   if (!valid) return json({ active: false }, 200, origin);
-  return json({ active: true, tier: "pro", environment: "live", ai_available: data.payment_link_id === LEGACY_PAYMENT_LINK && data.amount_total === LEGACY_AMOUNT }, 200, origin);
+  return json({ active: true, tier: "pro", environment: "live", ai_available: true }, 200, origin);
 });

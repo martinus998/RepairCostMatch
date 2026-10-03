@@ -32,7 +32,7 @@ jobs:
           node --check billing-live.js
           node --check sw.js
       - name: Verify saved Pro access survives temporary failures
-        run: node --test tests/pro-access.test.mjs tests/checkout-entitlement.test.mjs
+        run: node --test tests/pro-access.test.mjs tests/checkout-entitlement.test.mjs tests/ai-access.test.mjs
       - name: Validate launch files and internal links
         shell: bash
         run: |

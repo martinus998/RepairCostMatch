@@ -107,7 +107,7 @@ Deno.serve(async (req: Request) => {
     const stillActive = existing.status === "active" &&
       eligibleOffer(existing.payment_link_id, existing.amount_total) &&
       existing.currency === EXPECTED_CURRENCY;
-    if(stillActive&&ownerReceipt&&existing.entitlement_token_hash===await sha256(ownerReceipt))return json({ok:true,entitlement_token:ownerReceipt,tier:'pro',environment:'live'},200,origin);
+    if(stillActive&&ownerReceipt&&existing.entitlement_token_hash===await sha256(ownerReceipt))return json({ok:true,entitlement_token:ownerReceipt,tier:'pro',environment:'live',ai_available:true},200,origin);
     return stillActive
       ? json({ error: "already_verified", active: true }, 409, origin)
       : json({ error: "payment_not_eligible" }, 403, origin);
@@ -136,6 +136,6 @@ Deno.serve(async (req: Request) => {
     return json({ error: "entitlement_write_failed" }, 500, origin);
   }
 
-  return json({ ok: true, entitlement_token: token, tier: "pro", environment: "live" }, 200, origin);
+  return json({ ok: true, entitlement_token: token, tier: "pro", environment: "live", ai_available: true }, 200, origin);
 });
 
