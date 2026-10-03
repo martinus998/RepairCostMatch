@@ -1,3 +1,4 @@
+import {eligibleOffer, verifiedEntitlement, paymentProof, NEW_OFFER} from "../_shared/pro-offers.mjs";
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "npm:@supabase/supabase-js@2";
 
@@ -7,9 +8,12 @@ const ALLOWED_ORIGINS = new Set([
   "https://www.repaircostmatch.com",
   "https://martinus998.github.io",
 ]);
-const EXPECTED_PAYMENT_LINK = "plink_1UFMsNBGKCKsYnS9SdXaKFIG";
-const EXPECTED_AMOUNT = 999;
+const PRIMARY_PAYMENT_LINK = "plink_1UIa4hBGKCKsYnS9JtgDtzB6";
+const PRIMARY_AMOUNT = 499;
+const LEGACY_PAYMENT_LINK = "plink_1UFMsNBGKCKsYnS9SdXaKFIG";
+const LEGACY_AMOUNT = 999;
 const EXPECTED_CURRENCY = "usd";
+
 
 function allowedOrigin(origin: string | null) {
   return origin && ALLOWED_ORIGINS.has(origin) ? origin : PRIMARY_ORIGIN;
@@ -40,38 +44,51 @@ async function sha256(value: string) {
 
 Deno.serve(async (req: Request) => {
   const origin = req.headers.get("origin");
-  if (req.method === "OPTIONS") return new Response("ok", { headers: cors(origin) });
+  if (req.method === "OPTIONS") {
+    if (!origin || !ALLOWED_ORIGINS.has(origin)) return new Response(null, { status: 403 });
+    return new Response("ok", { headers: cors(origin) });
+  }
   if (req.method !== "POST") return json({ error: "method_not_allowed" }, 405, origin);
-  if (origin && !ALLOWED_ORIGINS.has(origin)) return json({ error: "origin_not_allowed" }, 403, origin);
+  if (!origin || !ALLOWED_ORIGINS.has(origin)) return json({ error: "origin_not_allowed" }, 403, origin);
 
   const publishableKeys = JSON.parse(Deno.env.get("SUPABASE_PUBLISHABLE_KEYS") || "{}");
   const expectedPublicKey = publishableKeys["default"];
   const suppliedKey = req.headers.get("apikey");
   if (!expectedPublicKey || !suppliedKey || suppliedKey !== expectedPublicKey) return json({ error: "unauthorized" }, 401, origin);
 
-  let payload: { session_id?: string } = {};
-  try { payload = await req.json(); } catch { return json({ error: "invalid_json" }, 400, origin); }
+  const contentLength = Number(req.headers.get("content-length") || "0");
+  if (Number.isFinite(contentLength) && contentLength > 2048) return json({ error: "request_too_large" }, 413, origin);
+  let payload: { session_id?: string; order_token?: string } = {};
+  try {
+    const raw = await req.text();
+    if (raw.length > 2048) return json({ error: "request_too_large" }, 413, origin);
+    payload = JSON.parse(raw);
+  } catch { return json({ error: "invalid_json" }, 400, origin); }
   const sessionId = String(payload.session_id || "").trim();
   if (!/^cs_live_[A-Za-z0-9_]+$/.test(sessionId)) return json({ error: "invalid_session" }, 400, origin);
 
-  const stripeSecret = Deno.env.get("STRIPE_LIVE_RESTRICTED_KEY");
-  if (!stripeSecret || !stripeSecret.startsWith("rk_live_")) return json({ error: "billing_not_configured" }, 503, origin);
-
-  const stripeRes = await fetch(`https://api.stripe.com/v1/checkout/sessions/${encodeURIComponent(sessionId)}`, {
-    headers: { "Authorization": `Bearer ${stripeSecret}` },
-  });
-  if (!stripeRes.ok) return json({ error: "stripe_verification_failed" }, 400, origin);
-  const session = await stripeRes.json();
+  let session:any;
+  if(payload.order_token) {
+    if(!/^[a-f0-9]{64}$/.test(payload.order_token))return json({error:'invalid_access'},403,origin);
+    try {
+      const proof=await paymentProof(sessionId,payload.order_token);
+      if(!proof.ok||proof.status!=='paid'||proof.session_id!==sessionId||proof.amount!==199||proof.currency!=='usd'||proof.offer_marker!==NEW_OFFER)return json({error:'payment_not_eligible'},403,origin);
+      session={id:sessionId,livemode:true,status:'complete',payment_status:'paid',mode:'payment',payment_link:NEW_OFFER,amount_total:199,currency:'usd',payment_intent:proof.payment_intent};
+    } catch {return json({error:'payment_verification_unavailable'},503,origin);}
+  } else {
+    const stripeSecret=Deno.env.get('STRIPE_LIVE_RESTRICTED_KEY');
+    if(!stripeSecret?.startsWith('rk_live_'))return json({error:'billing_not_configured'},503,origin);
+    const stripeRes=await fetch(`https://api.stripe.com/v1/checkout/sessions/${encodeURIComponent(sessionId)}`,{headers:{Authorization:`Bearer ${stripeSecret}`},signal:AbortSignal.timeout(10000)});
+    if(!stripeRes.ok)return json({error:'stripe_verification_failed'},400,origin);
+    session=await stripeRes.json();
+  }
 
   const valid = session?.livemode === true &&
     session?.status === "complete" &&
     session?.payment_status === "paid" &&
     session?.mode === "payment" &&
-    session?.payment_link === EXPECTED_PAYMENT_LINK &&
-    session?.amount_total === EXPECTED_AMOUNT &&
-    session?.currency === EXPECTED_CURRENCY &&
-    session?.metadata?.project === "RepairCostMatch" &&
-    session?.metadata?.tier === "pro";
+    eligibleOffer(session?.payment_link, session?.amount_total) &&
+    session?.currency === EXPECTED_CURRENCY;
   if (!valid) return json({ error: "payment_not_eligible" }, 403, origin);
 
   const secretKeys = JSON.parse(Deno.env.get("SUPABASE_SECRET_KEYS") || "{}");
@@ -81,21 +98,22 @@ Deno.serve(async (req: Request) => {
 
   const { data: existing, error: existingError } = await supabase
     .from("pro_entitlements")
-    .select("status,payment_link_id,amount_total,currency")
+    .select("status,payment_link_id,amount_total,currency,stripe_checkout_session_id,entitlement_token_hash")
     .eq("stripe_checkout_session_id", sessionId)
     .maybeSingle();
   if (existingError) return json({ error: "entitlement_lookup_failed" }, 500, origin);
+  const ownerReceipt=payload.order_token?b64url(new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode('rcm-receipt:'+sessionId+':'+payload.order_token)))):null;
   if (existing) {
     const stillActive = existing.status === "active" &&
-      existing.payment_link_id === EXPECTED_PAYMENT_LINK &&
-      existing.amount_total === EXPECTED_AMOUNT &&
+      eligibleOffer(existing.payment_link_id, existing.amount_total) &&
       existing.currency === EXPECTED_CURRENCY;
+    if(stillActive&&ownerReceipt&&existing.entitlement_token_hash===await sha256(ownerReceipt))return json({ok:true,entitlement_token:ownerReceipt,tier:'pro',environment:'live'},200,origin);
     return stillActive
       ? json({ error: "already_verified", active: true }, 409, origin)
       : json({ error: "payment_not_eligible" }, 403, origin);
   }
 
-  const token = b64url(crypto.getRandomValues(new Uint8Array(32)));
+  const token = ownerReceipt || b64url(crypto.getRandomValues(new Uint8Array(32)));
   const tokenHash = await sha256(token);
   const email = String(session?.customer_details?.email || "").trim().toLowerCase();
   const emailHash = email ? await sha256(email) : null;
@@ -120,3 +138,4 @@ Deno.serve(async (req: Request) => {
 
   return json({ ok: true, entitlement_token: token, tier: "pro", environment: "live" }, 200, origin);
 });
+

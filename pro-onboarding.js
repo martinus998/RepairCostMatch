@@ -64,3 +64,4 @@
   const band=document.getElementById('resultBand');if(band)new MutationObserver(render).observe(band,{childList:true,subtree:true,characterData:true});
   setTimeout(render,0);
 })();
+

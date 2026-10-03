@@ -3,7 +3,7 @@
 
   const VERIFY_URL='https://vmtbydmhccmztnfedwpi.supabase.co/functions/v1/pro-verify-payment';
   const CHECK_URL='https://vmtbydmhccmztnfedwpi.supabase.co/functions/v1/pro-check-entitlement';
-  const LIVE_CHECKOUT='https://buy.stripe.com/28EcN42Ue81X0Lj6u71Fe01';
+  const LIVE_CHECKOUT='/checkout.html';
   const TOKEN_KEY='rcm_pro_entitlement_v1';
   const ACTIVE_RECHECK_MS=60000;
 
@@ -59,6 +59,9 @@
   const packageStatus=pro.querySelector('.pro-status');
   if(packageStatus)packageStatus.textContent='Secure Stripe checkout';
 
+  let qrLink=pro.querySelector('.qr-entry');
+  if(!qrLink&&actions){qrLink=document.createElement('a');qrLink.className='qr-entry';qrLink.href='/checkout.html?method=qr';qrLink.textContent='Pay by QR · $1.99';actions.appendChild(qrLink);}
+
   function removeLegacyTestLinks(){
     pro.querySelectorAll('a.pro-test-pay').forEach(a=>{if((a.getAttribute('href')||'').includes('buy.stripe.com/test_'))a.remove();});
   }
@@ -70,7 +73,7 @@
     payLink.className='pro-test-pay pro-live-pay';
     payLink.href=LIVE_CHECKOUT;
     payLink.rel='nofollow noopener';
-    payLink.textContent='Secure checkout · $4.99';
+    payLink.textContent='Secure checkout · $1.99';
     actions.appendChild(payLink);
   }
 
@@ -254,16 +257,17 @@
     let data={};try{data=await res.json();}catch(_){data={};}return {res,data};
   }
 
-  function markActive(){
+  function markActive(data={}){
+    document.documentElement.dataset.aiAccess=data.ai_available===true?'active':'unavailable';
     document.documentElement.dataset.proAccess='active';pro.dataset.proAccess='active';
     const badge=pro.querySelector('.pro-package-badge');if(badge)badge.textContent='PRO ACCESS VERIFIED';
-    if(payLink&&payLink.isConnected)payLink.remove();if(packageStatus)packageStatus.textContent='Pro access verified';
+    if(payLink&&payLink.isConnected)payLink.remove();if(qrLink&&qrLink.isConnected)qrLink.remove();if(packageStatus)packageStatus.textContent='Pro access verified';
     window.dispatchEvent(new CustomEvent('rcm:pro-access',{detail:{active:true}}));setTimeout(renderProResult,0);
   }
   function markInactive(){
     delete document.documentElement.dataset.proAccess;delete pro.dataset.proAccess;document.getElementById('proResultDetail')?.remove();
     const badge=pro.querySelector('.pro-package-badge');if(badge)badge.textContent='ONE-TIME PACKAGE';
-    if(actions&&payLink&&!payLink.isConnected)actions.appendChild(payLink);if(packageStatus)packageStatus.textContent='Secure Stripe checkout';
+    if(actions&&payLink&&!payLink.isConnected)actions.appendChild(payLink);if(actions&&qrLink&&!qrLink.isConnected)actions.appendChild(qrLink);if(packageStatus)packageStatus.textContent='Secure Stripe checkout';
     window.dispatchEvent(new CustomEvent('rcm:pro-access',{detail:{active:false}}));
   }
   function cleanReturnParams(){const u=new URL(location.href);u.searchParams.delete('pro_live');u.searchParams.delete('session_id');u.searchParams.delete('billing_test');u.searchParams.delete('pro_test');history.replaceState({},'',u.pathname+(u.search||'')+(u.hash||''));}
@@ -279,7 +283,7 @@
     }catch(_){}
     if(!returned||!/^cs_live_[A-Za-z0-9_]+$/.test(sessionId))return false;
     setStatus('Verifying payment securely…');
-    try{const {res,data}=await post(VERIFY_URL,{session_id:sessionId});if(res.ok&&data.ok&&data.entitlement_token){localStorage.setItem(TOKEN_KEY,data.entitlement_token);try{sessionStorage.removeItem('rcm.pending-pro-return');}catch(_){}markActive();window.dispatchEvent(new CustomEvent('rcm:purchase-verified'));setStatus('Pro payment verified securely.','ok');cleanReturnParams();return true;}markInactive();setStatus('Payment could not be verified. Pro remains locked.','warn');}
+    try{const {res,data}=await post(VERIFY_URL,{session_id:sessionId,...(()=>{try{const owner=JSON.parse(localStorage.getItem('rcm.checkout-owner.v1')||'null');return owner?.session_id===sessionId?{order_token:owner.token}:{};}catch{return {};}})()});if(res.ok&&data.ok&&data.entitlement_token){localStorage.setItem(TOKEN_KEY,data.entitlement_token);localStorage.removeItem('rcm.checkout-owner.v1');sessionStorage.removeItem('repaircostmatch.qr.v1');sessionStorage.removeItem('repaircostmatch.checkout-request.v1');try{sessionStorage.removeItem('rcm.pending-pro-return');}catch(_){}markActive(data);window.dispatchEvent(new CustomEvent('rcm:purchase-verified'));setStatus('Pro payment verified securely.','ok');cleanReturnParams();return true;}markInactive();setStatus('Payment could not be verified. Pro remains locked.','warn');}
     catch(_){markInactive();setStatus('Secure payment verification is temporarily unavailable. Pro remains locked.','warn');}
     return false;
   }
@@ -293,17 +297,17 @@
       const {res,data}=await post(CHECK_URL,{entitlement_token:token});
       // A concurrent payment verification may have replaced this receipt.
       if(localStorage.getItem(TOKEN_KEY)!==token)return false;
-      if(res.ok&&data.active===true){markActive();setStatus('Pro access verified.','ok');return true;}
+      if(res.ok&&data.active===true){markActive(data);setStatus('Pro access verified.','ok');return true;}
       markInactive();
       if(res.ok&&data.active===false){
         localStorage.removeItem(TOKEN_KEY);
         setStatus('Saved Pro access is no longer valid. Contact support if you need help.','warn');
       }else{
-        if(payLink&&payLink.isConnected)payLink.remove();
+        if(payLink&&payLink.isConnected)payLink.remove();if(typeof qrLink!=='undefined'&&qrLink?.isConnected)qrLink.remove();
         setStatus('Access verification is temporarily unavailable. Your purchase is saved; we will retry. Please do not pay again.','warn');
       }
     }
-    catch(_){if(localStorage.getItem(TOKEN_KEY)!==token)return false;markInactive();if(payLink&&payLink.isConnected)payLink.remove();setStatus('Access verification is temporarily unavailable. Your purchase is saved; we will retry. Please do not pay again.','warn');}
+    catch(_){if(localStorage.getItem(TOKEN_KEY)!==token)return false;markInactive();if(payLink&&payLink.isConnected)payLink.remove();if(typeof qrLink!=='undefined'&&qrLink?.isConnected)qrLink.remove();setStatus('Access verification is temporarily unavailable. Your purchase is saved; we will retry. Please do not pay again.','warn');}
     finally{entitlementCheckInFlight=false;}
     return false;
   }

@@ -1,3 +1,4 @@
+import {eligibleOffer, verifiedEntitlement, paymentProof, NEW_OFFER} from "../_shared/pro-offers.mjs";
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "npm:@supabase/supabase-js@2";
 
@@ -42,9 +43,12 @@ async function sha256(value: string) {
 Deno.serve(async (req: Request) => {
   const origin = req.headers.get("origin");
   const headers = cors(origin);
-  if (req.method === "OPTIONS") return new Response(null, { status: 204, headers });
+  if (req.method === "OPTIONS") {
+    if (!origin || !ALLOWED_ORIGINS.has(origin)) return new Response(null, { status: 403 });
+    return new Response(null, { status: 204, headers });
+  }
   if (req.method !== "GET") return new Response(JSON.stringify({ error: "Method not allowed" }), { status: 405, headers });
-  if (origin && !ALLOWED_ORIGINS.has(origin)) return new Response(JSON.stringify({ error: "Origin not allowed" }), { status: 403, headers });
+  if (!origin || !ALLOWED_ORIGINS.has(origin)) return new Response(JSON.stringify({ error: "Origin not allowed" }), { status: 403, headers });
 
   const token = (req.headers.get("x-rcm-pro-token") || "").trim();
   if (!/^[A-Za-z0-9_-]{40,80}$/.test(token)) return new Response(JSON.stringify({ error: "Pro access required" }), { status: 401, headers });
@@ -57,11 +61,12 @@ Deno.serve(async (req: Request) => {
 
   const { data: entitlement, error: entitlementError } = await supabase
     .from("pro_entitlements")
-    .select("status,payment_link_id,amount_total,currency")
+    .select("status,payment_link_id,amount_total,currency,stripe_checkout_session_id")
     .eq("entitlement_token_hash", tokenHash)
     .maybeSingle();
   if (entitlementError) return new Response(JSON.stringify({ error: "Access check failed" }), { status: 500, headers });
-  const entitled = !!entitlement && entitlement.status === "active" && entitlement.payment_link_id === LIVE_PAYMENT_LINK && entitlement.amount_total === LIVE_AMOUNT && entitlement.currency === LIVE_CURRENCY;
+  let entitled=false;
+  try { entitled=await verifiedEntitlement(entitlement); } catch { return new Response(JSON.stringify({error:'Access check unavailable'}),{status:503,headers}); }
   if (!entitled) return new Response(JSON.stringify({ error: "Pro access required" }), { status: 403, headers });
 
   const now = new Date();
@@ -91,6 +96,7 @@ Deno.serve(async (req: Request) => {
     method: "POST",
     headers: { "Content-Type": "application/json", "X-Goog-Api-Key": key, "X-Goog-FieldMask": fieldMask },
     body: JSON.stringify({ textQuery: `${service} near ${zip} USA`, languageCode: "en", regionCode: "US", pageSize: 12 }),
+    signal: AbortSignal.timeout(10000),
   });
   if (!google.ok) {
     const detail = await google.text();
@@ -116,3 +122,4 @@ Deno.serve(async (req: Request) => {
 
   return new Response(JSON.stringify({ providers, source: "Google Places", zip, service }), { status: 200, headers });
 });
+

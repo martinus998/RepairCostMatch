@@ -47,11 +47,11 @@
     if (el.matches('.js-start,.js-problem')) {
       track('repair_check_start', { page_path: location.pathname });
     }
-    if (href.includes('buy.stripe.com') || el.matches('.pro-live-pay')) {
+    if (href.includes('buy.stripe.com') || href.startsWith('/checkout.html') || el.matches('.pro-live-pay')) {
       track('begin_checkout', {
         currency: 'USD',
-        value: 4.99,
-        items: [{ item_name: 'RepairCostMatch Pro', price: 4.99, quantity: 1 }]
+        value: 1.99,
+        items: [{ item_name: 'RepairCostMatch Pro', price: 1.99, quantity: 1 }]
       });
     }
     if (el.closest('.provider-card') && (href.startsWith('http') || href.startsWith('tel:'))) {
@@ -88,8 +88,8 @@
     } catch {}
     track('purchase', {
       currency: 'USD',
-      value: 4.99,
-      items: [{ item_name: 'RepairCostMatch Pro', price: 4.99, quantity: 1 }]
+      value: 1.99,
+      items: [{ item_name: 'RepairCostMatch Pro', price: 1.99, quantity: 1 }]
     });
   });
 
