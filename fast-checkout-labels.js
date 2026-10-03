@@ -11,8 +11,8 @@
     const safe = !!q('#checkBtn') && !!q('#modalBody');
     const repair = !!q('#pro-package');
     if (!bill && !auto && !safe && !repair) return;
-    // RepairCostMatch uses a separate account: Google Pay is not enabled there.
-    const methods = repair ? ['Apple Pay', 'Link'] : ['Apple Pay', 'Google Pay'];
+    // New RepairCostMatch checkout uses the shared Stripe account with dynamic wallets.
+    const methods = ['Apple Pay', 'Google Pay'];
     const style = document.createElement('style');
     style.id = 'fast-checkout-labels-style';
     style.textContent = `
